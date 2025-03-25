@@ -1,0 +1,14 @@
+alter table iris.comm_link drop constraint comm_link_comm_config_fkey;
+insert into iris.comm_link VALUES  ('sumo', 'sumo link', 'none', 'true', 'sumo', 'true');
+select * from iris.comm_link;
+alter table iris.comm_config drop constraint comm_config_protocol_fkey;
+insert into iris.comm_config VALUES ('sumo', 'sumo', 47, 1000, 3, 30, 300, 0, 0);
+insert into iris.cabinet_style values ('sumo_fake', 0, 0, 0, 0, 0);
+alter table iris.geo_loc drop constraint geo_loc_resource_n_fkey;
+Insert into iris.road values ('test0', 'test', 0, 0);
+Insert into iris.road values ('test1', 'test', 1, 1);
+Alter table iris.device_preset drop constraint device_preset_preset_fkey;
+insert into iris.device_preset values ('meter', 'ramp_meter', 'meter');
+Alter table iris.r_node drop constraint left_edge_ck;
+Alter table iris.r_node drop constraint right_edge_ck;
+insert into iris.lane_code values ('0', 'normal lane');

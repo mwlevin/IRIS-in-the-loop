@@ -1,0 +1,7 @@
+<configuration>
+   <input>
+      <net-file value="site_trial.net.xml"/>
+      <route-files value="highAV.rou.xml"/>
+      <additional-files value="detectors.xml"/>
+   </input>
+</configuration>

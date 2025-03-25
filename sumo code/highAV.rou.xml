@@ -1,0 +1,83 @@
+<routes>
+
+  // HUMAN VEHICLES - Calibrating Car-Following Models by Using Trajectory Data: Methodological Study
+  // HV_R_ACC are ramp vehicles that start human then will turn ACC after merging
+  <vType id="HV_M" color = 'yellow' length="5" maxSpeed="44.1" carFollowModel="IDM" accel="1.06" decel="1.11" tau="1.26" delta="4" minGap="3.4" lcAssertive = '5' speedFactor = "normc(1, 0.1, 0.2, 2)"/>
+  <vType id="HV_R" color = 'yellow' length="5" maxSpeed="44.1" carFollowModel="IDM" accel="1.06" decel="1.11" tau="1.26" delta="4" minGap="3.4" lcAssertive = '5' speedFactor = "normc(1, 0.1, 0.2, 2)"/>
+  <vType id="HV_R_ACC" color = 'green' length="5" maxSpeed="44.1" carFollowModel="IDM" accel="1.06" decel="1.11" tau="1.26" delta="4" minGap="3.4" lcAssertive = '5' speedFactor = "normc(1, 0.1, 0.2, 2)"/>
+
+  // ACC VEHICLES - Calibrating microscopic car following models for adaptive cruise control vehicles: a multi-objective approach
+  // ACC_AMax_R are what HV_R_ACC turn into (Simulates HVs turning on ACC after merging)
+  <vType id="ACC_AMax_M" color = 'blue' length="5" maxSpeed="44.1" carFollowModel="IDM" accel="0.6" decel="5.2" tau="2.2" delta="15.5" minGap="6.3" lcAssertive = '5' speedFactor = "normc(1, 0.1, 0.2, 2)"/>
+  <vType id="ACC_AMax_R" color = 'white' length="5" maxSpeed="44.1" carFollowModel="IDM" accel="0.6" decel="5.2" tau="2.2" delta="15.5" minGap="6.3" lcAssertive = '1' speedFactor = "normc(1, 0.1, 0.2, 2)"/>
+
+
+  \\ AV VEHICLES - Adaptivecruise control design for active congestion avoidance
+  <vType id="AV_M" color = 'red' length="5" maxSpeed="44.1" carFollowModel="IDM" accel="1.70" decel="2" tau="0.5" delta="4" minGap="2.5" lcAssertive = '5' speedFactor = "normc(1, 0.1, 0.2, 2)"/>
+  <vType id="AV_R" color = 'red' length="5" maxSpeed="44.1" carFollowModel="IDM" accel="1.70" decel="2" tau="0.5" delta="4" minGap="2.5" lcAssertive = '5' speedFactor = "normc(1, 0.1, 0.2, 2)"/>
+
+
+  // 0% MPR (all HV)
+  <flow id="HV_M1" type="HV_M" begin="0" end="600" vehsPerHour = "545" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="ACC_M1" type="ACC_AMax_M" begin="0" end="600" vehsPerHour = "545" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="AV_M1" type="AV_M" begin="0" end="600" vehsPerHour = "1636" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="HV_R1_1" type="HV_R" begin="0" end= "600" vehsPerHour = "82" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R1_1" type="HV_R_ACC" begin="0" end= "600" vehsPerHour = "82" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R1_1" type="AV_R" begin="0" end= "600" vehsPerHour = "245" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="HV_R2_1" type="HV_R" begin="0" end= "600" vehsPerHour = "82" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R2_1" type="HV_R_ACC" begin="0" end= "600" vehsPerHour = "82" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R2_1" type="AV_R" begin="0" end= "600" vehsPerHour = "245" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+
+  <flow id="HV_M2" type="HV_M" begin="600" end="1200" vehsPerHour = "613" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="ACC_M2" type="ACC_AMax_M" begin="600" end="1200" vehsPerHour = "613" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="AV_M2" type="AV_M" begin="600" end="1200" vehsPerHour = "1840" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="HV_R1_2" type="HV_R" begin="600" end= "1200" vehsPerHour = "68" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R1_2" type="HV_R_ACC" begin="600" end= "1200" vehsPerHour = "68" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R1_2" type="AV_R" begin="600" end= "1200" vehsPerHour = "205" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="HV_R2_2" type="HV_R" begin="600" end= "1200" vehsPerHour = "68" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R2_2" type="HV_R_ACC" begin="600" end= "1200" vehsPerHour = "68" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R2_2" type="AV_R" begin="600" end= "1200" vehsPerHour = "205" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+
+
+  <flow id="HV_M3" type="HV_M" begin="1200" end="1800" vehsPerHour = "594" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="ACC_M3" type="ACC_AMax_M" begin="1200" end="1800" vehsPerHour = "594" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="AV_M3" type="AV_M" begin="1200" end="1800" vehsPerHour = "1782" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="HV_R1_3" type="HV_R" begin="1200" end= "1800" vehsPerHour = "82" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R1_3" type="HV_R_ACC" begin="1200" end= "1800" vehsPerHour = "82" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R1_3" type="AV_R" begin="1200" end= "1800" vehsPerHour = "245" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="HV_R2_3" type="HV_R" begin="1200" end= "1800" vehsPerHour = "82" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R2_3" type="HV_R_ACC" begin="1200" end= "1800" vehsPerHour = "82" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R2_3" type="AV_R" begin="1200" end= "1800" vehsPerHour = "245" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+
+
+  <flow id="HV_M4" type="HV_M" begin="1800" end="2400" vehsPerHour = "599" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="ACC_M4" type="ACC_AMax_M" begin="1800" end="2400" vehsPerHour = "599" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="AV_M4" type="AV_M" begin="1800" end="2400" vehsPerHour = "1796" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="HV_R1_4" type="HV_R" begin="1800" end= "2400" vehsPerHour = "65" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R1_4" type="HV_R_ACC" begin="1800" end= "2400" vehsPerHour = "65" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R1_4" type="AV_R" begin="1800" end= "2400" vehsPerHour = "194" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="HV_R2_4" type="HV_R" begin="1800" end= "2400" vehsPerHour = "65" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R2_4" type="HV_R_ACC" begin="1800" end= "2400" vehsPerHour = "65" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R2_4" type="AV_R" begin="1800" end= "2400" vehsPerHour = "194" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+
+  <flow id="HV_M5" type="HV_M" begin="2400" end="3000" vehsPerHour = "579" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="ACC_M5" type="ACC_AMax_M" begin="2400" end="3000" vehsPerHour = "579" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="AV_M5" type="AV_M" begin="2400" end="3000" vehsPerHour = "1737" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="HV_R1_5" type="HV_R" begin="2400" end= "3000" vehsPerHour = "65" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R1_5" type="HV_R_ACC" begin="2400" end= "3000" vehsPerHour = "65" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R1_5" type="AV_R" begin="2400" end= "3000" vehsPerHour = "194" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="HV_R2_5" type="HV_R" begin="2400" end= "3000" vehsPerHour = "65" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R2_5" type="HV_R_ACC" begin="2400" end= "3000" vehsPerHour = "65" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R2_5" type="AV_R" begin="2400" end= "3000" vehsPerHour = "194" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+
+  <flow id="HV_M6" type="HV_M" begin="3000" end="3600" vehsPerHour = "570" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="ACC_M6" type="ACC_AMax_M" begin="3000" end="3600" vehsPerHour = "570" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="AV_M6" type="AV_M" begin="3000" end="3600" vehsPerHour = "1710" from="entry" to="exit" departSpeed="avg" departLane="free"/>
+  <flow id="HV_R1_6" type="HV_R" begin="3000" end= "3600" vehsPerHour = "74" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R1_6" type="HV_R_ACC" begin="3000" end= "3600" vehsPerHour = "74" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R1_6" type="AV_R" begin="3000" end= "3600" vehsPerHour = "223" from="rampStart" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="HV_R2_6" type="HV_R" begin="3000" end= "3600" vehsPerHour = "74" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="ACC_R2_6" type="HV_R_ACC" begin="3000" end= "3600" vehsPerHour = "74" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+  <flow id="AV_R2_6" type="AV_R" begin="3000" end= "3600" vehsPerHour = "223" from="ramp2Start" to="exit" departSpeed="avg" departLane="free" />
+
+</routes>

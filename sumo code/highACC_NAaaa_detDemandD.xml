@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-03-21 12:56:15 by Eclipse SUMO sumo Version 1.21.0
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="site_trial.net.xml"/>
+        <route-files value="highACC.rou.xml"/>
+        <additional-files value="detectors.xml"/>
+    </input>
+
+    <output>
+        <output-prefix value="highACC_NAaaa_"/>
+        <statistic-output value="tripinfo.xml"/>
+    </output>
+
+    <time>
+        <step-length value=".05"/>
+    </time>
+
+    <report>
+        <duration-log.statistics value="true"/>
+    </report>
+
+    <traci_server>
+        <remote-port value="52870"/>
+    </traci_server>
+
+</sumoConfiguration>
+-->
+
+<detector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/det_e1_file.xsd">
+    <interval begin="0.00" end="30.00" id="detDemandD" nVehContrib="1" flow="120.00" occupancy="1.00" speed="16.65" harmonicMeanSpeed="16.65" length="5.00" nVehEntered="1"/>
+    <interval begin="30.00" end="60.00" id="detDemandD" nVehContrib="2" flow="240.00" occupancy="2.46" speed="14.05" harmonicMeanSpeed="13.54" length="5.00" nVehEntered="2"/>
+</detector>

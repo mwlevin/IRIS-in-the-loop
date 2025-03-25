@@ -1,0 +1,15 @@
+[Unit]
+Description=Honeybee service for IRIS
+StartLimitIntervalSec=0
+
+[Service]
+Environment=RUST_LOG=warn
+Environment=PGTZ=US/Central
+WorkingDirectory=/var/lib/iris/web/
+ExecStart=/usr/local/bin/honeybee
+Restart=always
+RestartSec=2
+User=tms
+
+[Install]
+WantedBy=multi-user.target

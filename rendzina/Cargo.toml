@@ -1,0 +1,17 @@
+[package]
+name = "rendzina"
+description = "Library for rendering DMS messages"
+license = "GPL-2.0-or-later"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+fstr = "0.2"
+gift = "0.10"
+log = { workspace = true }
+ntcip = { workspace = true }
+pix = "0.13"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+thiserror = { workspace = true }

@@ -1,0 +1,41 @@
+***Starting server on port 62558 ***
+Loading net-file from 'site_trial.net.xml' ... done (5ms).
+Loading additional-files from 'detectors.xml' ... done (21ms).
+Loading done.
+Simulation version 1.21.0 started with time: 0.00.
+ Retrying in 1 seconds
+connecting to IRIS server  localhost 5452
+
+SUMO step  0 0.0 sec
+received "meter-rate,meter-J3,null"
+received "meter-rate,meter-J9,null"
+
+SUMO step  600 30.0 sec
+detector  detDemandA count= 1 occupancy= 0.894375216289181 as % of 30sec interval
+detector  detDemandB count= 3 occupancy= 2.696331944771623 as % of 30sec interval
+detector  detDown1 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detDown2 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detPass2 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detPass4 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detUp1 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detUp2 count= 0 occupancy= 0.0 as % of 30sec interval
+received "meter-rate,meter-J3,null"
+received "meter-rate,meter-J9,null"
+
+SUMO step  1200 60.0 sec
+detector  detDemandA count= 1 occupancy= 2.710363260002116 as % of 30sec interval
+detector  detDemandB count= 2 occupancy= 2.0090132016920372 as % of 30sec interval
+detector  detDown1 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detDown2 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detPass2 count= 3 occupancy= 7.228455787695568 as % of 30sec interval
+detector  detPass4 count= 2 occupancy= 4.744924068675023 as % of 30sec interval
+detector  detUp1 count= 0 occupancy= 0.0 as % of 30sec interval
+detector  detUp2 count= 0 occupancy= 0.0 as % of 30sec interval
+received ""
+received ""
+
+SUMO step  1800 90.0 sec
+detector  detDemandA count= 1 occupancy= 2.0834552253243053 as % of 30sec interval
+detector  detDemandB count= 3 occupancy= 2.989127810542366 as % of 30sec interval
+Step #0.00 (7ms ~= 7.14*RT, ~857.14UPS, TraCI: 23536ms, vehicles TOT 6 ACT 6 BUF 3)       Step #5.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 11 ACT 11 BUF 1)                     Step #10.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 15 ACT 15 BUF 0)                    Step #15.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 20 ACT 20 BUF 1)                    Step #20.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 24 ACT 24 BUF 1)                    Step #25.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 27 ACT 27 BUF 1)                    Step #30.00 (0ms ?*RT. ?UPS, TraCI: 29897ms, vehicles TOT 35 ACT 35 BUF 1)                Step #35.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 39 ACT 39 BUF 0)                    Step #40.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 44 ACT 44 BUF 1)                    Step #45.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 50 ACT 50 BUF 0)                    Step #50.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 53 ACT 53 BUF 0)                    Step #55.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 57 ACT 57 BUF 1)                    Step #60.00 (1ms ~= 50.00*RT, ~64000.00UPS, TraCI: 2245ms, vehicles TOT 64 ACT 64 BUF 1)  Step #65.00 (1ms ~= 50.00*RT, ~68000.00UPS, TraCI: 0ms, vehicles TOT 68 ACT 68 BUF 0)     Step #70.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 71 ACT 71 BUF 1)                    Step #75.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 77 ACT 77 BUF 2)                    Step #80.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 81 ACT 81 BUF 2)                    Step #85.00 (0ms ?*RT. ?UPS, TraCI: 0ms, vehicles TOT 85 ACT 85 BUF 1)                    Step #90.00DijkstraRouter answered 95 queries and explored 6.73 edges on average.
+DijkstraRouter spent 0.00s answering queries (0.00ms on average).
