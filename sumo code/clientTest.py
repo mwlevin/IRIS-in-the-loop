@@ -45,26 +45,44 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     step = 0
     time_period = 30
     
+    
+    test = True
+    
+    min_red_time = 2 # constant minimum red time for meter
+    green_time = 3 # constant green time for meter
+    
     phase = 'notStarted' # Initial Phase
     phase1 = 'notStarted' # Initial Phase
     phase2 = 'notStarted' # Initial Phase
     
     
-    connection = socket.socket()
-    host = "localhost"
-    port = 5452
+    if not test:
+        connection = socket.socket()
+        host = "localhost"
+        port = 5452
     
-    print("connecting to IRIS server ", host, port);
-    connection.connect((host, port))
+        print("connecting to IRIS server ", host, port);
+        connection.connect((host, port))
     
-
+    lanes = dict()
 
     endStep = 72000 # Time to simulate (0.05 seconds steps)
 
     # this is hardcoded for now
     meters = ["J3", "J9"]
+    lanes["J3"] = "rampStart_0"
+    lanes["J9"] = "ramp2Start_0"
+    
+    
+    
+    
     # detPass1 and detPass3 hvae the same location as detPass2 and detPass 4 but a different period?
     detectors = ["detDemandA", "detDemandB", "detDemandC", "detDemandD", "detMerge1", "detMerge2", "detGreen1", "detGreen2", "detDown1", "detDown2", "detPass2", "detPass4", "detUp1", "detUp2"]
+    
+    
+    
+    
+    
     detectors_abbrv = dict()
     vehIds = dict()
     #counts = dict()
@@ -78,6 +96,21 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
         detectors_abbrv[det] = det.replace("Demand", "Dem").replace("Down", "Do").replace("Pass", "Pa").replace("Green", "Gr").replace("Merge", "Me")
         
     
+    metering_rates = dict()
+    
+    for m in meters:
+        metering_rates[m]  = dict()
+        metering_rates[m]["on"] = False
+        metering_rates[m]["next-green-1"] = -1
+        metering_rates[m]["next-red-1"] = 0
+        metering_rates[m]["next-green-2"] = -1
+        metering_rates[m]["next-red-2"] = 0
+        metering_rates[m]["rate"] = -1
+        metering_rates[m]["green-active-1"] = True
+        metering_rates[m]["green-active-2"] = True
+        metering_rates[m]["phase"] = 0
+        metering_rates[m]["changed"] = False
+        
     # START SIMULATION, RUN FOR SET TIME 
     while step <= endStep:
         
@@ -103,23 +136,190 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                 msg = "det,"+detectors_abbrv[det]+","+str(count)+","+str(occ)
                 #counts[det] = 0
                 #occupancies[det] = 0
-                sendMessage(connection, msg)
+                
+                if not test:
+                    sendMessage(connection, msg)
         
         # wait for meter rates
         for i in range(0, len(meters)):
-            message = readLine(connection)
-            processMessage(message)
+            meter = ""
+            rate = -1
             
+            if not test:
+                message = readLine(connection)
+                meter, rate = processMessage(message)
+            else:
+                meter = meters[i]
+                
+                if step < time_period / stepsize * 1:
+                    rate = -1
+                elif step < time_period / stepsize * 2:
+                    rate = 650
+                elif step < time_period / stepsize * 4:
+                    rate = 300
+                elif step < time_period / stepsize * 6:
+                    rate = 900
+                elif step < time_period / stepsize * 8:
+                    rate = -1
+                elif step < time_period / stepsize * 10:
+                    endStep = step
+            
+            if rate != metering_rates[meter]["rate"]:
+                metering_rates[meter]["rate"] = rate
+                metering_rates[meter]["changed"] = True
+            
+            if test:
+                print("rate changed", meter, metering_rates[meter]["rate"], metering_rates[meter]["changed"])
         
+        
+                
+                
+            
         # progress sim by time_period (probably 30sec)
         for i in range(0, round(time_period/stepsize)):
+            
+
+            # meter timing
+            for m in meters:
+
+                # first step: calculate active phase
+                # second step: update phase
+                
+                
+                
+                # check red times
+                # corner case where red time lane 1 overlaps green start time lane 2
+                
+                for idx in range(1, 3):   
+                    lane = str(idx)
+                          
+                    if step == metering_rates[m]["next-green-"+lane]:
+                        metering_rates[m]["green-active-"+lane] = True
+                        
+                    elif step == metering_rates[m]["next-red-"+lane]:
+                        metering_rates[m]["green-active-"+lane] = False
+                        
+                        # get rate to recalc next times
+                        rate = metering_rates[m]["rate"]
+                            
+                        if rate == -1:
+                            # meter off
+                            # mode supersedes red/green phase status
+                            metering_rates[m]["on"] = False
+                            metering_rates[m]["changed"] = False
+                            
+                        
+                            # recheck meter status at start of next interval
+                            metering_rates[m]["next-red-1"] = step + round(time_period/stepsize) - i
+                            metering_rates[m]["next-red-2"] = step + round(time_period/stepsize) - i
+                            
+                            if test:
+                                print("time ", step * stepsize, "meter off")
+                        else:
+                            # lines so total time is 7200s but next green and red are based on single lane 
+                            headway = 7200/rate
+                            # for example, 3600 vph becomes 2 sec headway. Every 2 seconds, 1 vehicle leaves per lane, equivalent to 1 vehicle every 1 second
+                                
+                            # if rate changes, the reset both meters. The second meter red time needs to be changed so that the 2 meters are equally spaced
+                            # if rate changes from -1 to active, changed = True
+                            if metering_rates[m]["changed"] == True:
+                                metering_rates[m]["changed"] = False
+                                
+                                
+                                # first lane will reset both lanes
+                                
+                                # red interval followed by green
+                                red = max(min_red_time, headway - green_time)
+                                    
+                                metering_rates[m]["next-red-"+lane] = step + round( (red + green_time) / stepsize)
+                                metering_rates[m]["next-green-"+lane] = step + round( (red) / stepsize)
+                                
+                                # turn off green light
+                                metering_rates[m]["green-active-"+lane] = False
+                                
+                                
+                                
+                                otherlane = str(1-idx + 2)
+                                
+                                
+                                # offset second meter by 50%
+                                # take into account existing red status of meter
+                                if metering_rates[m]["on"] == True:
+                                    red = headway * 0.5 - green_time
+                                else:
+                                    red = headway * 1.5 - green_time
+                                
+                                metering_rates[m]["next-red-"+otherlane] = step + round( (red + green_time) / stepsize)
+                                metering_rates[m]["next-green-"+otherlane] = step + round( (red) / stepsize)
+                                
+                                if red < 0:
+                                    # turn on green light
+                                    metering_rates[m]["green-active-"+otherlane] = True
+                                
+                                metering_rates[m]["on"] = True
+                                
+                                if test:
+                                    print("recalc-all", m, round(step * stepsize, 3), "new meter times", rate)
+                                    print("\t lane 1", round(metering_rates[m]["next-green-1"]*stepsize, 3), round(metering_rates[m]["next-red-1"]*stepsize, 3))
+                                    print("\t lane 2", round(metering_rates[m]["next-green-2"]*stepsize, 3), round(metering_rates[m]["next-red-2"]*stepsize, 3))
+                                    
+                            else:
+                                # only recalculate this meter next red and green time
+                                # red interval followed by green
+                                red = max(min_red_time, headway - green_time)
+                                    
+                                metering_rates[m]["next-red-"+lane] = step + round( (red + green_time) / stepsize)
+                                metering_rates[m]["next-green-"+lane] = step + round( (red) / stepsize)
+                                
+                                # turn off green light
+                                metering_rates[m]["green-active-"+lane] = False
+                                
+                                # still in red phase; green is not active
+                                
+                                if test:
+                                    print("recalc", m, "lane", lane, round(step * stepsize, 3), "new meter times", rate)
+                                    print("\t lane 1", round(metering_rates[m]["next-green-1"]*stepsize, 3), round(metering_rates[m]["next-red-1"]*stepsize, 3))
+                                    print("\t lane 2", round(metering_rates[m]["next-green-2"]*stepsize, 3), round(metering_rates[m]["next-red-2"]*stepsize, 3))
+                        
+                    # set traffic signal
+                    phase = 0
+                    
+                    if metering_rates[m]["on"] == False:
+                        traci.lane.setDisallowed(lanes[m], ['passenger']) # Only 1 lane used when meter off
+                        traci.trafficlight.setPhase(m, 0)
+                    else:
+                        traci.lane.setDisallowed(lanes[m], []) # Now 2 lines form for meter
+                        
+                        if metering_rates[m]["green-active-1"] == True:
+                            if metering_rates[m]["green-active-2"] == True:
+                                traci.trafficlight.setPhase(m, 0)
+                            else:
+                                traci.trafficlight.setPhase(m, 2)
+                                phase = 2
+                        else:
+                            if metering_rates[m]["green-active-2"] == True:
+                                traci.trafficlight.setPhase(m, 3)
+                                phase = 3
+                            else:
+                                traci.trafficlight.setPhase(m, 1)
+                                phase = 1
+                                
+                    
+                    
+                    if test and metering_rates[m]["phase"] != phase:
+                        print("time", round(step * stepsize, 3), m, "active phase", phase, "meter on", metering_rates[m]["on"])
+                        
+                    metering_rates[m]["phase"] = phase    
+                
             traci.simulationStep() # Progress Sim by 1 time step       
             step += 1
             
  
     traci.close()
     sys.stdout.flush()
-    socket.close()
+    
+    if not test:
+        socket.close()
     
     return(passage1_count,demand1_count,meter1Activate,flush1Activate,stopped1Activate,min1Rates,max1Rates,rates1,passage2_count,demand2_count,meter2Activate,flush2Activate,stopped2Activate,min2Rates,max2Rates,rates2)
     
@@ -163,9 +363,41 @@ def processMessage(message):
         meter = s[1][s[1].index("-")+1]
         rate = s[2]
         if rate == "null":
-            rate = 3000 # change this, I'm not sure what "null" rate is
+            rate = -1 # change this, I'm not sure what "null" rate is
         else:
             rate = int(rate)
+            
+        return meter, rate
+
     
     # this contains the metering rate!
+    
+def computeRed(newRate):
+    
+    # CONVERT RELEASE RATE TO RED TIME
+    C = 3600 / newRate # Convert Release rate to a cycle time
+    redTime = round(C - greenTime)
+    redTime = max(redTime,2) # Dont have red less than 2 seconds
+    
+    #print('lastRate:',lastRate,'minRate',minRate,'maxRate',maxRate,'segDen',segDen)
+    print('NewRate',newRate, 'redTime',redTime)
+    
+    return redTime, newRate
+    
+def computeRedFlush(maxRate):
+    # Computes rate during flushing phase, just use the max Rate
+    if maxRate <=0: # Make sure max rate is not negative
+        maxRate = 200
+    
+    maxRate = maxRate * 1.2 # During flush phase max rate is 150% not 125% of track demand
+    
+    C = 3600 / maxRate
+    greenTime = 3
+    redTime = round(C - greenTime)
+    redTime = max(redTime, 2) # Dont have red less than 2 seconds
+    
+    print('Flush Rate Update!')
+    print('FlushRate:', maxRate, 'FlushRedTime:', redTime)
+    
+    return redTime
 

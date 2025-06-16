@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-03-21 12:56:15 by Eclipse SUMO sumo Version 1.21.0
+<!-- generated on 2025-06-16 10:02:52 by Eclipse SUMO sumo Version 1.21.0
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -23,11 +23,12 @@
     </report>
 
     <traci_server>
-        <remote-port value="52870"/>
+        <remote-port value="53882"/>
     </traci_server>
 
 </sumoConfiguration>
 -->
 
 <e3Detector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/det_e3_file.xsd">
+   <interval begin="0.00" end="270.00" id="mainTravelTimeTotalLong" meanTravelTime="240.42" meanOverlapTravelTime="240.62" meanSpeed="26.26" meanHaltsPerVehicle="0.00" meanTimeLoss="17.03" vehicleSum="9" meanSpeedWithin="17.87" meanHaltsPerVehicleWithin="0.00" meanDurationWithin="129.05" vehicleSumWithin="194" meanIntervalSpeedWithin="17.87" meanIntervalHaltsPerVehicleWithin="0.00" meanIntervalDurationWithin="129.05" meanTimeLossWithin="35.97"/>
 </e3Detector>
