@@ -289,6 +289,9 @@ public class ReadSumoNetwork {
             
             
             
+            
+            
+            
             if(type.equals("exit")){
                 node_type = 2;
             }
@@ -401,6 +404,7 @@ public class ReadSumoNetwork {
                 String nodename = "n-"+loc;
                 String locname = "l-"+loc;
                 int node_type = 0;
+              
                 
                 double x = (double)junctions.get(from)[1];
                 double y = (double)junctions.get(from)[2];

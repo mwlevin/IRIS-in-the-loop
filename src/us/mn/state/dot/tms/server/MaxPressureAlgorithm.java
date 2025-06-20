@@ -18,6 +18,7 @@ package us.mn.state.dot.tms.server;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import us.mn.state.dot.sched.DebugLog;
 import us.mn.state.dot.sched.TimeSteward;
 import us.mn.state.dot.tms.EventType;
@@ -66,6 +67,9 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 	/** Number of milliseconds for one time step */
 	static private final int PERIOD_MS =
 		(int) new Interval(STEP_SECONDS).ms();
+        
+        
+        static private final double MIN_LINK_LEN = 0.25;
 
 	/** Calculate steps per hour */
 	static private final double STEP_HOUR =
@@ -272,6 +276,10 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
 	/** Create one node */
 	private Node createNode(R_NodeImpl rnode, float mile) {
+                //System.out.println(rnode.getName()+" "+mile+" "+ R_NodeType.fromOrdinal(rnode.getNodeType())+" "+(R_NodeType.fromOrdinal(rnode.getNodeType())==STATION));
+                
+                System.out.println(rnode.getName()+" "+mile+" "+rnode.getDetectors().length);
+                
 		switch (R_NodeType.fromOrdinal(rnode.getNodeType())) {
 		case ENTRANCE:
 			return new EntranceNode(rnode, mile);
@@ -481,6 +489,9 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
 		/** StationImpl mapping this state */
 		private final StationImpl station;
+                
+                // wrapper because I'm modifying SamplerSet to track cumulative counts
+                private SamplerSet sampler;
 
 		/** Density history */
 		private final BoundedSampleHistory density_hist =
@@ -494,6 +505,9 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 		public StationNode(R_NodeImpl rnode, float m, StationImpl st) {
 			super(rnode, m);
 			station = st;
+                        List<VehicleSampler> list = new ArrayList<>();
+                        list.add(st);
+                        sampler = new SamplerSet(list);
 		}
 
 		/** Update station state */
@@ -504,13 +518,13 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
 		/** Get the current station density */
 		private Double getStationDensity(long stamp) {
-			float d = station.getDensity(stamp, PERIOD_MS);
+			float d = sampler.getDensity(stamp, PERIOD_MS);
 			return (d >= 0) ? (double) d : null;
 		}
 
 		/** Get the current station speed */
 		private Double getStationSpeed(long stamp) {
-			float s = station.getSpeed(stamp, PERIOD_MS);
+			float s = sampler.getSpeed(stamp, PERIOD_MS);
 			return (s >= 0) ? (double) s : null;
 		}
 
@@ -528,13 +542,13 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 			double veh_seg = 0;   /* Sum of vehicles in segment */
 			double k_cursor = cursor.getDensity();
                         
-                        System.out.println("calc seg density "+cursor+" "+cursor.getDensity());
+                        //System.out.println("calc seg density "+cursor+" "+cursor.getDensity());
                         
 			for (StationNode sn = downstreamStation(cursor);
 			     sn != null && cursor != dn;
 			     sn = downstreamStation(sn))
 			{
-                                System.out.println("\tseg k"+sn+" "+sn.getDensity());
+                                //System.out.println("\tseg k"+sn+" "+sn.getDensity());
 				double k_down = sn.getDensity();
 				double k_middle = (k_cursor + k_down) / 2;
 				double dist = cursor.distanceMiles(sn);
@@ -704,6 +718,28 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
 		/** End time stamp */
 		private long stamp;
+                
+                
+                // these are capacities for mainline and ramp
+                private double Q_u = 0;
+                private double Q_r = 0;
+                // jam densities
+                private double K_u = 0;
+                private double K_r = 0;
+                // free flow speeds
+                private double v_u = 0;
+                private double v_r = 0;
+                // backwards wave speeds
+                private double w_u = 0;
+                private double w_r = 0;
+                
+                // upstream node, node at merge point, downstream, node for mainline
+                private StationNode upstream;
+                private StationNode downstream;
+                private StationNode mergepoint; 
+                
+                
+                        
 
 		/** Segment density history (vehicles / mile) */
 		private final BoundedSampleHistory segment_k_hist =
@@ -721,7 +757,52 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         
                         //System.out.println("meter state inst "+queue.size()+" "+passage.size()+" "+merge.size());
 			s_node = getAssociatedStation();
+                        
+                        mergepoint = s_node; // I think this is the same as the relevant station node
+                        upstream = findUpstreamStation();
+                        downstream = findDownstreamStation();
+                        
+                        System.out.println(upstream+" "+mergepoint+" "+downstream);
 		}
+                
+                private StationNode findUpstreamStation(){
+                    // assume that nodes are in sorted order
+                    // s_node is the base point. I want the closest node with distance > min_link_len
+                    StationNode closest = null;
+                    double dist = Integer.MAX_VALUE;
+                    
+                    for(Node n : nodes){
+                        if(s_node.mile - n.mile > MIN_LINK_LEN){
+                            if(n instanceof StationNode){
+                                closest = (StationNode)n;
+                                dist = s_node.mile - n.mile;
+                            }
+                        }
+                        else{
+                            // we've gone too far
+                            break;
+                        }
+                    }
+                    
+                    return closest;
+                }
+                
+                private StationNode findDownstreamStation(){
+                    // assume nodes in sorted order
+                    // s_node is the base point. I want the closest node with distance > min_link_len
+  
+                    
+                    for(Node n : nodes){
+                        // first matching node is the closest
+                        if((n instanceof StationNode) && n.mile - s_node.mile  > MIN_LINK_LEN){
+                            return (StationNode)n;
+                        }
+                    }
+                    
+                    //System.out.println(closest);
+                    
+                    return null;
+                }
 
 		/** Get station to associate with the meter state.
 		 * @return Associated station node, or null. */
@@ -784,6 +865,9 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     merge.updateCumulativeCount(stamp);
                     bypass.updateCumulativeCount(stamp);
                     green.updateCumulativeCount(stamp);
+                    mergepoint.sampler.updateCumulativeCount(stamp);
+                    upstream.sampler.updateCumulativeCount(stamp);
+                    downstream.sampler.updateCumulativeCount(stamp);
 
 			
 			// NOTE: these must happen in proper order
@@ -1227,16 +1311,23 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         
                         
                         
+                        
+                        
+                        
+                        
+                        // need num lanes to help calculate capacities
+                        int numlanes = upstream.rnode.getLanes();
+                        
                         // I need sending flow, receiving flow for mainline and ramp
                         double S_rd = 0;
                         double S_ud = 0;
                         double R_d = 0;
                         // these are the position weights
-                        double w_rd = 0;
-                        double w_ud = 0;
-                        // these are capacities for mainline and ramp
-                        double Q_u = 0;
-                        double Q_r = 0;
+                        double weight_rd = 0;
+                        double weight_ud = 0;
+                        
+                        
+                        
                         
                         // brute force line search
                         int min_rate = getMinimumRate();
@@ -1247,12 +1338,12 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         
                         // base case: no metering
                         int best_rate = (int)Q_r;
-                        double best_obj = calcMPObj(w_ud, w_rd, S_ud, S_rd, R_d, Q_u, Q_r);
+                        double best_obj = calcMPObj(weight_ud, weight_rd, S_ud, S_rd, R_d, Q_u, Q_r);
                         
                         for(int i = 0; i < intervals+1; i++){
                             int rate = (int)((max_rate - min_rate)/ (double)intervals) + min_rate;
 
-                            double obj = calcMPObj(w_ud, w_rd, S_ud, Math.min(S_rd, rate), R_d, Q_u, rate);
+                            double obj = calcMPObj(weight_ud, weight_rd, S_ud, Math.min(S_rd, rate), R_d, Q_u, rate);
                             
                             if(obj > best_obj){
                                 best_rate = rate;
