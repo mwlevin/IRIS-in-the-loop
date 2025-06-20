@@ -35,6 +35,7 @@ import us.mn.state.dot.tms.Hashtags;
 import us.mn.state.dot.tms.ItemStyle;
 import us.mn.state.dot.tms.LaneCode;
 import us.mn.state.dot.tms.MeterAlgorithm;
+import static us.mn.state.dot.tms.MeterAlgorithm.K_ADAPTIVE;
 import us.mn.state.dot.tms.MeterLock;
 import us.mn.state.dot.tms.MeterQueueState;
 import us.mn.state.dot.tms.R_Node;
@@ -606,7 +607,9 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 		switch (MeterAlgorithm.fromOrdinal(algorithm)) {
 		case SIMPLE:
 			return new SimpleAlgorithm();
-		case K_ADAPTIVE:
+		case MAX_PRESSURE:
+			return createMaxPressureState();
+                case K_ADAPTIVE:
 			return createKAdaptiveState();
 		default:
 			return null;
@@ -620,6 +623,19 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
                 
 		if (ent_node != null) {
 			as = KAdaptiveAlgorithm.createState(this);
+			if (null == as)
+				updateFault(RampMeter.FAULT_MISSING_STATE);
+		}
+		return as;
+	}
+        
+        /** Create K-Adaptive algorithm state */
+	private MeterAlgorithmState createMaxPressureState() {
+		MeterAlgorithmState as = null;
+
+                
+		if (ent_node != null) {
+			as = MaxPressureAlgorithm.createState(this);
 			if (null == as)
 				updateFault(RampMeter.FAULT_MISSING_STATE);
 		}
@@ -714,10 +730,13 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 
 	/** Send a new release rate to the meter */
 	private void sendReleaseRate(Integer r) {
-                MeterPoller mp = getMeterPoller();
-		if ((mp != null && mp instanceof SumoPoller) || !objectEquals(r, getStatusRate())) 
-                {
-                        //System.out.println("send meter rate old="+getStatusRate()+" new="+r+" poller="+mp);
+                
+                if (!objectEquals(r, getStatusRate())) {
+			MeterPoller mp = getMeterPoller();
+                        
+                        if (mp != null && mp instanceof SumoPoller){
+                            System.out.println("send meter rate old="+getStatusRate()+" new="+r+" poller="+mp);
+                        }
                         
 			if (mp != null)
 				mp.sendReleaseRate(this, r);

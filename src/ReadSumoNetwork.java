@@ -470,6 +470,9 @@ public class ReadSumoNetwork {
         }
         
         filein.close();
+        
+        store.update("insert into iris.meter_algorithm (id, description) VALUES (4, 'max-pressure');");
+        store.update("update iris.ramp_meter set algorithm = 4;");
     }
     
     

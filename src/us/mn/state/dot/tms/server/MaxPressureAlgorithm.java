@@ -1,0 +1,1563 @@
+/*
+ * IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2001-2025  Minnesota Department of Transportation
+ * Copyright (C) 2011-2012  University of Minnesota Duluth (NATSRL)
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+package us.mn.state.dot.tms.server;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import us.mn.state.dot.sched.DebugLog;
+import us.mn.state.dot.sched.TimeSteward;
+import us.mn.state.dot.tms.EventType;
+import us.mn.state.dot.tms.GeoLoc;
+import us.mn.state.dot.tms.LaneCode;
+import us.mn.state.dot.tms.MeterQueueState;
+import us.mn.state.dot.tms.R_NodeHelper;
+import us.mn.state.dot.tms.R_NodeType;
+import static us.mn.state.dot.tms.R_NodeType.ENTRANCE;
+import static us.mn.state.dot.tms.R_NodeType.STATION;
+import static us.mn.state.dot.tms.RampMeterHelper.filterRate;
+import static us.mn.state.dot.tms.RampMeterHelper.getMaxRelease;
+import static us.mn.state.dot.tms.server.Constants.FEET_PER_MILE;
+import static us.mn.state.dot.tms.server.Constants.MISSING_DATA;
+import us.mn.state.dot.tms.units.Interval;
+import static us.mn.state.dot.tms.units.Interval.HOUR;
+import us.mn.state.dot.tms.server.event.MeterEvent;
+import static us.mn.state.dot.tms.units.Interval.HOUR;
+
+/**
+ * Density-based Adaptive Metering Algorithm.
+ *
+ * I'm going to copy KAdaptive because it has a lot of what I need.
+ * There doesn't seem to be an easy way to inherit from KAdaptive because of its use of child classes.
+ * I would need to replace some of KAdaptive.MeterState methods.
+ */
+public class MaxPressureAlgorithm implements MeterAlgorithmState {
+
+	/** Enum for minimum limit control */
+	enum MinimumRateLimit {
+		passage_fail,
+		storage_limit,
+		wait_limit,
+		target_min,
+		backup_limit,
+	};
+        
+        
+
+	/** Algorithm debug log */
+	static private final DebugLog ALG_LOG = new DebugLog("kadaptive");
+
+	/** Number of seconds for one time step */
+	static private final int STEP_SECONDS = 30;
+
+	/** Number of milliseconds for one time step */
+	static private final int PERIOD_MS =
+		(int) new Interval(STEP_SECONDS).ms();
+
+	/** Calculate steps per hour */
+	static private final double STEP_HOUR =
+		new Interval(STEP_SECONDS).per(HOUR);
+
+	/** Critical density (vehicles / mile) */
+	static private final int K_CRIT = 37;
+
+	/** Desired density (vehicles / mile) */
+	static private final double K_DES = K_CRIT * 0.9;
+
+	/** Low density (vehicles / mile) */
+	static private final double K_LOW = K_CRIT * 0.75;
+
+	/** Jam density (vehicles / mile) */
+	static private final int K_JAM = 180;
+
+	/** Ramp queue jam density (vehicles / mile) */
+	static private final int K_JAM_RAMP = 140;
+
+	/** Ramp queue jam density (vehicles per foot) */
+	static private final float JAM_VPF = (float) K_JAM_RAMP / FEET_PER_MILE;
+
+	/** Seconds to average segment density for start metering check */
+	static private final int START_SECS = 120;
+
+	/** Seconds to average segment density for stop metering check */
+	static private final int STOP_SECS = 600;
+
+	/** Seconds to average segment density for restart metering check */
+	static private final int RESTART_SECS = 300;
+
+	/** Maximum number of time steps needed for sample history */
+	static private final int MAX_STEPS = steps(Math.max(Math.max(START_SECS,
+		STOP_SECS), RESTART_SECS));
+
+	/** Minutes before end of period to disallow early metering */
+	static private final int EARLY_METER_END_MINUTES = 30;
+
+	/** Minutes to flush meter before stop metering */
+	static private final int FLUSH_MINUTES = 2;
+
+	/** Distance threshold for upstream station to meter association */
+	static private final float UPSTREAM_STATION_MILES = 1.0f;
+
+	/** Distance threshold for downstream station to meter association */
+	static private final int DOWNSTREAM_STATION_FEET = 500;
+
+	/** Maximum segment length */
+	static private final float SEGMENT_LENGTH_MILES = 3.0f;
+
+	/** Number of seconds to store demand accumulator history */
+	static private final int DEMAND_ACCUM_SECS = 600;
+
+	/** Queue occupancy override threshold */
+	static private final int QUEUE_OCC_THRESHOLD = 25;
+
+	/** Number of seconds queue must be empty before resetting green */
+	static private final int QUEUE_EMPTY_RESET_SECS = 60;
+
+	/** Threshold to determine when queue is empty */
+	static private final int QUEUE_EMPTY_THRESHOLD = -5;
+
+	/** Ratio for max rate to target rate */
+	static private final float TARGET_MAX_RATIO = 1.25f;
+
+	/** Ratio for max rate to target rate while flushing */
+	static private final float TARGET_MAX_RATIO_FLUSHING = 1.5f;
+
+	/** Ratio for min rate to target rate */
+	static private final float TARGET_MIN_RATIO = 0.75f;
+
+	/** Base percentage for backup minimum limit */
+	static private final float BACKUP_LIMIT_BASE = 0.5f;
+
+	/** Ratio for target waiting time to max wait time */
+	static private final float WAIT_TARGET_RATIO = 0.75f;
+
+	/** Ratio for target storage to max storage */
+	static private final float STORAGE_TARGET_RATIO = 0.75f;
+
+	/** Calculate the number of steps for an interval */
+	static private int steps(int seconds) {
+		float secs = seconds;
+		return Math.round(secs / STEP_SECONDS);
+	}
+
+	/** Convert step vehicle count to flow rate.
+	 * @param v Vehicle count to convert.
+	 * @param n_steps Number of time steps of vehicle count.
+	 * @return Flow rate (vehicles / hour) */
+	static private int flowRate(float v, int n_steps) {
+		if (v >= 0) {
+			Interval period = new Interval(n_steps * STEP_SECONDS);
+			float hour_frac = period.per(HOUR);
+			return Math.round(v * hour_frac);
+		} else
+			return MISSING_DATA;
+	}
+
+	/** Convert single step vehicle count to flow rate.
+	 * @param v Vehicle count to convert.
+	 * @return Flow rate (vehicles / hour), or null for missing data. */
+	static private Double flowRate(float v) {
+		return (v >= 0) ? (v * STEP_HOUR) : null;
+	}
+
+	/** Convert flow rate to vehicle count for a given period.
+	 * @param flow Flow rate to convert (vehicles / hour).
+	 * @param per_sec Period for vehicle count (seconds).
+	 * @return Vehicle count over given period. */
+	static private float vehCountPeriod(int flow, int per_sec) {
+		if (flow >= 0 && per_sec > 0) {
+			float hour_frac = HOUR.per(new Interval(per_sec));
+			return flow * hour_frac;
+		} else
+			return MISSING_DATA;
+	}
+
+	/** Check if density is below "low" threshold */
+	static private boolean isDensityLow(Double k) {
+		return (k != null) && (k < K_LOW);
+	}
+
+	/** States for all K adaptive algorithms */
+	static private HashMap<String, MaxPressureAlgorithm> ALL_ALGS =
+		new HashMap<String, MaxPressureAlgorithm>();
+
+	/** Create algorithm state for a meter */
+	static public MaxPressureAlgorithm createState(RampMeterImpl meter) {
+		Corridor c = meter.getCorridor();
+                
+                //System.out.println("create state "+meter.getName()+" "+c);
+		if (c != null) {
+			MaxPressureAlgorithm alg = lookupAlgorithm(c);
+			if (alg.createMeterState(meter))
+				return alg;
+		}
+		return null;
+	}
+
+	/** Lookup an algorithm for a corridor */
+	static private MaxPressureAlgorithm lookupAlgorithm(Corridor c) {
+		MaxPressureAlgorithm alg = ALL_ALGS.get(c.getName());
+		if (null == alg) {
+			alg = new MaxPressureAlgorithm(c);
+			alg.log("adding");
+			ALL_ALGS.put(c.getName(), alg);
+		}
+		return alg;
+	}
+
+	/** Process one interval for all K adaptive algorithm states */
+	static public void processAllStates() {
+		long stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
+		Iterator<MaxPressureAlgorithm> it =
+			ALL_ALGS.values().iterator();
+		while (it.hasNext()) {
+			MaxPressureAlgorithm alg = it.next();
+			alg.updateStations(stamp);
+			if (alg.isDone()) {
+				alg.log("isDone: removing");
+				it.remove();
+			}
+		}
+	}
+
+	/** Metering corridor */
+	private final Corridor corridor;
+
+	/** Hash map of ramp meter states */
+	private final HashMap<String, MeterState> meter_states =
+		new HashMap<String, MeterState>();
+
+	/** All entrance / station nodes on corridor */
+	private final ArrayList<Node> nodes;
+
+	/** Create a new MaxPressureAlgorithm */
+	private MaxPressureAlgorithm(Corridor c) {
+		corridor = c;
+                
+                System.out.println("construct max pressure");
+		nodes = createNodes();
+		debug();
+	}
+
+	/** Create nodes from corridor structure */
+	private ArrayList<Node> createNodes() {
+		NFinder finder = new NFinder();
+		corridor.findActiveNode(finder);
+		return finder.nodes;
+	}
+
+	/** Node finder */
+	private class NFinder implements Corridor.NodeFinder {
+		private ArrayList<Node> nodes = new ArrayList<Node>();
+		public boolean check(float m, R_NodeImpl rnode) {
+			Node n = createNode(rnode, m);
+			if (n != null)
+				nodes.add(n);
+			return false;
+		}
+	}
+
+	/** Create one node */
+	private Node createNode(R_NodeImpl rnode, float mile) {
+		switch (R_NodeType.fromOrdinal(rnode.getNodeType())) {
+		case ENTRANCE:
+			return new EntranceNode(rnode, mile);
+		case STATION:
+			StationImpl stat = rnode.getStation();
+			if (stat != null && stat.getActive())
+				return new StationNode(rnode, mile, stat);
+		default:
+			return null;
+		}
+	}
+
+	/** Debug corridor structure */
+	private void debug() {
+		log("-------- Corridor Structure --------");
+		for (Node n : nodes)
+			log(n.toString());
+	}
+
+	/** Log one message */
+	private void log(String msg) {
+		if (ALG_LOG.isOpen())
+			ALG_LOG.log(corridor.getName() + ": " + msg);
+	}
+
+	/** Validate algorithm state for a meter */
+	@Override
+	public void validate(RampMeterImpl meter) {
+		MeterState ms = getMeterState(meter);
+		if (ms != null) {
+			ms.validate();
+			if (ALG_LOG.isOpen())
+				log(ms.toString());
+			ms.logMeterEvent();
+		} else if (ALG_LOG.isOpen())
+			log("No state for " + meter.getName());
+	}
+
+	/** Get meter queue state enum value */
+	@Override
+	public MeterQueueState getQueueState(RampMeterImpl meter) {
+		MeterState ms = getMeterState(meter);
+		return (ms != null)
+		      ? ms.getQueueState()
+		      : MeterQueueState.UNKNOWN;
+	}
+
+	/** Get the meter state for a given ramp meter */
+	private MeterState getMeterState(RampMeterImpl meter) {
+		if (meter.getCorridor() == corridor)
+			return meter_states.get(meter.getName());
+		else {
+			// Meter must have been changed to a different
+			// corridor; throw away old meter state
+			meter_states.remove(meter.getName());
+			return null;
+		}
+	}
+
+	/** Create the meter state for a given ramp meter */
+	private boolean createMeterState(RampMeterImpl meter) {
+		EntranceNode en = findEntranceNode(meter);
+		if (en != null) {
+			MeterState ms = new MeterState(meter, en);
+			meter_states.put(meter.getName(), ms);
+			return true;
+		} else
+			return false;
+	}
+
+	/** Find an entrance node matching the given ramp meter.
+	 * @param meter Ramp meter to search for.
+	 * @return Entrance node matching ramp meter. */
+	private EntranceNode findEntranceNode(RampMeterImpl meter) {
+		R_NodeImpl rnode = findRNode(meter);
+		if (null == rnode)
+			return null;
+		for (Node n : nodes) {
+			if (n instanceof EntranceNode) {
+				EntranceNode en = (EntranceNode) n;
+				if (en.rnode.equals(rnode))
+					return en;
+			}
+		}
+		if (ALG_LOG.isOpen()) {
+			log("Entrance " + rnode.getName() + " for " +
+				meter.getName() + " not found");
+		}
+		return null;
+	}
+
+	/** Find node from meter onto this corridor */
+	private R_NodeImpl findRNode(RampMeterImpl meter) {
+		R_NodeImpl rnode = meter.getEntranceNode();
+		if (null == rnode)
+			return null;
+		String cid = R_NodeHelper.getCorridorName(rnode);
+		if (corridor.getName().equals(cid))
+			return rnode;
+		Corridor cor = BaseObjectImpl.corridors.getCorridor(cid);
+		if (null == cor)
+			return null;
+		R_NodeImpl n = cor.findActiveNode(new ForkFinder(rnode));
+		if (n != null)
+			return n.getFork();
+		else {
+			log("Fork not found " + rnode.getName() +
+			    " for " + meter.getName());
+			return null;
+		}
+	}
+
+	/** Fork finder for CD roads */
+	private class ForkFinder implements Corridor.NodeFinder {
+		/** Entrance node of meter on CD road */
+		private final R_NodeImpl rnode;
+		/** Have we found the entrance node yet? */
+		private boolean found;
+		/** Create a fork finder */
+		private ForkFinder(R_NodeImpl n) {
+			rnode = n;
+		}
+		public boolean check(float m, R_NodeImpl n) {
+			found |= (n == rnode);
+			if (!found)
+				return false;
+			R_NodeImpl f = n.getFork();
+			return (f != null) && corridor.getName().equals(
+				R_NodeHelper.getCorridorName(f)
+			);
+		}
+	}
+
+	/** Update the station nodes for the current interval */
+	private void updateStations(long stamp) {
+		for (Node n : nodes) {
+			if (n instanceof StationNode) {
+				StationNode sn = (StationNode) n;
+				sn.updateState(stamp);
+			}
+		}
+	}
+
+	/** Find previous upstream station node.
+	 * @return Upstream station node, or null. */
+	private StationNode upstreamStation(final Node here) {
+		StationNode upstream = null;
+		for (Node n : nodes) {
+			if (n == here)
+				break;
+			else if (n instanceof StationNode)
+				upstream = (StationNode) n;
+		}
+		return upstream;
+	}
+
+	/** Find next downstream station node.
+	 * @return Downstream station node, or null. */
+	private StationNode downstreamStation(final Node here) {
+		boolean found = false;
+		for (Node n : nodes) {
+			if (found && n instanceof StationNode)
+				return (StationNode) n;
+			if (here == n)
+				found = true;
+		}
+		return null;
+	}
+
+	/** Is this MaxPressureAlgorithm done? */
+	private boolean isDone() {
+		for (MeterState ms : meter_states.values()) {
+			if (ms.meter.isOperating())
+				return false;
+		}
+		return true;
+	}
+
+	/** Node to manage station or entrance */
+	abstract protected class Node {
+
+		/** R_Node reference */
+		protected final R_NodeImpl rnode;
+
+		/** Mile point of the node */
+		protected final float mile;
+
+		/** Create a new node */
+		protected Node(R_NodeImpl n, float m) {
+			rnode = n;
+			mile = m;
+		}
+
+		/** Get the distance to another node (in miles) */
+		protected float distanceMiles(Node other) {
+			return Math.abs(mile - other.mile);
+		}
+
+		/** Get the distancee to another node (in feet) */
+		protected int distanceFeet(Node other) {
+			return Math.round(distanceMiles(other) * FEET_PER_MILE);
+		}
+	}
+
+	/** Node to manage station on corridor */
+	protected class StationNode extends Node {
+
+		/** StationImpl mapping this state */
+		private final StationImpl station;
+
+		/** Density history */
+		private final BoundedSampleHistory density_hist =
+			new BoundedSampleHistory(steps(60));
+
+		/** Speed history */
+		private final BoundedSampleHistory speed_hist =
+			new BoundedSampleHistory(steps(60));
+
+		/** Create a new station node. */
+		public StationNode(R_NodeImpl rnode, float m, StationImpl st) {
+			super(rnode, m);
+			station = st;
+		}
+
+		/** Update station state */
+		private void updateState(long stamp) {
+			density_hist.push(getStationDensity(stamp));
+			speed_hist.push(getStationSpeed(stamp));
+		}
+
+		/** Get the current station density */
+		private Double getStationDensity(long stamp) {
+			float d = station.getDensity(stamp, PERIOD_MS);
+			return (d >= 0) ? (double) d : null;
+		}
+
+		/** Get the current station speed */
+		private Double getStationSpeed(long stamp) {
+			float s = station.getSpeed(stamp, PERIOD_MS);
+			return (s >= 0) ? (double) s : null;
+		}
+
+		/** Get average density of a mainline segment beginning at the
+		 * current station.  This works by splitting each consecutive
+		 * pair of stations into 3 equal links and assigning average
+		 * density to the middle link.  All links are then averaged,
+		 * weighted by length.
+		 *
+		 * @param dn Segment downstream station node.
+		 * @return average density (distance weight). */
+		private double calculateSegmentDensity(final StationNode dn) {
+			StationNode cursor = this;
+			double dist_seg = 0;  /* Segment distance */
+			double veh_seg = 0;   /* Sum of vehicles in segment */
+			double k_cursor = cursor.getDensity();
+                        
+                        System.out.println("calc seg density "+cursor+" "+cursor.getDensity());
+                        
+			for (StationNode sn = downstreamStation(cursor);
+			     sn != null && cursor != dn;
+			     sn = downstreamStation(sn))
+			{
+                                System.out.println("\tseg k"+sn+" "+sn.getDensity());
+				double k_down = sn.getDensity();
+				double k_middle = (k_cursor + k_down) / 2;
+				double dist = cursor.distanceMiles(sn);
+				dist_seg += dist;
+				veh_seg += (k_cursor + k_middle + k_down) / 3 *
+					dist;
+				cursor = sn;
+				k_cursor = k_down;
+			}
+			if (dist_seg > 0)
+				return veh_seg / dist_seg;
+			else
+				return k_cursor;
+		}
+
+		/** Get 1 minute density at current time step.
+		 * @return average 1 min density; missing data returns 0. */
+		public double getDensity() {
+			Double avg = density_hist.average(0, steps(60));
+			return (avg != null) ? avg : 0;
+		}
+
+		/** Get 1 minute speed at current time step.
+		 * @return Average 1 min speed; missing data returns 0. */
+		private double getSpeed() {
+			Double avg = speed_hist.average(0, steps(60));
+			return (avg != null) ? avg : 0;
+		}
+
+		/** Find downstream segment station node.  This is the station
+		 * downstream which results in the highest segment density.
+		 * @return Downstream segment station node. */
+		protected StationNode segmentStationNode() {
+			StationNode dn = this;
+			double dk = 0;
+			for (StationNode sn = this; sn != null;
+			     sn = downstreamStation(sn))
+			{
+				if (distanceMiles(sn) > SEGMENT_LENGTH_MILES)
+					break;
+				double k = calculateSegmentDensity(sn);
+				if (k >= dk) {
+					dk = k;
+					dn = sn;
+				}
+			}
+			return dn;
+		}
+
+		/** Get a string representation of a station node */
+		@Override
+		public String toString() {
+			return "SN:" + station.getName();
+		}
+	}
+
+	/** Node to manage entrance onto corridor */
+	class EntranceNode extends Node {
+
+		/** Create a new entrance node */
+		public EntranceNode(R_NodeImpl rnode, float m) {
+			super(rnode, m);
+		}
+
+		/** Get a string representation of an entrance node */
+		@Override
+		public String toString() {
+			return "EN:" + rnode.getName();
+		}
+	}
+
+	/** Enum for metering phase */
+	private enum MeteringPhase {
+		not_started,
+		metering,
+		flushing,
+		stopped,
+	};
+
+	/** Ramp meter state */
+	class MeterState {
+
+		/** Meter at this entrance */
+		private final RampMeterImpl meter;
+
+		/** Entrance node for the meter */
+		private final EntranceNode node;
+
+		/** Station node association */
+		private final StationNode s_node;
+
+		/** Queue sampler set */
+		private final SamplerSet queue;
+
+		/** Passage sampler set */
+		private final SamplerSet passage;
+
+		/** Merge sampler set */
+		private final SamplerSet merge;
+
+		/** Bypass sampler set */
+		private final SamplerSet bypass;
+
+		/** Green count sampler set */
+		private final SamplerSet green;
+
+		/** Metering phase */
+		private MeteringPhase phase = MeteringPhase.not_started;
+
+		/** Is the meter currently metering? */
+		private boolean isMetering() {
+			return phase != MeteringPhase.not_started &&
+			       phase != MeteringPhase.stopped;
+		}
+
+		/** Minimum metering rate (vehicles / hour) */
+		private int min_rate = 0;
+
+		/** Current metering rate (vehicles / hour) */
+		private int release_rate = 0;
+
+		/** Maximum metering rate (vehicles / hour) */
+		private int max_rate = 0;
+
+		/** Queue demand history (vehicles / hour) */
+		private final BoundedSampleHistory demand_hist =
+			new BoundedSampleHistory(steps(300));
+
+		/** Cumulative demand history (vehicles) */
+		private final BoundedSampleHistory demand_accum_hist =
+			new BoundedSampleHistory(steps(DEMAND_ACCUM_SECS));
+
+		/** Cumulative demand count (vehicles) */
+		private float demand_accum = 0;
+
+		/** Demand adjustment (vehicles) */
+		private float demand_adj = 0;
+
+		/** Tracking queue demand rate (vehicles / hour) */
+		private int tracking_demand = 0;
+
+		/** Passage sampling good (latches until queue empty) */
+		private boolean passage_good = true;
+
+		/** Cumulative passage count (vehicles) */
+		private int passage_accum = 0;
+
+		/** Ramp passage history (vehicles / hour) */
+		private final BoundedSampleHistory passage_hist =
+			new BoundedSampleHistory(MAX_STEPS);
+
+		/** Cumulative green count (vehicles) */
+		private int green_accum = 0;
+
+		/** Time queue has been empty (seconds) */
+		private int queue_empty_secs = 0;
+
+		/** Time queue has been backed-up (seconds) */
+		private int queue_backup_secs = 0;
+
+		/** Total occupancy for duration of a queue backup */
+		private int backup_occ = 0;
+
+		/** Controlling minimum rate limit */
+		private MinimumRateLimit limit_control =
+			MinimumRateLimit.target_min;
+
+		/** End time stamp */
+		private long stamp;
+
+		/** Segment density history (vehicles / mile) */
+		private final BoundedSampleHistory segment_k_hist =
+			new BoundedSampleHistory(MAX_STEPS);
+
+		/** Create a new meter state */
+		public MeterState(RampMeterImpl mtr, EntranceNode en) {
+			meter = mtr;
+			node = en;
+			queue = meter.getSamplerSet(LaneCode.QUEUE);
+			passage = meter.getSamplerSet(LaneCode.PASSAGE);
+			merge = meter.getSamplerSet(LaneCode.MERGE);
+			bypass = meter.getSamplerSet(LaneCode.BYPASS);
+			green = meter.getSamplerSet(LaneCode.GREEN);
+                        
+                        //System.out.println("meter state inst "+queue.size()+" "+passage.size()+" "+merge.size());
+			s_node = getAssociatedStation();
+		}
+
+		/** Get station to associate with the meter state.
+		 * @return Associated station node, or null. */
+		private StationNode getAssociatedStation() {
+			StationNode us = getAssociatedUpstream();
+			StationNode ds = downstreamStation(node);
+			return useDownstream(us, ds) ? ds : us;
+		}
+
+		/** Get associated upstream station.
+		 * @return Station node upstream of meter, or null. */
+		private StationNode getAssociatedUpstream() {
+			StationNode us = upstreamStation(node);
+			return isUpstreamStationOk(us) ? us : null;
+		}
+
+		/** Check if an upstream station is OK.
+		 * @param us Station just upstream of meter.
+		 * @return true if upstream station is suitable. */
+		private boolean isUpstreamStationOk(StationNode us) {
+			return us != null &&
+			       node.distanceMiles(us) < UPSTREAM_STATION_MILES;
+		}
+
+		/** Test if downstream station should be associated.
+		 * @param us Station just upstream of meter.
+		 * @param ds Station just downstream of meter.
+		 * @return true if downstream station should be associated. */
+		private boolean useDownstream(StationNode us, StationNode ds) {
+			if (us == null)
+				return true;
+			if (ds == null)
+				return false;
+			int uf = node.distanceFeet(us);
+			int df = node.distanceFeet(ds);
+			return df < DOWNSTREAM_STATION_FEET && df < uf;
+		}
+
+		/** Get the total cumulative demand (vehicles).
+		 * @param step Time step in past (0 for current).
+		 * @return Cumulative demand at specified time. */
+		private float cumulativeDemand(int step) {
+			Double d = demand_accum_hist.get(step);
+			return (d != null) ? d.floatValue() : 0;
+		}
+
+		/** Validate meter state.
+		 *   - Update state timers.
+		 *   - Update passage flow and accumulator.
+		 *   - Update demand flow and accumulator.
+		 *   - Calculate metering rate. */
+		private void validate() {
+                    
+                    stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
+                    
+                    
+                    /* need to update cumulative counts */
+                    queue.updateCumulativeCount(stamp);
+                    passage.updateCumulativeCount(stamp);
+                    merge.updateCumulativeCount(stamp);
+                    bypass.updateCumulativeCount(stamp);
+                    green.updateCumulativeCount(stamp);
+
+			
+			// NOTE: these must happen in proper order
+			checkQueueBackedUp();
+			checkQueueEmpty();
+			updatePassageState();
+			updateDemandState();
+			min_rate = filterRate(calculateMinimumRate());
+			max_rate = filterRate(calculateMaximumRate());
+                        
+                        System.out.println("validate "+meter.getName()+" "+s_node+" "+min_rate+" "+max_rate);
+			if (s_node != null)
+                            calculateMeteringRate();
+		}
+
+		/** Check the queue backed-up state */
+		private void checkQueueBackedUp() {
+			if (isQueueOccupancyHigh()) {
+				queue_backup_secs += STEP_SECONDS;
+				backup_occ += queue.getMaxOccupancy(stamp,
+					PERIOD_MS);
+			} else {
+				queue_backup_secs = 0;
+				backup_occ = 0;
+			}
+		}
+
+		/** Check if queue is empty */
+		private void checkQueueEmpty() {
+			if (isQueuePossiblyEmpty())
+				queue_empty_secs += STEP_SECONDS;
+			else
+				queue_empty_secs = 0;
+			// Get rid of unused greens
+			if (queue_empty_secs > QUEUE_EMPTY_RESET_SECS &&
+			    isPassageBelowGreen())
+				green_accum = passage_accum;
+		}
+
+		/** Update ramp passage output state */
+		private void updatePassageState() {
+			int passage_vol = calculatePassageCount();
+			passage_hist.push(flowRate(passage_vol));
+                        
+                        //System.out.println("update passage state "+passage_vol+" "+passage.getVehCount(stamp, PERIOD_MS)+" "+passage.size()+" "+merge.getVehCount(stamp, PERIOD_MS)+" "+merge.size());
+			if (passage_vol >= 0)
+				passage_accum += passage_vol;
+			else
+				passage_good = false;
+			int green_vol = green.getVehCount(stamp, PERIOD_MS);
+			if (green_vol > 0)
+				green_accum += green_vol;
+		}
+
+		/** Calculate passage count (vehicles).
+		 * @return Passage vehicle count */
+		private int calculatePassageCount() {
+			int vol = passage.getVehCount(stamp, PERIOD_MS);
+			if (vol >= 0)
+				return vol;
+			vol = merge.getVehCount(stamp, PERIOD_MS);
+			if (vol >= 0) {
+				int b = bypass.getVehCount(stamp, PERIOD_MS);
+				if (b > 0) {
+					vol -= b;
+					if (vol < 0)
+						return 0;
+				}
+				return vol;
+			}
+			return MISSING_DATA;
+		}
+
+		/** Update ramp queue demand state */
+		private void updateDemandState() {
+			float dem_veh = queueDemandCount();
+			float da = demand_accum;
+			// Calculate demand without adjustment
+			demand_accum += dem_veh;
+			demand_adj = calculateDemandAdjustment();
+			float adjusted_dem = Math.max(dem_veh + demand_adj, 0);
+			demand_hist.push(flowRate(adjusted_dem));
+			// Recalculate demand with adjustment
+			demand_accum = da + adjusted_dem;
+			demand_accum_hist.push((double) demand_accum);
+			tracking_demand = trackingDemand();
+		}
+
+		/** Get queue demand count for the current period */
+		private float queueDemandCount() {
+			float vol = queue.getVehCount(stamp, PERIOD_MS);
+			if (vol >= 0)
+				return vol;
+			else {
+				int target = getDefaultTarget();
+				return vehCountPeriod(target, STEP_SECONDS);
+			}
+		}
+
+		/** Calculate the demand adjustment.
+		 * @return Demand adjustment (number of vehicles) */
+		private float calculateDemandAdjustment() {
+			return estimateDemandUndercount()
+			     - estimateDemandOvercount();
+		}
+
+		/** Estimate demand undercount when occupancy is high.
+		 * @return Demand undercount (may be negative). */
+		private float estimateDemandUndercount() {
+			return queueFullRatio() * availableStorage();
+		}
+
+		/** Estimate the queue full ratio.
+		 * @return Ratio from 0 to 1. */
+		private float queueFullRatio() {
+			float qor = queueOccRatio();
+			float qbr = queueRatio(queue_backup_secs);
+			return Math.max(qor, qbr);
+		}
+
+		/** Get queue occupancy ratio.  Map occupancy values between
+		 * QUEUE_OCC_THRESHOLD and 100% to a range of 0 and 1.
+		 * @return Ratio from 0 to 1. */
+		private float queueOccRatio() {
+			float o = queue.getMaxOccupancy(stamp, PERIOD_MS)
+				- QUEUE_OCC_THRESHOLD;
+			return (o > 0)
+			     ? Math.min(o / (100 - QUEUE_OCC_THRESHOLD), 1)
+			     : 0;
+		}
+
+		/** Calculate a queue ratio.
+		 * @param secs Number of seconds.
+		 * @return Ratio compared to max wait time, between 0 and 1. */
+		private float queueRatio(int secs) {
+			return Math.min(2 * secs / maxWaitTime(), 1);
+		}
+
+		/** Estimate the available storage in queue.
+		 * @return Available storage (vehicles, may be negative). */
+		private float availableStorage() {
+			if (passage_good) {
+				float q_len = Math.max(queueLength(), 0);
+				return maxStorage() - q_len;
+			} else
+				return maxStorage() / 3;
+		}
+
+		/** Estimate demand overcount when queue is empty.
+		 * @return Vehicle overcount at queue detector (may be
+		 *         negative). */
+		private float estimateDemandOvercount() {
+			return queueRatio(queue_empty_secs) * queueLength();
+		}
+
+		/** Estimate the length of queue (vehicles).
+		 * @return Queue length (may be negative). */
+		private float queueLength() {
+			return (passage_good)
+			     ? (demand_accum - passage_accum)
+			     : 0;
+		}
+
+		/** Calculate tracking demand rate at queue detector.
+		 * @return Tracking demand flow rate (vehicles / hour) */
+		private int trackingDemand() {
+			Double d = demand_hist.average();
+			return (d != null)
+			      ?	(int) Math.round(d)
+			      : getDefaultTarget();
+		}
+
+		/** Get the default target metering rate (vehicles / hour) */
+		private int getDefaultTarget() {
+			int t = meter.getTarget();
+			return (t > 0) ? t : getMaxRelease();
+		}
+
+		/** Check if the queue is possibly empty */
+		private boolean isQueuePossiblyEmpty() {
+			return isQueueFlowLow() && !isQueueOccupancyHigh();
+		}
+
+		/** Check if the queue flow is low.  If the passage detector
+		 * is not good, assume this is false. */
+		private boolean isQueueFlowLow() {
+			return (passage_good)
+			     ? (isDemandBelowPassage() || isPassageBelowGreen())
+			     : false;
+		}
+
+		/** Check if cumulative demand is below cumulative passage */
+		private boolean isDemandBelowPassage() {
+			return queueLength() < QUEUE_EMPTY_THRESHOLD;
+		}
+
+		/** Check if queue occupancy is above threshold */
+		private boolean isQueueOccupancyHigh() {
+			float occ = queue.getMaxOccupancy(stamp, PERIOD_MS);
+			return occ > QUEUE_OCC_THRESHOLD;
+		}
+
+		/** Check if cumulative passage is below cumulative green */
+		private boolean isPassageBelowGreen() {
+			return violationCount() < QUEUE_EMPTY_THRESHOLD;
+		}
+
+		/** Calculate violation count (passage above green count) */
+		private int violationCount() {
+			return (passage_good)
+			     ? (passage_accum - green_accum)
+			     : 0;
+		}
+
+		/** Reset the demand / passage accumulators */
+		private void resetAccumulators() {
+			demand_accum = 0;
+			demand_accum_hist.clear();
+			demand_adj = 0;
+			passage_good = true;
+			passage_accum = 0;
+			green_accum = 0;
+		}
+
+		/** Get meter queue state enum value */
+		private MeterQueueState getQueueState() {
+			if (isMetering()) {
+				if (isQueueFull())
+					return MeterQueueState.FULL;
+				else if (!passage_good)
+					return MeterQueueState.UNKNOWN;
+				else if (isQueueEmpty())
+					return MeterQueueState.EMPTY;
+				else
+					return MeterQueueState.EXISTS;
+			}
+			return MeterQueueState.UNKNOWN;
+		}
+
+		/** Check if the ramp meter queue is full */
+		private boolean isQueueFull() {
+			return isQueueOccupancyHigh() ||
+			      (isQueueLimitFull() && !isPassageBelowGreen());
+		}
+
+		/** Check if the meter queue is full (by storage/wait limit) */
+		private boolean isQueueLimitFull() {
+			return queue.isPerfect() &&
+			       passage_good &&
+			      (isQueueStorageFull() ||
+			       isQueueWaitAboveTarget());
+		}
+
+		/** Check if the ramp queue storage is full */
+		private boolean isQueueStorageFull() {
+			return queueLength() >= targetStorage();
+		}
+
+		/** Check if the ramp queue wait time is above target */
+		private boolean isQueueWaitAboveTarget() {
+			assert passage_good;
+			int wait_target = targetWaitTime();
+			int wait_steps = steps(wait_target);
+			int dem = Math.round(cumulativeDemand(wait_steps));
+			return dem > passage_accum;
+		}
+
+		/** Check if the meter queue is empty */
+		private boolean isQueueEmpty() {
+			return queueLength() < 1;
+		}
+
+		/** Calculate minimum rate (vehicles / hour) */
+		private int calculateMinimumRate() {
+                        
+                    //System.out.println("calc min rate "+passage_good+" "+tracking_demand);
+			if (passage_good) {
+				limit_control = MinimumRateLimit.target_min;
+				return calculateMinimumRate(targetMinRate());
+			} else {
+				limit_control = MinimumRateLimit.passage_fail;
+				return tracking_demand;
+			}
+		}
+
+		/** Calculate minimum rate (vehicles / hour) */
+		private int calculateMinimumRate(int r) {
+                    
+                            
+			int qsl = queueStorageLimit();
+			if (qsl > r) {
+				r = qsl;
+				limit_control = MinimumRateLimit.storage_limit;
+			}
+			int qwl = queueWaitLimit();
+			if (qwl > r) {
+				r = qwl;
+				limit_control = MinimumRateLimit.wait_limit;
+			}
+			int bml = backupMinLimit();
+			if (bml > r) {
+				r = bml;
+				limit_control = MinimumRateLimit.backup_limit;
+			}
+                        
+                        //System.out.println("calc min rate(r) "+qsl+" "+qwl+" "+bml+" "+r);
+                        
+                        
+			return r;
+		}
+
+		/** Caculate queue storage limit.  Project into the future the
+		 * duration of the target wait time.  Using the target demand,
+		 * estimate the cumulative demand at that point in time.  From
+		 * there, subtract the target ramp storage count to find the
+		 * required cumulative passage vehicle count at that time.
+		 * @return Queue storage limit (vehicles / hour). */
+		private int queueStorageLimit() {
+			assert passage_good;
+			float proj_arrive = vehCountPeriod(tracking_demand,
+				targetWaitTime());
+			float demand_proj = demand_accum + proj_arrive;
+			int req = Math.round(demand_proj - targetStorage());
+			int pass_min = req - passage_accum;
+                        
+                        //System.out.println("qsl "+proj_arrive+" "+demand_proj+" "+req+" "+flowRate(pass_min, steps(targetWaitTime())));
+			return flowRate(pass_min, steps(targetWaitTime()));
+		}
+
+		/** Calculate the target storage on the ramp (vehicles) */
+		private float targetStorage() {
+			return maxStorage() * STORAGE_TARGET_RATIO;
+		}
+
+		/** Calculate the maximum storage on the ramp (vehicles) */
+		private float maxStorage() {
+			int stor_ft = meter.getStorage() * meter.getLaneCount();
+			return stor_ft * JAM_VPF;
+		}
+
+		/** Calculate queue wait limit (minimum rate).
+		 * @return Queue wait limit (vehicles / hour) */
+		private int queueWaitLimit() {
+			assert passage_good;
+			int wait_limit = 0;
+			int wait_target = targetWaitTime();
+			int wait_steps = steps(wait_target);
+			for (int i = 1; i <= wait_steps; i++) {
+				int dem = Math.round(cumulativeDemand(
+					wait_steps - i));
+				int pass_min = dem - passage_accum;
+				int limit = flowRate(pass_min, i);
+				wait_limit = Math.max(limit, wait_limit);
+			}
+			return wait_limit;
+		}
+
+		/** Get the target wait time (seconds) */
+		private int targetWaitTime() {
+			return Math.round(maxWaitTime() * WAIT_TARGET_RATIO);
+		}
+
+		/** Get the max wait time (seconds) */
+		private float maxWaitTime() {
+			return Math.max(meter.getMaxWait(), 1);
+		}
+
+		/** Estimate the wait time for vehicle at head of queue */
+		private int estimateWaitSecs() {
+			if (!passage_good)
+				return 0;
+			float pd = demand_accum;
+			if (pd <= passage_accum)
+				return 0;
+			for (int i = 1; i < steps(DEMAND_ACCUM_SECS); i++) {
+				float dem = cumulativeDemand(i);
+				if (dem <= passage_accum && pd > dem) {
+					float p = passage_accum - dem;
+					float r = p / (pd - dem);
+					assert r >= 0 && r <= 1;
+					// Estimate wait time (in steps)
+					float wait = (i - 1) + r;
+					return Math.round(wait * STEP_SECONDS);
+				}
+				pd = dem;
+			}
+			return DEMAND_ACCUM_SECS;
+		}
+
+		/** Calculate target minimum rate.
+		 * @return Target minimum rate (vehicles / hour). */
+		private int targetMinRate() {
+			return Math.round(tracking_demand * TARGET_MIN_RATIO);
+		}
+
+		/** Calculate backup minimum limit.
+		 * @return Backup minimum limit (vehicles / hour). */
+		private int backupMinLimit() {
+			// NOTE: The following is the proper calculation:
+			//    occ_avg = backup_occ / steps(queue_backup_secs)
+			//    backup_mins = queue_backup_secs / 60.0f
+			//    ratio = 50 + occ_avg * backup_mins
+			// This can be simplified to this:
+			//    ratio = 50 + backup_occ * STEP_SECONDS *
+			//        queue_backup_secs / (queue_backup_secs * 60)
+			// Which can be further simplified to:
+			//    ratio = 50 + backup_occ * STEP_SECONDS / 60
+			float ratio = BACKUP_LIMIT_BASE + backup_occ *
+				STEP_SECONDS / (60.0f * 100.0f);
+			return Math.round(tracking_demand * ratio);
+		}
+
+		/** Get the target maximum rate ratio for current phase */
+		private float targetMaxRatio() {
+			switch (phase) {
+			case flushing:
+			     return TARGET_MAX_RATIO_FLUSHING;
+			default:
+			     return TARGET_MAX_RATIO;
+			}
+		}
+
+		/** Calculate target maximum rate.
+		 * @return Target maxumum rate (vehicles / hour). */
+		private int calculateMaximumRate() {
+			int target_max = Math.round(tracking_demand *
+				targetMaxRatio());
+			return Math.max(target_max, min_rate);
+		}
+
+		/** Calculate the metering rate */
+		private void calculateMeteringRate() {
+			assert s_node != null;
+			StationNode dn = s_node.segmentStationNode();
+			double k = s_node.calculateSegmentDensity(dn);
+			segment_k_hist.push(k);
+			phase = checkMeteringPhase();
+                        
+                        System.out.println("calc meter rate "+meter.getName());
+                        
+                        
+                        
+                        
+                        // I need sending flow, receiving flow for mainline and ramp
+                        double S_rd = 0;
+                        double S_ud = 0;
+                        double R_d = 0;
+                        // these are the position weights
+                        double w_rd = 0;
+                        double w_ud = 0;
+                        // these are capacities for mainline and ramp
+                        double Q_u = 0;
+                        double Q_r = 0;
+                        
+                        // brute force line search
+                        int min_rate = getMinimumRate();
+                        int max_rate = getMaximumRate();
+                        int intervals = 10;
+                        
+                        // what do I do about maximum rate? I should also consider meter off as an option. 
+                        
+                        // base case: no metering
+                        int best_rate = (int)Q_r;
+                        double best_obj = calcMPObj(w_ud, w_rd, S_ud, S_rd, R_d, Q_u, Q_r);
+                        
+                        for(int i = 0; i < intervals+1; i++){
+                            int rate = (int)((max_rate - min_rate)/ (double)intervals) + min_rate;
+
+                            double obj = calcMPObj(w_ud, w_rd, S_ud, Math.min(S_rd, rate), R_d, Q_u, rate);
+                            
+                            if(obj > best_obj){
+                                best_rate = rate;
+                                best_obj = obj;
+                            }
+                        }                        
+                        double rate = 0.0;
+                        
+                        
+                        
+                        // null means meter is off
+                        meter.setRatePlanned(best_rate);
+		}
+                
+                private double calcMPObj(double w_ud, double w_rd, double S_ud, double S_rd, double R_d, double Q_u, double Q_r){
+                    double y_ud = 0;
+                    double y_rd = 0;
+                    
+                    // uncongested merge case
+                    if(S_ud + S_rd < R_d){
+                        y_ud = S_ud;
+                        y_rd = S_rd;
+                    }
+                    // congested merge case, 2 upstream links
+                    else{
+                        double lambda_rd = R_d * Q_r / (Q_u + Q_r);
+                        y_rd = median(R_d - S_ud, S_rd, lambda_rd);
+                        y_ud = R_d - y_rd;
+                    }
+                    
+                    return w_ud * y_ud + w_rd * y_rd;
+                }
+                
+                private double median(double a, double b, double c){
+                    return Math.max(Math.min(a,b), Math.min(Math.max(a,b),c));
+                }
+
+		/** Check metering phase transitions.
+		 * @return New metering phase. */
+		private MeteringPhase checkMeteringPhase() {
+			switch (phase) {
+			case not_started:
+				return checkStart();
+			case metering:
+				return checkContinueMetering();
+			case flushing:
+				return checkContinueFlushing();
+			case stopped:
+				return checkRestart();
+			default:
+				return MeteringPhase.stopped;
+			}
+		}
+
+		/** Check if metering should start.
+		 * @return New metering phase. */
+		private MeteringPhase checkStart() {
+			if (shouldStart()) {
+				resetAccumulators();
+				return MeteringPhase.metering;
+			} else if (isEarlyPeriodOver())
+				return stopMetering();
+			else
+				return MeteringPhase.not_started;
+		}
+
+		/** Check if initial metering should start.
+		 * @return true if metering should start. */
+		private boolean shouldStart() {
+			return shouldStart(START_SECS);
+		}
+
+		/** Check if metering should start.
+		 * @param n_secs Number of seconds to average data.
+		 * @return true if metering should start, based on segment
+		 *         density. */
+		private boolean shouldStart(int n_secs) {
+			Double sk = segment_k_hist.average(0, steps(n_secs));
+                        
+                        System.out.println("should start density "+sk+" <? "+K_DES);
+			return (sk != null) && (sk > K_DES);
+		}
+
+		/** Check if early metering period is over */
+		private boolean isEarlyPeriodOver() {
+			return isPeriodExpiring(EARLY_METER_END_MINUTES);
+		}
+
+		/** Check if metering period is expiring soon.
+		 * @param m Number of minutes before end of metering period.
+		 * @return true if within m minutes of end of period. */
+		private boolean isPeriodExpiring(int m) {
+                    /*
+			int min = TimeSteward.currentMinuteOfDayInt();
+			int stop_min = meter.getStopMin();
+			return min >= stop_min - m;
+                    */
+                    return false;
+		}
+
+		/** Check if ramp meter should continue metering.
+		 * @return New metering phase. */
+		private MeteringPhase checkContinueMetering() {
+			return shouldFlush()
+			     ? MeteringPhase.flushing
+			     : MeteringPhase.metering;
+		}
+
+		/** Check if ramp meter should transition to flushing phase.
+		 * @return true if meter should flush queue. */
+		private boolean shouldFlush() {
+			return isFlushTime() || isSegmentFlowing();
+		}
+
+		/** Check if it's time to flush queue */
+		private boolean isFlushTime() {
+			return isPeriodExpiring(FLUSH_MINUTES);
+		}
+
+		/** Check if mainline segment is flowing */
+		private boolean isSegmentFlowing() {
+			Double str_k = segment_k_hist.average(0,
+				steps(START_SECS));
+			Double stp_k = segment_k_hist.average(0,
+				steps(STOP_SECS));
+			return isDensityLow(str_k) && isDensityLow(stp_k);
+		}
+
+		/** Check if ramp meter should continue flushing.
+		 * @return New metering phase. */
+		private MeteringPhase checkContinueFlushing() {
+			return isQueueEmpty()
+			     ? stopMetering()
+			     : MeteringPhase.flushing;
+		}
+
+		/** Stop metering.
+		 * @return New metering phase. */
+		private MeteringPhase stopMetering() {
+			release_rate = 0;
+			return MeteringPhase.stopped;
+		}
+
+		/** Check if metering should restart.
+		 * @return New metering phase. */
+		private MeteringPhase checkRestart() {
+			return shouldRestart()
+			     ? restartMetering()
+			     : MeteringPhase.stopped;
+		}
+
+		/** Check if metering should restart (after stopping).
+		 * @return true if metering should restart. */
+		private boolean shouldRestart() {
+                    System.out.println("\tcheck restart "+shouldStart(RESTART_SECS)+" "+isFlushTime());
+			return shouldStart(RESTART_SECS) && !isFlushTime();
+		}
+
+		/** Retart metering.
+		 * @return New metering phase. */
+		private MeteringPhase restartMetering() {
+			resetAccumulators();
+			return MeteringPhase.metering;
+		}
+
+		
+
+		/** Get historical passage flow.
+		 * @param step Time step in past (0 for current).
+		 * @param secs Number of seconds to average.
+		 * @return Passage flow at 'step' time steps ago. */
+		private Double getPassage(int step, int secs) {
+			return passage_hist.average(step, steps(secs));
+		}
+
+		/** Get current segment density.
+		 * @return segment density, or null for missing data. */
+		private Double getSegmentDensity() {
+			return segment_k_hist.get(0);
+		}
+
+		/** Get the minimum metering rate.
+		 * @return Minimum metering rate */
+		private int getMinimumRate() {
+			return min_rate;
+		}
+
+		/** Get the maximum metering rate.
+		 * @return Maximum metering rate */
+		private int getMaximumRate() {
+			return max_rate;
+		}
+
+		/** Limit metering rate within minimum and maximum rates */
+		private double limitRate(double r) {
+			return Math.min(getMaximumRate(),
+			       Math.max(getMinimumRate(), r));
+		}
+
+		
+
+		/** Get current metering rate.
+		 * @return metering rate */
+		private double getRate() {
+			double r = release_rate;
+                        
+                        //System.out.println("get rate "+r+" "+getPassage(0, 90)+" "+getMaxRelease());
+			if (r > 0)
+				return r;
+			else {
+				Double p = getPassage(0, 90);
+				return (p != null) ? p : getMaxRelease();
+			}
+		}
+
+		/** Calculate a linear interpolation of metering rate below
+		 * desired segment density.
+		 *
+		 * <pre>
+		 * r_mx |__
+		 *      |  --__
+		 *      |      --__
+		 *      |          --__
+		 *      |              --__
+		 *      |                  --__
+		 *      |                      --__
+		 * rate |                          --__
+		 *      |
+		 *      .------------------------------
+		 *      0          k (density)       K_DES
+		 * </pre>
+		 *
+		 * @param rate Previous metering rate.
+		 * @param k Segment density.
+		 * @return Interpolated metering rate.
+		 */
+		private double lerpBelow(double rate, double k) {
+			assert k <= K_DES;
+			double r_mx = getMaximumRate();
+			double ratio = (r_mx - rate) / K_DES;
+			return r_mx - k * ratio;
+		}
+
+		/** Calculate a linear interpolation of metering rate above
+		 * desired segment density.
+		 *
+		 * <pre>
+		 * rate |__
+		 *      |  --__
+		 *      |      --__
+		 *      |          --__
+		 *      |              --__
+		 *      |                  --__
+		 *      |                      --__
+		 * r_mn |                          --__
+		 *      |
+		 *      .------------------------------
+		 *      K_DES      k (density)       K_JAM
+		 * </pre>
+		 *
+		 * @param rate Previous metering rate.
+		 * @param k Segment density.
+		 * @return Interpolated metering rate.
+		 */
+		private double lerpAbove(double rate, double k) {
+			assert k > K_DES;
+			double r_mn = getMinimumRate();
+			double ratio = (rate - r_mn) / (K_JAM - K_DES);
+                        
+                        //System.out.println("lerpabove "+ratio+" "+rate+" "+r_mn);
+			return rate - (k - K_DES) * ratio;
+		}
+
+		/** Get the downstream node for the segment */
+		private StationNode segmentDownstream() {
+			if (s_node != null) {
+				StationNode dn = s_node.segmentStationNode();
+				if (dn != null)
+					return dn;
+			}
+			return null;
+		}
+
+		/** Log a meter event */
+		protected void logMeterEvent() {
+			StationNode dn = segmentDownstream();
+			String dns = (dn != null) ? dn.station.getName() : null;
+			Double sd = getSegmentDensity();
+			float seg_den = (sd != null) ? sd.floatValue() : 0;
+			MeterEvent ev = new MeterEvent(EventType.METER_EVENT,
+				meter.name, phase.ordinal(),
+				getQueueState().ordinal(), queueLength(),
+				demand_adj, estimateWaitSecs(),
+				limit_control.ordinal(), min_rate, release_rate,
+				max_rate, dns, seg_den);
+			BaseObjectImpl.logEvent(ev);
+		}
+
+		/** Get a string representation of a meter state */
+		@Override
+		public String toString() {
+			Double sd = getSegmentDensity();
+			float seg_den = (sd != null) ? sd.floatValue() : 0;
+			return "meter:" + meter.getName() + " phase:" + phase +
+			       " seg_den:" + seg_den;
+		}
+	}
+}
