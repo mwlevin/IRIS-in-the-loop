@@ -12,3 +12,4 @@ insert into iris.device_preset values ('meter', 'ramp_meter', 'meter');
 Alter table iris.r_node drop constraint left_edge_ck;
 Alter table iris.r_node drop constraint right_edge_ck;
 insert into iris.lane_code values ('0', 'normal lane');
+insert into iris.meter_algorithm (id, description) VALUES (4, 'max-pressure');

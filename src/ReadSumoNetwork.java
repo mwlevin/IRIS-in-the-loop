@@ -34,7 +34,7 @@ public class ReadSumoNetwork {
 			"etc/iris/iris-server.properties");
     
     public static void main(String[] args) throws Exception {
-        readSumo("site_trial.net.xml", "detectors.xml");
+        readSumo("sumo code/site_trial.net.xml", "sumo code/detectors.xml");
     }
     
     public static void readSumo(String netfile, String detectorfile) throws Exception{
@@ -359,8 +359,12 @@ public class ReadSumoNetwork {
         while(filein.hasNextLine()){
             String line = filein.nextLine();
             
+            
+            
             if(line.indexOf("<inductionLoop ") >= 0){
                 String name = findVar("id", line);
+                
+                System.out.println("Adding detector "+name);
                 double period = Double.parseDouble(findVar("period", line));
                 
                 if(period != 30.0){
@@ -471,7 +475,7 @@ public class ReadSumoNetwork {
         
         filein.close();
         
-        store.update("insert into iris.meter_algorithm (id, description) VALUES (4, 'max-pressure');");
+
         store.update("update iris.ramp_meter set algorithm = 4;");
     }
     

@@ -114,9 +114,9 @@
         <lane id="rampStart_0" index="0" speed="20.12" length="400.00" shape="-40.49,206.88 -21.90,149.81"/>
         <lane id="rampStart_1" index="1" speed="20.12" length="400.00" shape="-37.45,207.87 -18.86,150.80"/>
     </edge>
-    <edge id="startSeg" from="J1" to="J2" priority="-1" length="300.00">
-        <lane id="startSeg_0" index="0" speed="26.82" length="300.00" shape="7.63,146.70 6.97,55.83"/>
-        <lane id="startSeg_1" index="1" speed="26.82" length="300.00" shape="10.83,146.68 10.17,55.80"/>
+    <edge id="startSeg" from="J1" to="J2" priority="-1" length="1500.00">
+        <lane id="startSeg_0" index="0" speed="26.82" length="1500.00" shape="7.63,146.70 6.97,55.83"/>
+        <lane id="startSeg_1" index="1" speed="26.82" length="1500.00" shape="10.83,146.68 10.17,55.80"/>
     </edge>
     <edge id="switchACC" from="J4" to="J5" priority="-1" length="1500.00">
         <lane id="switchACC_0" index="0" speed="26.82" length="1500.00" shape="6.05,-31.78 5.05,-107.75"/>

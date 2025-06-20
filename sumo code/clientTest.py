@@ -46,7 +46,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     time_period = 30
     
     
-    test = True
+    test = False
     
     min_red_time = 2 # constant minimum red time for meter
     green_time = 3 # constant green time for meter
@@ -63,6 +63,9 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     
         print("connecting to IRIS server ", host, port);
         connection.connect((host, port))
+        print("connected")
+    else:
+        print("test only, no server conection")
     
     lanes = dict()
 
@@ -77,7 +80,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     
     
     # detPass1 and detPass3 hvae the same location as detPass2 and detPass 4 but a different period?
-    detectors = ["detDemandA", "detDemandB", "detDemandC", "detDemandD", "detMerge1", "detMerge2", "detGreen1", "detGreen2", "detDown1", "detDown2", "detPass2", "detPass4", "detUp1", "detUp2"]
+    detectors = ["detDemandA", "detDemandB", "detDemandC", "detDemandD", "detMerge1", "detMerge2", "detGreen1", "detGreen2", "detDown1", "detDown2", "detPass2", "detPass4", "detUp1", "detUp2", "detDSA1", "detDSA2", "detDSB1", "detDSB2", "detUSB1", "detUSB2"]
     
     
     
@@ -99,7 +102,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     metering_rates = dict()
     
     for m in meters:
-        metering_rates[m]  = dict()
+        metering_rates[m] = dict()
         metering_rates[m]["on"] = False
         metering_rates[m]["next-green-1"] = -1
         metering_rates[m]["next-red-1"] = 0
@@ -293,6 +296,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                         if metering_rates[m]["green-active-1"] == True:
                             if metering_rates[m]["green-active-2"] == True:
                                 traci.trafficlight.setPhase(m, 0)
+                                phase = 0
                             else:
                                 traci.trafficlight.setPhase(m, 2)
                                 phase = 2
@@ -360,7 +364,7 @@ def processMessage(message):
     s = message.split(",")
     
     if s[0] == "meter-rate":
-        meter = s[1][s[1].index("-")+1]
+        meter = s[1][s[1].index("-")+1:]
         rate = s[2]
         if rate == "null":
             rate = -1 # change this, I'm not sure what "null" rate is
@@ -370,34 +374,4 @@ def processMessage(message):
         return meter, rate
 
     
-    # this contains the metering rate!
-    
-def computeRed(newRate):
-    
-    # CONVERT RELEASE RATE TO RED TIME
-    C = 3600 / newRate # Convert Release rate to a cycle time
-    redTime = round(C - greenTime)
-    redTime = max(redTime,2) # Dont have red less than 2 seconds
-    
-    #print('lastRate:',lastRate,'minRate',minRate,'maxRate',maxRate,'segDen',segDen)
-    print('NewRate',newRate, 'redTime',redTime)
-    
-    return redTime, newRate
-    
-def computeRedFlush(maxRate):
-    # Computes rate during flushing phase, just use the max Rate
-    if maxRate <=0: # Make sure max rate is not negative
-        maxRate = 200
-    
-    maxRate = maxRate * 1.2 # During flush phase max rate is 150% not 125% of track demand
-    
-    C = 3600 / maxRate
-    greenTime = 3
-    redTime = round(C - greenTime)
-    redTime = max(redTime, 2) # Dont have red less than 2 seconds
-    
-    print('Flush Rate Update!')
-    print('FlushRate:', maxRate, 'FlushRedTime:', redTime)
-    
-    return redTime
 

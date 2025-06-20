@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-06-16 10:02:52 by Eclipse SUMO sumo Version 1.21.0
+<!-- generated on 2025-06-18 10:16:17 by Eclipse SUMO sumo Version 1.21.0
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -23,14 +23,17 @@
     </report>
 
     <traci_server>
-        <remote-port value="53882"/>
+        <remote-port value="49789"/>
     </traci_server>
 
 </sumoConfiguration>
 -->
 
 <detector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/det_e1_file.xsd">
-    <interval begin="0.00" end="90.00" id="detPass1" nVehContrib="5" flow="200.00" occupancy="3.05" speed="9.20" harmonicMeanSpeed="9.12" length="5.00" nVehEntered="6"/>
-    <interval begin="90.00" end="180.00" id="detPass1" nVehContrib="11" flow="440.00" occupancy="6.83" speed="8.97" harmonicMeanSpeed="8.94" length="5.00" nVehEntered="10"/>
-    <interval begin="180.00" end="270.00" id="detPass1" nVehContrib="10" flow="400.00" occupancy="5.82" speed="9.62" harmonicMeanSpeed="9.55" length="5.00" nVehEntered="10"/>
+    <interval begin="0.00" end="90.00" id="detPass1" nVehContrib="7" flow="280.00" occupancy="4.05" speed="9.62" harmonicMeanSpeed="9.61" length="5.00" nVehEntered="7"/>
+    <interval begin="90.00" end="180.00" id="detPass1" nVehContrib="10" flow="400.00" occupancy="5.75" speed="9.73" harmonicMeanSpeed="9.67" length="5.00" nVehEntered="10"/>
+    <interval begin="180.00" end="270.00" id="detPass1" nVehContrib="8" flow="320.00" occupancy="4.76" speed="9.44" harmonicMeanSpeed="9.34" length="5.00" nVehEntered="8"/>
+    <interval begin="270.00" end="360.00" id="detPass1" nVehContrib="9" flow="360.00" occupancy="5.59" speed="8.99" harmonicMeanSpeed="8.94" length="5.00" nVehEntered="9"/>
+    <interval begin="360.00" end="450.00" id="detPass1" nVehContrib="10" flow="400.00" occupancy="6.23" speed="8.96" harmonicMeanSpeed="8.92" length="5.00" nVehEntered="10"/>
+    <interval begin="450.00" end="540.00" id="detPass1" nVehContrib="9" flow="360.00" occupancy="5.59" speed="8.99" harmonicMeanSpeed="8.94" length="5.00" nVehEntered="9"/>
 </detector>
