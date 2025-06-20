@@ -758,24 +758,46 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         //System.out.println("meter state inst "+queue.size()+" "+passage.size()+" "+merge.size());
 			s_node = getAssociatedStation();
                         
-                        mergepoint = s_node; // I think this is the same as the relevant station node
-                        upstream = findUpstreamStation();
-                        downstream = findDownstreamStation();
+                        mergepoint = findMergePoint(s_node); // this is not always the same as s_node
+                        upstream = findUpstreamStation(s_node);
+                        downstream = findDownstreamStation(s_node);
                         
                         System.out.println(upstream+" "+mergepoint+" "+downstream);
 		}
                 
-                private StationNode findUpstreamStation(){
+                private StationNode findMergePoint(Node start){
+                    
+                    StationNode closest = null;
+                    for(Node n : nodes){
+                        if(n instanceof StationNode)
+                        System.out.println("\t"+n+" "+n.mile+" "+node+" "+node.mile);
+                    }
+                    
+                    for(Node n : nodes){
+                        if(start.mile > n.mile){
+                            if(n instanceof StationNode){
+                                closest = (StationNode)n;
+                            }
+                        }
+                        else{
+                            // we've gone too far
+                            break;
+                        }
+                    }
+                    
+                    return s_node;
+                }
+                
+                
+                private StationNode findUpstreamStation(Node start){
                     // assume that nodes are in sorted order
                     // s_node is the base point. I want the closest node with distance > min_link_len
                     StationNode closest = null;
-                    double dist = Integer.MAX_VALUE;
                     
                     for(Node n : nodes){
-                        if(s_node.mile - n.mile > MIN_LINK_LEN){
+                        if(start.mile - n.mile > MIN_LINK_LEN){
                             if(n instanceof StationNode){
                                 closest = (StationNode)n;
-                                dist = s_node.mile - n.mile;
                             }
                         }
                         else{
@@ -787,14 +809,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     return closest;
                 }
                 
-                private StationNode findDownstreamStation(){
+                private StationNode findDownstreamStation(Node start){
                     // assume nodes in sorted order
                     // s_node is the base point. I want the closest node with distance > min_link_len
   
                     
                     for(Node n : nodes){
                         // first matching node is the closest
-                        if((n instanceof StationNode) && n.mile - s_node.mile  > MIN_LINK_LEN){
+                        if((n instanceof StationNode) && n.mile - start.mile  > MIN_LINK_LEN){
                             return (StationNode)n;
                         }
                     }

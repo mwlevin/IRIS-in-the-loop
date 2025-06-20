@@ -169,7 +169,8 @@ public class ReadSumoNetwork {
                     
                     if(ramp){
                         junctions.get(to)[2] = junctions.get(from)[2];
-                        junctions.get(to)[1] = (double)junctions.get(from)[1] + (double)edges.get(name)[3];
+                        //junctions.get(to)[1] = (double)junctions.get(from)[1] + (double)edges.get(name)[3];
+                        junctions.get(to)[1] = 0.0;
                     }
                     else{
                         junctions.get(to)[1] = 0.0;
@@ -191,7 +192,8 @@ public class ReadSumoNetwork {
                     
                     if(ramp){
                         junctions.get(from)[2] = junctions.get(to)[2];
-                        junctions.get(from)[1] = (double)junctions.get(to)[1] - (double)edges.get(name)[3];
+                        //junctions.get(from)[1] = (double)junctions.get(to)[1] - (double)edges.get(name)[3];
+                        junctions.get(from)[1] = 0.0;
                     }
                     else{
                         junctions.get(from)[1] = 0.0;
@@ -274,6 +276,7 @@ public class ReadSumoNetwork {
                 }
             }
             
+      
 
             // create geo_loc
             store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline0', '0', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 

@@ -78,9 +78,9 @@
         <lane id=":J9_0_1" index="1" speed="26.82" length="8.58" shape="-69.41,-47.20 -69.19,-49.43 -68.20,-50.87 -68.47,-53.02 -67.02,-54.74"/>
     </edge>
 
-    <edge id="endSeg" from="J8" to="J0" priority="-1" length="400.00">
-        <lane id="endSeg_0" index="0" speed="26.82" length="400.00" shape="3.03,-180.30 0.47,-245.65"/>
-        <lane id="endSeg_1" index="1" speed="26.82" length="400.00" shape="6.22,-180.43 3.67,-245.78"/>
+    <edge id="endSeg" from="J8" to="J0" priority="-1" length="800.00">
+        <lane id="endSeg_0" index="0" speed="26.82" length="800.00" shape="3.03,-180.30 0.47,-245.65"/>
+        <lane id="endSeg_1" index="1" speed="26.82" length="800.00" shape="6.22,-180.43 3.67,-245.78"/>
     </edge>
     <edge id="entry" from="J7" to="J1" priority="-1" length="3950.00">
         <lane id="entry_0" index="0" speed="26.82" length="3950.00" shape="7.50,214.59 7.63,146.98"/>
