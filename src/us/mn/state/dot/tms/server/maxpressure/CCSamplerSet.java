@@ -9,7 +9,7 @@ import us.mn.state.dot.tms.server.SamplerSet;
 import us.mn.state.dot.tms.server.VehicleSampler;
 
 /**
- * I need to track cumulative counts.
+ * I need to track cumulative counts. This is a wrapper around a SamplerSet to avoid changing SamplerSet code directly.
  * @author michael
  */
 public class CCSamplerSet implements VehicleSampler {
@@ -21,20 +21,26 @@ public class CCSamplerSet implements VehicleSampler {
     
     private TreeMap<Long, Integer> counts;
     
+    /**
+     * I need to reset this periodically otherwise the counts will go to infinity.
+     * Ideally we want to reset it at a time where no one is around (e.g. 3am)
+     * reset interval is in ms
+     * offset is to determine time-of-day
+     * timestamp is in GMT, we are GMT-5 or GMT-6, so 3am is 8 or 9 hours after start-of-day
+     */
+    private static final int RESET_INTERVAL = 1000*3600*24; // every 24 hours
+    private static final int RESET_OFFSET = 1000*3600*8; 
+    
     public CCSamplerSet(SamplerSet s, long max_lookback, long stamp){
         sampler = s;
         
         counts = new TreeMap<>();
-        resetCC(stamp);
-    }
-    
-    
-    
-    // it may be helpful to reset the cumulative count periodically to 0. Otherwise, it could grow to infinity.
-    public void resetCC(long stamp){
-        counts.clear();
         counts.put(stamp, 0);
     }
+    
+    
+    
+    
     
     // this may be asked for historical counts, and those counts need to be stored and retrieved
     // this may be non-integer due to interpolation
@@ -48,6 +54,17 @@ public class CCSamplerSet implements VehicleSampler {
         }
         
         long last_update = counts.lastKey();
+        
+        // if we passed the reset interval, then reset
+        if(stamp % RESET_INTERVAL >= RESET_OFFSET && last_update % RESET_INTERVAL < RESET_OFFSET)
+        {
+            counts.clear();
+            // last_update becomes reset time
+            last_update = stamp - (stamp % RESET_INTERVAL - RESET_OFFSET);
+            counts.put(last_update, 0);
+            
+            // now continue with remainder of cc (the first case, stamp > last_update, should happen)
+        }
         
         if(stamp > last_update){
             int passed = sampler.getVehCount(stamp, (int)(stamp - last_update));
@@ -75,7 +92,8 @@ public class CCSamplerSet implements VehicleSampler {
         }
         else{
             // linear interpolation between stored points
-            // these should always be non-null: there should be 0 stored as a baseline, and by definition this is less than the highest key and not exactly equal to it
+            // upper should never be null
+            // lower could be null after a reset
             Long lower = counts.lowerKey(stamp);
             Long upper = counts.higherKey(stamp);
             
