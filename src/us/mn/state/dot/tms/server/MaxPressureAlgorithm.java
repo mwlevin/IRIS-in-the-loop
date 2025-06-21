@@ -36,6 +36,7 @@ import static us.mn.state.dot.tms.server.Constants.MISSING_DATA;
 import us.mn.state.dot.tms.units.Interval;
 import static us.mn.state.dot.tms.units.Interval.HOUR;
 import us.mn.state.dot.tms.server.event.MeterEvent;
+import us.mn.state.dot.tms.server.maxpressure.CCSamplerSet;
 import static us.mn.state.dot.tms.units.Interval.HOUR;
 
 /**
@@ -641,19 +642,19 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 		private final StationNode s_node;
 
 		/** Queue sampler set */
-		private final SamplerSet queue;
+		private final CCSamplerSet queue;
 
 		/** Passage sampler set */
-		private final SamplerSet passage;
+		private final CCSamplerSet passage;
 
 		/** Merge sampler set */
-		private final SamplerSet merge;
+		private final CCSamplerSet merge;
 
 		/** Bypass sampler set */
-		private final SamplerSet bypass;
+		private final CCSamplerSet bypass;
 
 		/** Green count sampler set */
-		private final SamplerSet green;
+		private final CCSamplerSet green;
 
 		/** Metering phase */
 		private MeteringPhase phase = MeteringPhase.not_started;
@@ -739,7 +740,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 private StationNode mergepoint; 
                 
                 
-                        
+                
 
 		/** Segment density history (vehicles / mile) */
 		private final BoundedSampleHistory segment_k_hist =
@@ -749,11 +750,6 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 		public MeterState(RampMeterImpl mtr, EntranceNode en) {
 			meter = mtr;
 			node = en;
-			queue = meter.getSamplerSet(LaneCode.QUEUE);
-			passage = meter.getSamplerSet(LaneCode.PASSAGE);
-			merge = meter.getSamplerSet(LaneCode.MERGE);
-			bypass = meter.getSamplerSet(LaneCode.BYPASS);
-			green = meter.getSamplerSet(LaneCode.GREEN);
                         
                         //System.out.println("meter state inst "+queue.size()+" "+passage.size()+" "+merge.size());
 			s_node = getAssociatedStation();
@@ -763,6 +759,20 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         downstream = findDownstreamStation(s_node);
                         
                         System.out.println(upstream+" "+mergepoint+" "+downstream);
+                        
+                        // ramp length of 1 mile
+                        // this has units of hours; convert to ms
+                        long max_lookback = (long)Math.ceil(1.0 / w_r * 3600 * 1000);
+                        
+                        stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
+                        
+			queue = new CCSamplerSet(meter.getSamplerSet(LaneCode.QUEUE), max_lookback, stamp);
+			passage = new CCSamplerSet(meter.getSamplerSet(LaneCode.PASSAGE), max_lookback, stamp);
+			merge = new CCSamplerSet(meter.getSamplerSet(LaneCode.MERGE), max_lookback, stamp);
+			bypass = new CCSamplerSet(meter.getSamplerSet(LaneCode.BYPASS), max_lookback, stamp);
+			green = new CCSamplerSet(meter.getSamplerSet(LaneCode.GREEN), max_lookback, stamp);
+                        
+                        
 		}
                 
                 private StationNode findMergePoint(Node start){
@@ -881,15 +891,6 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
                     
                     
-                    /* need to update cumulative counts */
-                    queue.updateCumulativeCount(stamp);
-                    passage.updateCumulativeCount(stamp);
-                    merge.updateCumulativeCount(stamp);
-                    bypass.updateCumulativeCount(stamp);
-                    green.updateCumulativeCount(stamp);
-                    mergepoint.sampler.updateCumulativeCount(stamp);
-                    upstream.sampler.updateCumulativeCount(stamp);
-                    downstream.sampler.updateCumulativeCount(stamp);
 
 			
 			// NOTE: these must happen in proper order

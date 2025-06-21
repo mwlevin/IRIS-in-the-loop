@@ -27,9 +27,6 @@ import static us.mn.state.dot.tms.server.Constants.MISSING_DATA;
  */
 public class SamplerSet implements VehicleSampler {
 
-        /* last time cumulative counts were updated */
-        private long last_update = 0;
-        
 	/** Vehicle sampler filter */
 	static public interface Filter {
 		boolean check(VehicleSampler d);
@@ -115,16 +112,6 @@ public class SamplerSet implements VehicleSampler {
 		}
 		return (samplers.size() > 0);
 	}
-        
-        
-        public void updateCumulativeCount(long stamp){
-            int passed = getVehCount(stamp, (int)(stamp - last_update));
-            last_update = stamp;
-        }
-        
-        public void resetCumulativeCount(long stamp){
-            last_update = stamp;
-        }
 
 	/** Get a vehicle count */
 	@Override
@@ -139,7 +126,6 @@ public class SamplerSet implements VehicleSampler {
 			} else
 				return MISSING_DATA;
 		}
-
 		return (n_count > 0) ? count : MISSING_DATA;
 	}
 
@@ -156,7 +142,6 @@ public class SamplerSet implements VehicleSampler {
 			} else
 				return MISSING_DATA;
 		}
-                
 		return (n_flow > 0) ? flow : MISSING_DATA;
 	}
 
