@@ -23,6 +23,7 @@ else:
 
 from sumolib import checkBinary
 import traci
+
 def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--nogui", action="store_true",default=False, help="run the commandline version of sumo")
@@ -117,7 +118,9 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     # START SIMULATION, RUN FOR SET TIME 
     while step <= endStep:
         
-        print("\nSUMO step ", step, step*stepsize, "sec")
+        print("\nSUMO step ", step, "/", endStep, step*stepsize, "sec\n")
+        
+        
         # get detector data
         if step > 0:
             for det in detectors:

@@ -242,7 +242,7 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 	private KAdaptiveAlgorithm(Corridor c) {
 		corridor = c;
                 
-                //System.out.println("construct k adaptive");
+                System.out.println("construct k adaptive");
 		nodes = createNodes();
 		debug();
 	}

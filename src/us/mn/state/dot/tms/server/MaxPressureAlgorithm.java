@@ -151,6 +151,12 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
 	/** Ratio for target storage to max storage */
 	static private final float STORAGE_TARGET_RATIO = 0.75f;
+        
+        /* this needs to be updated */
+        static private final double AVG_VEH_LEN = 22;
+        
+        // jam density
+        static private final double K = 5280.0/AVG_VEH_LEN;
 
 	/** Calculate the number of steps for an interval */
 	static private int steps(int seconds) {
@@ -733,6 +739,9 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 // backwards wave speeds
                 private double w_u = 0;
                 private double w_r = 0;
+                // critical densities
+                private double kc_u = 0;
+                private double kc_r = 0;
                 
                 // upstream node, node at merge point, downstream, node for mainline
                 private StationNode upstream;
@@ -758,7 +767,33 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         upstream = findUpstreamStation(s_node);
                         downstream = findDownstreamStation(s_node);
                         
-                        System.out.println(upstream+" "+mergepoint+" "+downstream);
+                        //System.out.println(upstream+" "+mergepoint+" "+downstream);
+                        
+                        int ramp_lanes = 2; // assume 2 lanes form on ramp
+                        int upstream_lanes = upstream.rnode.getLanes(); // number of lanes on upstream. Used for capacity, etc.
+                        
+                        
+                        K_u = upstream_lanes * K;
+                        K_r = ramp_lanes * K;
+                        
+                        
+                        // I need the free flow speed
+                        v_u = s_node.rnode.getSpeedLimit() + 5; // or maybe 75?
+                        v_r = 45; // ramp speed limit
+                        
+                        // capacity
+                        // adjust these for ACC
+                        Q_u = Math.min(2400, 2200 + 10 * (v_u - 50)); // from HCM
+                        Q_r = 1900; // from HCM, base ramp saturation flow
+                        
+                        // calculate critical density. Assume triangle.
+                        kc_u = Q_u / v_u;
+                        kc_r = Q_r / v_r;
+                        
+                        // backwards wave speed
+                        w_u = Q_u / (K_u - kc_u);
+                        w_r = Q_r / (K_r - kc_r);
+                        
                         
                         // ramp length of 1 mile
                         // this has units of hours; convert to ms
