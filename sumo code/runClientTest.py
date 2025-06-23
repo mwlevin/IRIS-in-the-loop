@@ -45,8 +45,7 @@ from clientTest import run
 from waitTime import waitTimes
 
 # Fixed parameters
-control = 1 # Meter activated
-# control = 2 # Meter not activated
+control = True
 adjust = 0 # If 0, will run with default settings
 rampStorageLength = 180
 rampStorageDensity = 20/180
@@ -113,8 +112,8 @@ for i in range(len(site)):
         
     traci.start([sumoBinary,"--step-length",stepsize, "-c", site[i], "--statistic-output","tripinfo.xml", "--duration-log.statistics","--output-prefix",output_prefix[i]]) 
     # passage_count,demand_count,meterActivate,flushActivate,stoppedActivate,minRates,maxRates,rates = run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
-    passage1_count,demand1_count,meter1Activate,flush1Activate,stopped1Activate,min1Rates,max1Rates,rates1,passage2_count,demand2_count,meter2Activate,flush2Activate,stopped2Activate,min2Rates,max2Rates,rates2 = run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
-
+    #passage1_count,demand1_count,meter1Activate,flush1Activate,stopped1Activate,min1Rates,max1Rates,rates1,passage2_count,demand2_count,meter2Activate,flush2Activate,stopped2Activate,min2Rates,max2Rates,rates2 = run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
+    run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
 
     # Mainline Density [veh/mi] : From .xml File not Traci retrieval
     fieldL = 16.4042

@@ -7,7 +7,7 @@
 
     <input>
         <net-file value="site_trial.net.xml"/>
-        <route-files value="highACC.rou.xml"/>
+        <route-files value="MD_fullHV.rou.xml"/>
         <additional-files value="detectors.xml"/>
     </input>
 

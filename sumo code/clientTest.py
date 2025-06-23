@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import sys
 import optparse
+import time
 
 import socket
 
@@ -23,6 +24,7 @@ else:
 
 from sumolib import checkBinary
 import traci
+import threading
 
 def get_options():
     optParser = optparse.OptionParser()
@@ -41,6 +43,12 @@ from densityFunctions_3 import computeRed, computeSwitchMeter,calcRateLimits, co
 
 def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low):
     
+    if control:
+        print("meter active")
+    else:
+        print("meter disabled")
+        
+        
     # Define Constants and Initialization
     stepsize = .05
     step = 0
@@ -48,6 +56,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     
     
     test = False
+    multithread = False
     
     min_red_time = 2 # constant minimum red time for meter
     green_time = 3 # constant green time for meter
@@ -57,7 +66,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     phase2 = 'notStarted' # Initial Phase
     
     
-    if not test:
+    if control and not test:
         connection = socket.socket()
         host = "localhost"
         port = 5452
@@ -70,7 +79,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     
     lanes = dict()
 
-    endStep = 72000 # Time to simulate (0.05 seconds steps)
+    endStep = 72000*3 # Time to simulate (0.05 seconds steps)
 
     # this is hardcoded for now
     meters = ["J3", "J9"]
@@ -115,10 +124,18 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
         metering_rates[m]["phase"] = 0
         metering_rates[m]["changed"] = False
         
+    listen_thread = None
+        
+    if multithread:
+         listen_thread = threading.Thread(target=listen, args=(metering_rates))
+         listen_thread.start()
+        
     # START SIMULATION, RUN FOR SET TIME 
     while step <= endStep:
         
-        print("\nSUMO step ", step, "/", endStep, step*stepsize, "sec\n")
+        current_ms = time.time() * 1000
+        
+        print("\nSUMO time ", step*stepsize, "sec / ", endStep*stepsize, "sec\n")
         
         
         # get detector data
@@ -143,42 +160,31 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                 #counts[det] = 0
                 #occupancies[det] = 0
                 
-                if not test:
+                if control and not test:
                     sendMessage(connection, msg)
         
-        # wait for meter rates
-        for i in range(0, len(meters)):
-            meter = ""
-            rate = -1
-            
-            if not test:
-                message = readLine(connection)
-                meter, rate = processMessage(message)
-            else:
-                meter = meters[i]
-                
-                if step < time_period / stepsize * 1:
-                    rate = -1
-                elif step < time_period / stepsize * 2:
-                    rate = 650
-                elif step < time_period / stepsize * 4:
-                    rate = 300
-                elif step < time_period / stepsize * 6:
-                    rate = 900
-                elif step < time_period / stepsize * 8:
-                    rate = -1
-                elif step < time_period / stepsize * 10:
-                    endStep = step
-            
-            if rate != metering_rates[meter]["rate"]:
-                metering_rates[meter]["rate"] = rate
-                metering_rates[meter]["changed"] = True
-            
+        
+        if control:
             if test:
-                print("rate changed", meter, metering_rates[meter]["rate"], metering_rates[meter]["changed"])
-        
-        
-                
+                for meter in meters:
+                    if step*stepsize < 3600:
+                        rate = 700
+                    else:
+                        rate = -1
+                    
+                    updateRate(meter, rate, metering_rates)
+            elif not multithread:
+                # wait for meter rates
+                for i in range(0, len(meters)):
+                    meter = ""
+                    rate = -1
+            
+                    message = readLine(connection)
+                    meter, rate = processMessage(message)
+                    updateRate(meter, rate, metering_rates)
+            else:
+                # wait a bit to give time for server communications
+                time.sleep(time_period / 3.0)        
                 
             
         # progress sim by time_period (probably 30sec)
@@ -219,8 +225,10 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                             metering_rates[m]["next-red-1"] = step + round(time_period/stepsize) - i
                             metering_rates[m]["next-red-2"] = step + round(time_period/stepsize) - i
                             
+                            '''
                             if test:
                                 print("time ", step * stepsize, "meter off")
+                            '''
                         else:
                             # lines so total time is 7200s but next green and red are based on single lane 
                             headway = 7200/rate
@@ -264,10 +272,12 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                                 
                                 metering_rates[m]["on"] = True
                                 
+                                '''
                                 if test:
                                     print("recalc-all", m, round(step * stepsize, 3), "new meter times", rate)
                                     print("\t lane 1", round(metering_rates[m]["next-green-1"]*stepsize, 3), round(metering_rates[m]["next-red-1"]*stepsize, 3))
                                     print("\t lane 2", round(metering_rates[m]["next-green-2"]*stepsize, 3), round(metering_rates[m]["next-red-2"]*stepsize, 3))
+                                '''
                                     
                             else:
                                 # only recalculate this meter next red and green time
@@ -282,10 +292,12 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                                 
                                 # still in red phase; green is not active
                                 
+                                '''
                                 if test:
                                     print("recalc", m, "lane", lane, round(step * stepsize, 3), "new meter times", rate)
                                     print("\t lane 1", round(metering_rates[m]["next-green-1"]*stepsize, 3), round(metering_rates[m]["next-red-1"]*stepsize, 3))
                                     print("\t lane 2", round(metering_rates[m]["next-green-2"]*stepsize, 3), round(metering_rates[m]["next-red-2"]*stepsize, 3))
+                                '''
                         
                     # set traffic signal
                     phase = 0
@@ -312,23 +324,35 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                                 phase = 1
                                 
                     
-                    
+                    '''
                     if test and metering_rates[m]["phase"] != phase:
                         print("time", round(step * stepsize, 3), m, "active phase", phase, "meter on", metering_rates[m]["on"])
-                        
+                    '''   
+                    
                     metering_rates[m]["phase"] = phase    
                 
             traci.simulationStep() # Progress Sim by 1 time step       
             step += 1
             
+        # end if no vehicles remaining
+        if traci.simulation.getMinExpectedNumber() == 0:
+            break
+                
+        if control and multithread and not test:
+            # wait for remainder of time_period
+            used_ms = time.time() * 1000 - current_ms
+        
+            time.sleep(time_period - used_ms/1000.0)
+            
  
     traci.close()
     sys.stdout.flush()
     
-    if not test:
-        socket.close()
+    if control and not test:
+            
+        socket.shutdown(0)
     
-    return(passage1_count,demand1_count,meter1Activate,flush1Activate,stopped1Activate,min1Rates,max1Rates,rates1,passage2_count,demand2_count,meter2Activate,flush2Activate,stopped2Activate,min2Rates,max2Rates,rates2)
+    #return(passage1_count,demand1_count,meter1Activate,flush1Activate,stopped1Activate,min1Rates,max1Rates,rates1,passage2_count,demand2_count,meter2Activate,flush2Activate,stopped2Activate,min2Rates,max2Rates,rates2)
     
 def sendMessage(connection, msg):
     #print("sending \""+msg+"\"")
@@ -360,7 +384,22 @@ def readLine(sock):
             data += str(chunk)[2]
     return data # Return any remaining data, even if it's not a complete line
 
-    
+
+def updateRate(meter, rate, metering_rates):
+    if rate != metering_rates[meter]["rate"]:
+        metering_rates[meter]["rate"] = rate
+        metering_rates[meter]["changed"] = True   
+        
+        print("rate changed", meter, metering_rates[meter]["rate"], metering_rates[meter]["changed"])
+        
+        
+
+def listen(metering_rates):
+    while True:
+        message = readLine(connection)
+        meter, rate = processMessage(message)
+        updateRate(meter, rate, metering_rates)
+           
 def processMessage(message):
     print("received \""+message+"\"");
     

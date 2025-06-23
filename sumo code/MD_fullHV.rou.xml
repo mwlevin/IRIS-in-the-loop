@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-02-04 20:00:31 by Eclipse SUMO netedit Version 1.18.0
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- VTypes -->
+    <vType id="ACC_AMax_M" length="5.00" minGap="6.30" maxSpeed="44.10" speedFactor="normc(1.00,0.10,0.20,2.00)" color="blue" lcAssertive="5" carFollowModel="IDM" accel="0.6" decel="5.2" tau="2.2" delta="15.5"/>
+    <vType id="ACC_AMax_R" length="5.00" minGap="6.30" maxSpeed="44.10" speedFactor="normc(1.00,0.10,0.20,2.00)" color="white" lcAssertive="1" carFollowModel="IDM" accel="0.6" decel="5.2" tau="2.2" delta="15.5"/>
+    <vType id="AV_M" length="5.00" minGap="2.50" maxSpeed="44.10" speedFactor="normc(1.00,0.10,0.20,2.00)" color="red" lcAssertive="5" carFollowModel="IDM" accel="1.70" decel="2" tau="0.5" delta="4"/>
+    <vType id="AV_R" length="5.00" minGap="2.50" maxSpeed="44.10" speedFactor="normc(1.00,0.10,0.20,2.00)" color="red" lcAssertive="5" carFollowModel="IDM" accel="1.70" decel="2" tau="0.5" delta="4"/>
+    <vType id="HV_M" length="5.00" minGap="3.40" maxSpeed="44.10" speedFactor="normc(1.00,0.10,0.20,2.00)" color="yellow" lcAssertive="5" carFollowModel="IDM" accel="1.06" decel="1.11" tau="1.26" delta="4"/>
+    <vType id="HV_R" length="5.00" minGap="3.40" maxSpeed="44.10" speedFactor="normc(1.00,0.10,0.20,2.00)" color="yellow" lcAssertive="5" carFollowModel="IDM" accel="1.06" decel="1.11" tau="1.26" delta="4"/>
+    <vType id="HV_R_ACC" length="5.00" minGap="3.40" maxSpeed="44.10" speedFactor="normc(1.00,0.10,0.20,2.00)" color="green" lcAssertive="5" carFollowModel="IDM" accel="1.06" decel="1.11" tau="1.26" delta="4"/>
+    
+    
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <flow id="HV_M1" type="HV_M" begin="0.00" departLane="free" departSpeed="avg" from="entry" to="exit" end="600.00" vehsPerHour="1527.00"/>
+    <flow id="HV_R1_1" type="HV_R" begin="0.00" departLane="free" departSpeed="avg" from="rampStart" to="exit" end="600.00" vehsPerHour="1008.00"/>
+    <flow id="HV_R2_1" type="HV_R" begin="0.00" departLane="free" departSpeed="avg" from="ramp2Start" to="exit" end="600.00" vehsPerHour="1008.00"/>
+    <flow id="HV_M2" type="HV_M" begin="600.00" departLane="free" departSpeed="avg" from="entry" to="exit" end="1200.00" vehsPerHour="1867.00"/>
+    <flow id="HV_R1_2" type="HV_R" begin="600.00" departLane="free" departSpeed="avg" from="rampStart" to="exit" end="1200.00" vehsPerHour="942.00"/>
+    <flow id="HV_R2_2" type="HV_R" begin="600.00" departLane="free" departSpeed="avg" from="ramp2Start" to="exit" end="1200.00" vehsPerHour="942.00"/>
+    <flow id="HV_M3" type="HV_M" begin="1200.00" departLane="free" departSpeed="avg" from="entry" to="exit" end="1800.00" vehsPerHour="1770"/>
+    <flow id="HV_R1_3" type="HV_R" begin="1200.00" departLane="free" departSpeed="avg" from="rampStart" to="exit" end="1800.00" vehsPerHour="1008.00"/>
+    <flow id="HV_R2_3" type="HV_R" begin="1200.00" departLane="free" departSpeed="avg" from="ramp2Start" to="exit" end="1800.00" vehsPerHour="1008.00"/>
+    <flow id="HV_M4" type="HV_M" begin="1800.00" departLane="free" departSpeed="avg" from="entry" to="exit" end="2400.00" vehsPerHour="1793"/>
+    <flow id="HV_R1_4" type="HV_R" begin="1800.00" departLane="free" departSpeed="avg" from="rampStart" to="exit" end="2400.00" vehsPerHour="923.00"/>
+    <flow id="HV_R2_4" type="HV_R" begin="1800.00" departLane="free" departSpeed="avg" from="ramp2Start" to="exit" end="2400.00" vehsPerHour="923.00"/>
+    <flow id="HV_M5" type="HV_M" begin="2400.00" departLane="free" departSpeed="avg" from="entry" to="exit" end="3000.00" vehsPerHour="1696.00"/>
+    <flow id="HV_R1_5" type="HV_R" begin="2400.00" departLane="free" departSpeed="avg" from="rampStart" to="exit" end="3000.00" vehsPerHour="923.00"/>
+    <flow id="HV_R2_5" type="HV_R" begin="2400.00" departLane="free" departSpeed="avg" from="ramp2Start" to="exit" end="3000.00" vehsPerHour="923.00"/>
+    <flow id="HV_M6" type="HV_M" begin="3000.00" departLane="free" departSpeed="avg" from="entry" to="exit" end="3600.00" vehsPerHour="1650.00"/>
+    <flow id="HV_R1_6" type="HV_R" begin="3000.00" departLane="free" departSpeed="avg" from="rampStart" to="exit" end="3600.00" vehsPerHour="972.00"/>
+    <flow id="HV_R2_6" type="HV_R" begin="3000.00" departLane="free" departSpeed="avg" from="ramp2Start" to="exit" end="3600.00" vehsPerHour="972.00"/>
+</routes>
