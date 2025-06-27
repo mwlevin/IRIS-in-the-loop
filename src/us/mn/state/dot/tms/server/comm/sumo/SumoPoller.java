@@ -79,6 +79,15 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                             // messages may arrive out of order, hence the separate threading
                             String message = input.readLine();
                             
+                            if(message == null){
+                                System.out.println("connection closed");
+                                closeConnection();
+                                break inner;
+                            }
+                            
+                            
+                            System.out.println("Received: "+message);
+                            
                             String[] split = message.split(",");
                             
                             if(split[0].equals("det")){
@@ -92,15 +101,12 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                                 else{
                                     //System.out.println("Updating detector "+name);
                                     detData.get(name).update(count, occ);
+                                    
                                 }
                             }
                             
-                            if(message == null){
-                                System.out.println("connection closed");
-                                closeConnection();
-                                break inner;
-                            }
-                            System.out.println("Received: "+message);
+                            
+                            
                         }
                     }
                     catch(Exception ex){
@@ -267,7 +273,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
         public int pin;
         
         public CCStorage() {
-            counts = new ArrayDeque<>(5);
+            counts = new ArrayDeque<>(10);
             
         }
         
@@ -286,6 +292,15 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
             }
             
             counts.addLast(new Integer[]{count, scan});
+            
+            /*
+            String tostr = "[";
+            for(Integer[] o : counts){
+                tostr += o[0]+", ";
+            }
+            tostr+="]";
+            System.out.println("\t"+counts.peekLast()[0]+" "+tostr);
+            */
         }
         
         public int getCount(int per_sec){

@@ -229,7 +229,7 @@ public class StationImpl implements Station, VehicleSampler {
 	/** Calculate the current station data */
 	public void calculateData(long stamp, int per_ms) {
             
-            System.out.println("calculate data "+getName());
+            //System.out.println("calculate data "+getName());
             
 		speeds.setDensity(density);
 		speeds_ig.setDensity(density_ig);
@@ -246,7 +246,7 @@ public class StationImpl implements Station, VehicleSampler {
 		int n_speed_ig = 0; /* ignore auto-fail */
 		for (DetectorImpl det: r_node.getDetectors()) {
                     
-                        System.out.println("\t"+det+" "+isValidStation(det)+" "+det.getOccupancy(stamp, per_ms));
+                        //System.out.println("\t"+det+" "+isValidStation(det)+" "+det.getOccupancy(stamp, per_ms));
                         
 			if (!isValidStation(det))
 				continue;

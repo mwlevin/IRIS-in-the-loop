@@ -15,8 +15,8 @@
     <inductionLoop id="detPass2" lane="rampEnd_0" pos="25.00" period="30.00" file="detPass2.xml"/>
     <inductionLoop id="detPass3" lane="ramp2End_0" pos="25.00" period="90.00" file="detPass3.xml"/>
     <inductionLoop id="detPass4" lane="ramp2End_0" pos="25.00" period="30.00" file="detPass4.xml"/>
-    <inductionLoop id="detGreen1" lane="rampEnd_0" pos="5.00" period="30.00" file="detMerge1.xml"/>
-    <inductionLoop id="detGreen2" lane="ramp2End_0" pos="5.00" period="30.00" file="detMerge2.xml"/>
+    <inductionLoop id="detGreen1" lane="rampEnd_0" pos="15.00" period="30.00" file="detGreen1.xml"/>
+    <inductionLoop id="detGreen2" lane="ramp2End_0" pos="15.00" period="30.00" file="detGreen2.xml"/>
     <inductionLoop id="detMerge1" lane="rampEnd_0" pos="215.00" period="30.00" file="detMerge1.xml"/>
     <inductionLoop id="detMerge2" lane="ramp2End_0" pos="215.00" period="30.00" file="detMerge2.xml"/>
     <inductionLoop id="detLink" lane="rampEnd_0" pos="215.00" period="30.00" file="detMerge1.xml"/>

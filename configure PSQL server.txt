@@ -13,3 +13,6 @@ Alter table iris.r_node drop constraint left_edge_ck;
 Alter table iris.r_node drop constraint right_edge_ck;
 insert into iris.lane_code values ('0', 'normal lane');
 insert into iris.meter_algorithm (id, description) VALUES (4, 'max-pressure');
+update iris.system_attribute set value='false' where name='detector_auto_fail_enable';
+update iris.ramp_meter set algorithm = 4;
+update iris.system_attribute set value=0.5 where name='meter_min_red_secs';

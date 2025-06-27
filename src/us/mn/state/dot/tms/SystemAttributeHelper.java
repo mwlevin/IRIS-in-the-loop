@@ -69,6 +69,7 @@ public class SystemAttributeHelper extends BaseHelper {
 	static protected int calculateReleaseRate(float red) {
 		float green = SystemAttrEnum.METER_GREEN_SECS.getFloat();
 		float yellow = SystemAttrEnum.METER_YELLOW_SECS.getFloat();
+                System.out.println("calc "+green+" "+yellow+" "+red);
 		Interval cycle = new Interval(green + yellow + red);
 		return Math.round(cycle.per(Interval.HOUR));
 	}

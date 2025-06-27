@@ -1193,13 +1193,11 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 		/** Calculate target maximum rate.
 		 * @return Target maxumum rate (vehicles / hour). */
 		private int calculateMaximumRate() {
-                    /*
+                    
 			int target_max = Math.round(tracking_demand *
 				targetMaxRatio());
 			return Math.max(target_max, min_rate);
-                    */
-                    double MIN_HEADWAY = 5;
-                    return (int)Math.round(7200.0 / MIN_HEADWAY);
+                    
 		}
 
 		/** Calculate the metering rate */

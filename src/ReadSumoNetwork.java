@@ -101,6 +101,7 @@ public class ReadSumoNetwork {
                     continue;
                 }
                 String to = findVar("to", line);
+    
                 double length = Double.parseDouble(findVar("length", line));
                 
                 edges.put(name, new Object[]{name, from, to, length, 1, null});

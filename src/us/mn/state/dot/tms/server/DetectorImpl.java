@@ -982,6 +982,15 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 	/** Store vehicle count for one binning interval.
 	 * @param v PeriodicSample containing vehicle count data. */
 	public void storeVehCount(PeriodicSample v, boolean logging) {
+                /*
+                if(v == null){
+                    System.out.println("\t\tdet stor veh count "+getName()+" "+v);
+                }
+                else{
+                    System.out.println("\t\tdet stor veh count "+getName()+" "+v.value);
+                }
+            */
+                
 		is_logging_events = logging;
 		if (v != null) {
 			if (LaneCode.fromCode(lane_code) != LaneCode.GREEN &&

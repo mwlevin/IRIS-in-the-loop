@@ -1,5 +1,6 @@
 
 import us.mn.state.dot.tms.server.MainServer;
+import us.mn.state.dot.tms.SystemAttrEnum;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -12,8 +13,9 @@ import us.mn.state.dot.tms.server.MainServer;
  */
 public class Main {
     public static void main(String[] args) throws Exception{
-        
+//
         //ReadSumoNetwork.main(args);
         MainServer.main(args);
+        
     }
 }

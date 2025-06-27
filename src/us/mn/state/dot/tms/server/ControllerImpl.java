@@ -580,7 +580,9 @@ public class ControllerImpl extends BaseObjectImpl implements Controller {
 			PeriodicSample ps = (v >= 0)
 				? new PeriodicSample(stamp, per_sec, v)
 				: null;
+                        //System.out.println("\t\tcon store veh count "+det.getName()+" "+veh_count[i]+" "+v);
 			det.storeVehCount(ps, vc);
+                        
 		}
 	}
 
