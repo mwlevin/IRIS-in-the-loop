@@ -4,6 +4,7 @@
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
+import java.io.PrintStream;
 import java.util.TreeMap;
 import us.mn.state.dot.tms.server.SamplerSet;
 import us.mn.state.dot.tms.server.VehicleSampler;
@@ -30,21 +31,32 @@ public class CCSamplerSet implements VehicleSampler {
      */
     private static final int RESET_INTERVAL = 1000*3600*24; // every 24 hours
     private static final int RESET_OFFSET = 1000*3600*8; 
+    private static final boolean RESET = false;
     
     public CCSamplerSet(SamplerSet s, long max_lookback, long stamp){
         sampler = s;
+        
+        this.max_lookback = max_lookback;
         
         counts = new TreeMap<>();
         counts.put(stamp, 0);
     }
     
-    
-    
+    public void log(long stamp, int per_ms){
+        log(stamp, per_ms, System.out);
+    }
+    public void log(long stamp, int per_ms, PrintStream out){
+        out.println("cc log for "+sampler.toString());
+        for(long k : counts.keySet()){
+            out.println("\t"+k+" "+counts.get(k));
+        }
+        out.println(per_ms+" "+max_lookback);
+    }
     
     
     // this may be asked for historical counts, and those counts need to be stored and retrieved
     // this may be non-integer due to interpolation
-    public double getCumulativeCount(long stamp){
+    public double getCumulativeCount(long stamp, int per_ms){
         
         // nothing stored: return 0
         // this case should not occur
@@ -55,8 +67,9 @@ public class CCSamplerSet implements VehicleSampler {
         
         long last_update = counts.lastKey();
         
+        
         // if we passed the reset interval, then reset
-        if(stamp % RESET_INTERVAL >= RESET_OFFSET && last_update % RESET_INTERVAL < RESET_OFFSET)
+        if(RESET && stamp % RESET_INTERVAL >= RESET_OFFSET && last_update % RESET_INTERVAL < RESET_OFFSET)
         {
             counts.clear();
             // last_update becomes reset time
@@ -66,23 +79,35 @@ public class CCSamplerSet implements VehicleSampler {
             // now continue with remainder of cc (the first case, stamp > last_update, should happen)
         }
         
+        
         if(stamp > last_update){
-            int passed = sampler.getVehCount(stamp, (int)(stamp - last_update));
             
-            int cc = passed;
-           
-            int last = counts.get(last_update);
-            cc += last;
+            // this may not go to the end of the interval: it should be the last per_ms
+            int cc = counts.get(last_update);
             
+            while(stamp - last_update > 0){
+                last_update += per_ms;
+                int passed = sampler.getVehCount(last_update, per_ms);
+                
+                if(passed < 0){
+                    passed = 0;
+                }
+                
+                cc = cc + passed;
+                
+                counts.put(last_update, cc);
+            }
             
-            // store CC
-            counts.put(stamp, cc);
+                
             
             // check if I can remove the front to avoid the storage of counts from growing infinitely
+            
             long first = counts.firstKey();
-            if(last_update - first > max_lookback){
+            while(last_update - first > max_lookback){
                 counts.remove(first);
+                first = counts.firstKey();
             }
+            
             
             return cc;
         }
@@ -97,6 +122,8 @@ public class CCSamplerSet implements VehicleSampler {
             Long lower = counts.lowerKey(stamp);
             Long upper = counts.higherKey(stamp);
             
+            //System.out.println("\t\tinterpolate "+lower+" "+upper);
+            
             if(lower == null){
                 return 0;
             }
@@ -104,6 +131,8 @@ public class CCSamplerSet implements VehicleSampler {
             int lowerN = counts.get(lower);
             int upperN = counts.get(upper);
             
+            //System.out.println("\t\t\t"+stamp+" "+lowerN+" "+upperN+" "+((double)(stamp-lower))/(upper-lower) * (upperN - lowerN) + lowerN);
+                        
             
             return ((double)(stamp-lower))/(upper-lower) * (upperN - lowerN) + lowerN;
         }
@@ -131,5 +160,9 @@ public class CCSamplerSet implements VehicleSampler {
     
     public boolean isPerfect() {
         return sampler.isPerfect();
+    }
+    
+    public String toString(){
+        return sampler.toString();
     }
 }

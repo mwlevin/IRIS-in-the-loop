@@ -324,4 +324,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
         
     }
 
+    public String toString(){
+        return "SUMO poller";
+    }
 }
