@@ -1,0 +1,31 @@
+location	type	count	detector	carry
+ent-EB610-94	entrance	4151	5385+5386+5387	4151
+exit-EB610/NBMapleGrove	exit	179	7731	3972
+ent-EB610/SBMapleGrove	entrance	708	7732	4680
+exit-EB610/EB81	exit	375	7733	4305
+ent-EB610/EB81-2	entrance	539	6990	4844
+exit-EB610/SBZachary	exit	120	6995	4724
+ent-EB610/NBZachary	entrance	467	6996	5191
+exit-EB610/SB169	exit	460	7008	4731
+ent-EB610/SB169-2	entrance	1058	7016	5789
+exit-EB610/NB169	exit	268	7010	5521
+ent-EB610/NB169-2	entrance	272	7032	5793
+exit-EB610/Broadway	exit	1159	missing	4634
+ent-EB610/NBBroadway	entrance	262	8212	4896
+exit-EB610/SBZane	exit	342	8217	4554
+ent-EB610/NBZane	entrance	565	8220	5119
+exit-EB610/SBNoble	exit	252	8226	4867
+ent-EB610/NBNoble	entrance	887	8229	5754
+exit-EB610/SB252	exit	1151	missing	4603
+ent-EB610/NB252	entrance	1411	[8239, 8240]-carry	6014
+exit-EB610/River	exit	688	4054	5326
+exit-EB610/CoonRapids	exit	1065	4064	4261
+exit-EB610/NB47	exit	412	4177	3849
+exit-EB610/NBUniversity	exit	256	4061	3593
+ent-EB610/University	entrance	1321	[4062, 4063]-carry	4914
+exit-EB610	exit	100000	this should be a very large number	
+				
+				
+				
+				
+				
