@@ -1185,11 +1185,11 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     if(ramp_queue > ramp_length * K_r * 0.9){ // 90% of jam density
                         min_rate = getMaximumRate();
                     }
-                    /*
                     else{ // rate for 4 min waiting time
                         min_rate = (int)Math.min(max_rate, Math.max(360, (int)Math.round(ramp_queue / 4.0 * 60))); // rate for 4 min waiting time
                     }
-                    */
+                    
+                    
                     
                     
                     return min_rate;
@@ -1301,15 +1301,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         double R_d = getDownstreamReceivingFlow(stamp);
                         
                         
-                        queue.log(stamp, PERIOD_MS);
-                        green.log(stamp, PERIOD_MS);
+                        
                         
                         System.out.println("S_ud "+S_ud+" S_rd "+S_rd+" R_d "+R_d);
                         
                         
                         // these are weighting factors
                         double c_u = 1;
-                        double c_r = numlanes / 2.0;
+                        double c_r = numlanes / 2.0 * 1.5;
                         double c_d = 1;
                         
                         // these are the position weights
@@ -1426,7 +1425,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     if(S_rd < 0){
                         queue.log(stamp, PERIOD_MS, System.err);
                         green.log(stamp, PERIOD_MS, System.err);
-                        throw new RuntimeException("ramp queue is negative");
+                        //throw new RuntimeException("ramp queue is negative");
+                        S_rd = 0;
                     }
                     
                     return S_rd;
@@ -1506,6 +1506,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 }
                 
                 private double getRampWeight(long stamp){
+                    /*
                     //double assumed_length = v_r * STEP_SECONDS / 3600.0; // calculate assumed ramp length for purposes of matching the units of upstream and downstream weights
                     double assumed_length = v_u * STEP_SECONDS /3600.0; // match upstream weight
                     double ramp_length = 0.25; // this is hardcoded!
@@ -1516,6 +1517,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     
                     // for the ramp pressure, it is simply the number of vehicles waiting
                     return integral;
+                    */
+                    return getRampQueueLength(stamp);
                 }
                 
                 private double getDownstreamDensity(long stamp){

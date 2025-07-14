@@ -1,6 +1,7 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,10 +35,71 @@ public class ReadSumoNetwork {
 			"etc/iris/iris-server.properties");
     
     public static void main(String[] args) throws Exception {
-        readSumo("sumo code/site_trial.net.xml", "sumo code/detectors.xml");
+        readSumo("sumo code/site_trial.net.xml", "sumo code/detectors.xml", "sumo code/meters.txt", "sumo code/detectors.txt");
     }
     
-    public static void readSumo(String netfile, String detectorfile) throws Exception{
+    static class Edge{
+        public String name, type;
+        public Node from, to;
+        public double length;
+        public int numlanes;
+        
+        public Edge(String name, Node from, Node to, double length, int numlanes, String type){
+            this.name = name;
+            this.from = from;
+            this.to = to;
+            this.length = length;
+            this.numlanes = numlanes;
+            this.type = type;
+        }
+        
+        public String toString(){
+            return name;
+        }
+    }
+    
+    static class Node{
+        public String name, type;
+        public double x, y;
+        
+        public Node(String name){
+            this(name, -1, -1, null);
+        }
+        
+        public Node(String name, double x, double y, String type){
+            this.name = name;
+            this.x = x;
+            this.y = y;
+            this.type = type;
+        }
+        
+        public String toString(){
+            return name;
+        }
+    }
+    
+    static class Lane{
+        public String name;
+        public Node from, to;
+        public double length;
+        public String type;
+        public int lane_no;
+        
+        public Lane(String name, Node from, Node to, double length, String type, int lane_no){
+            this.name = name;
+            this.from = from;
+            this.to = to;
+            this.length = length;
+            this.type = type;
+            this.lane_no = lane_no;
+        }
+        
+        public String toString(){
+            return name;
+        }
+    }
+    
+    public static void readSumo(String netfile, String detectorfile, String meters_out, String detectors_out) throws Exception{
         Properties props = PropertyLoader.load(PROP_FILE);
         
         SQLConnection store = createStore(props);
@@ -60,6 +122,10 @@ public class ReadSumoNetwork {
         store.update("INSERT INTO iris.road VALUES ('mainline1', 'm1', 6, 1);");
         store.update("INSERT INTO iris.road VALUES ('none', 'none', 0, 2);");
         
+        Map<String, String> meters = new HashMap<>();
+        List<String> detectors = new ArrayList<>();
+        
+        
         int drop_id = 1;
         
         boolean created_controller = false;
@@ -70,9 +136,9 @@ public class ReadSumoNetwork {
         
         int cont_pin = 0;
         
-        Map<String, Object[]> junctions = new HashMap<>();
-        Map<String, Object[]> lanes = new HashMap<>();
-        Map<String, Object[]> edges = new HashMap<>();
+        Map<String, Node> junctions = new HashMap<>();
+        Map<String, Lane> lanes = new HashMap<>();
+        Map<String, Edge> edges = new HashMap<>();
         
         
         int pin = 0;
@@ -90,9 +156,19 @@ public class ReadSumoNetwork {
                 double y = Double.parseDouble(findVar("y", line));
                 String type = findVar("type", line);
                 
-                junctions.put(name, new Object[]{name, null, null, type});
+                if(junctions.containsKey(name)){
+                    junctions.get(name).type = type;
+                }
+                else{
+                    junctions.put(name, new Node(name, -1, -1, type));
+                }
             }
             else if(line.indexOf("<edge ") >= 0){
+                String function = findVar("function", line);
+                
+                if(function != null && function.equals("internal")){
+                    continue;
+                }
                 String name = findVar("id", line);
                 String from = findVar("from", line);
                 
@@ -101,16 +177,24 @@ public class ReadSumoNetwork {
                     continue;
                 }
                 String to = findVar("to", line);
+                
+                if(!junctions.containsKey(from)){
+                    junctions.put(from, new Node(from));
+                }
+                
+                if(!junctions.containsKey(to)){
+                    junctions.put(to, new Node(to));
+                }
     
                 double length = Double.parseDouble(findVar("length", line));
                 
-                edges.put(name, new Object[]{name, from, to, length, 1, null});
+                edges.put(name, new Edge(name, junctions.get(from), junctions.get(to), length, 1, null));
             }
             else if(line.indexOf("<lane ") >= 0){
                 String name = findVar("id", line);
                 double length = Double.parseDouble(findVar("length", line));
 
-                lanes.put(name, new Object[]{name, null, null, length, null, 0});
+                lanes.put(name, new Lane(name, null, null, length, "none", 0));
             }
         }
         
@@ -125,80 +209,79 @@ public class ReadSumoNetwork {
         // arbitrarily pick one junction to be (0,0).
         // one of the priority junctions should be (0,0)
         
-        Stack<String> unsettled = new Stack<>();
+        Stack<Node> unsettled = new Stack<>();
         
         for(String name : junctions.keySet()){
-            if(junctions.get(name)[3].equals("priority")){
-                junctions.get(name)[1] = 0.0;
-                junctions.get(name)[2] = 0.0;
-                unsettled.push(name);
+            Node n = junctions.get(name);
+            
+            if(n.type.equals("priority")){
+                
+                n.x = 0.0;
+                n.y = 0.0;
+                unsettled.push(n);
                 break;
             }
         }
         
         while(!unsettled.isEmpty()){
-            String junc = unsettled.pop();
+            Node junc = unsettled.pop();
             
             
             
             for(String name : edges.keySet()){
-                String from = (String)edges.get(name)[1];
-                String to = (String)edges.get(name)[2];
+                Node from = edges.get(name).from;
+                Node to = edges.get(name).to;
                 
-                String typeFrom = (String)junctions.get(from)[3];
-                String typeTo = (String)junctions.get(to)[3];
+                String typeFrom = from.type;
+                String typeTo = to.type;
 
-                boolean ramp = isRamp(typeFrom, typeTo);
+                String type = isRamp(typeFrom, typeTo);
                 
-                if(ramp){
-                    edges.get(name)[5] = "ramp";
-                }
-                else{
-                    edges.get(name)[5] = "mainline";
-                }
+                edges.get(name).type = type;
+
 
                 if(from.equals(junc)){
-                    Object[] data2 = junctions.get(to);
+                    Node data2 = to;
                     
-                    if(data2[1] != null){
+                    if(data2.x != -1){
                         continue;
                     }
                     
-                    if(data2[3].equals("dead_end")){
-                        data2[3] = "exit";
+                    if(data2.type.equals("dead_end")){
+                        data2.type = "exit";
                     }
                     
-                    if(ramp){
-                        junctions.get(to)[2] = junctions.get(from)[2];
+                    if(!type.equals("mainline")){
+                        to.y = from.y;
                         //junctions.get(to)[1] = (double)junctions.get(from)[1] + (double)edges.get(name)[3];
-                        junctions.get(to)[1] = 0.0;
+                        to.x = 0.0;
                     }
                     else{
-                        junctions.get(to)[1] = 0.0;
-                        junctions.get(to)[2] = (double)junctions.get(from)[2] - (double)edges.get(name)[3];
+                        to.x = 0.0;
+                        to.y = (double)from.y - (double)edges.get(name).length;
                     }
                     
                     unsettled.push(to);
                 }
                 else if(to.equals(junc)){
-                    Object[] data2 = junctions.get(from);
+                    Node data2 = from;
                     
-                    if(data2[1] != null){
+                    if(data2.x != -1){
                         continue;
                     }
                     
-                    if(data2[3].equals("dead_end")){
-                        data2[3] = "entrance";
+                    if(data2.type.equals("dead_end")){
+                        data2.type = "entrance";
                     }
                     
-                    if(ramp){
-                        junctions.get(from)[2] = junctions.get(to)[2];
+                    if(!type.equals("mainline")){
+                        from.y = to.y;
                         //junctions.get(from)[1] = (double)junctions.get(to)[1] - (double)edges.get(name)[3];
-                        junctions.get(from)[1] = 0.0;
+                        from.x = 0.0;
                     }
                     else{
-                        junctions.get(from)[1] = 0.0;
-                        junctions.get(from)[2] = (double)junctions.get(to)[2] + (double)edges.get(name)[3]; 
+                        from.x = 0.0;
+                        from.y = to.y + (double)edges.get(name).length; 
                     }
                     
                     unsettled.push(from);
@@ -213,15 +296,15 @@ public class ReadSumoNetwork {
             
             while(lanes.containsKey(edge+"_"+maxlaneid)){
                 String lanename = edge+"_"+maxlaneid;
-                lanes.get(lanename)[4] = edges.get(edge)[5];
-                lanes.get(lanename)[1] = edges.get(edge)[1];
-                lanes.get(lanename)[2] = edges.get(edge)[2];
-                lanes.get(lanename)[5] = maxlaneid+1;
+                lanes.get(lanename).length = edges.get(edge).length;
+                lanes.get(lanename).from = edges.get(edge).from;
+                lanes.get(lanename).to = edges.get(edge).to;
+                lanes.get(lanename).lane_no = maxlaneid+1;
                 
                 maxlaneid++;
             }
             
-            edges.get(edge)[4] = maxlaneid;
+            edges.get(edge).numlanes = maxlaneid;
         }
         
         Map<String, String> createdNodes = new HashMap<>();
@@ -237,9 +320,9 @@ public class ReadSumoNetwork {
         for(String name : junctions.keySet()){
 
             
-            double x = (double)junctions.get(name)[1];
-            double y = (double)junctions.get(name)[2];
-            String type = (String)junctions.get(name)[3];
+            double x = junctions.get(name).x;
+            double y = junctions.get(name).y;
+            String type = junctions.get(name).type;
             
             String locname = "loc-"+name+"-0";
             String locname2 = "loc-"+name+"-1";
@@ -256,11 +339,13 @@ public class ReadSumoNetwork {
             String cross = "none";
             
             for(String edge : edges.keySet()){
-                if(edges.get(edge)[1].equals(name) &&  edge.indexOf("Start") > 0 && edges.get(edge)[5].equals("ramp")){
+                
+                
+                if(edges.get(edge).from.name.equals(name) && edges.get(edge).type.equals("on-ramp")){
                     //System.out.println(edge);
                     cross = edge.substring(0, edge.indexOf("Start"));
                 }
-                else if(edges.get(edge)[2].equals(name) &&  edge.indexOf("Start") > 0 && edges.get(edge)[5].equals("ramp"))
+                else if(edges.get(edge).to.name.equals(name) && edges.get(edge).type.equals("on-ramp"))
                 {
                     cross = edge.substring(0, edge.indexOf("Start"));
                     
@@ -312,8 +397,8 @@ public class ReadSumoNetwork {
             int numlanes = 1; 
             
             for(String edge : edges.keySet()){
-                if(edges.get(edge)[1].equals(name) || edges.get(edge)[2].equals(name)){
-                    numlanes = (int)Math.max(numlanes, (int)edges.get(edge)[4]);
+                if(edges.get(edge).from.name.equals(name) || edges.get(edge).to.name.equals(name)){
+                    numlanes = (int)Math.max(numlanes, (int)edges.get(edge).numlanes);
                 }
             }
             
@@ -345,6 +430,21 @@ public class ReadSumoNetwork {
                 preset++;
                 store.update("INSERT INTO iris.ramp_meter VALUES ('meter-"+name+"', '"+locname+"', '"+controllername+"', "+(pin++)+", '', 2, 100, 240, 3, 1800, 1800, '"+beaconname+"', '"+preset+"', 'false', '{}');");
                 preset++;
+                
+                String on_ramp = "";
+                
+                for(String lname : lanes.keySet()){
+                    Lane l = lanes.get(lname);
+                    
+                    
+                    
+                    if(l.to == junctions.get(name) && l.lane_no == 1){
+                        on_ramp = l.name;
+                        break;
+                    }
+                }
+                
+                meters.put(name, on_ramp);
             }
                 
 		// create r node
@@ -378,11 +478,14 @@ public class ReadSumoNetwork {
                     continue;
                 }
                 
-                name = name.replaceAll("Demand", "Dem"); // name is too long!
+                detectors.add(name);
+                
+                name=name.replaceAll("det", "d");
+                name = name.replaceAll("Demand", "D"); // name is too long!
                 name = name.replaceAll("Down", "Do"); // name is too long!
-                name = name.replaceAll("Pass", "Pa"); // name is too long!
-                name = name.replaceAll("Green", "Gr"); // name is too long!
-                name = name.replaceAll("Merge", "Me"); // name is too long!
+                name = name.replaceAll("Pass", "P"); // name is too long!
+                name = name.replaceAll("Green", "G"); // name is too long!
+                name = name.replaceAll("Merge", "M"); // name is too long!
                 
                 String lane = findVar("lane", line);
                 String edge = lane.substring(0, lane.indexOf("_"));
@@ -397,10 +500,10 @@ public class ReadSumoNetwork {
                     loc = createdNodes.get(nodeid);
                 }
                 
-                String from = (String)lanes.get(lane)[1];
-                boolean ramp = lanes.get(lane)[4].equals("ramp");
+                Node from = lanes.get(lane).from;
+                boolean ramp = lanes.get(lane).type.equals("on-ramp");
                 
-                int numlanes = (int)edges.get(edge)[4];
+                int numlanes = (int)edges.get(edge).numlanes;
                 
                 char det_type = '0';
                 
@@ -410,8 +513,8 @@ public class ReadSumoNetwork {
                 int node_type = 0;
               
                 
-                double x = (double)junctions.get(from)[1];
-                double y = (double)junctions.get(from)[2];
+                double x = from.x;
+                double y = from.y;
                 
                 if(ramp){
                     x += pos;
@@ -433,7 +536,7 @@ public class ReadSumoNetwork {
                         det_type = 'G';
                     }
                     
-                    nodename = "n-"+edges.get(edge)[2];
+                    nodename = "n-"+edges.get(edge).to;
                 }
                 else if(edge.indexOf("End") >= 0){
                     cross = edge.substring(0, edge.indexOf("End"));
@@ -450,7 +553,7 @@ public class ReadSumoNetwork {
                         det_type = 'G';
                     }
                     
-                    nodename = "n-"+edges.get(edge)[1];
+                    nodename = "n-"+edges.get(edge).from;
                     
                 }
                 
@@ -467,7 +570,7 @@ public class ReadSumoNetwork {
                 }
                 
                 
-                int laneno = (int)lanes.get(lane)[5];
+                int laneno = (int)lanes.get(lane).lane_no;
                 
 
                 //String controllername = "det_ctl_"+name;
@@ -485,37 +588,49 @@ public class ReadSumoNetwork {
         
 
         store.update("update iris.ramp_meter set algorithm = 4;");
+        
+        
+        
+        PrintStream fileout = new PrintStream(new File(detectors_out));
+        
+        for(String d : detectors){
+            fileout.println(d);
+        }
+        fileout.close();
+        
+        
+        fileout = new PrintStream(new File(meters_out));
+        
+        for(String m : meters.keySet()){
+            fileout.println(m+"\t"+meters.get(m));
+        }
+        fileout.close();
     }
     
     
-    private static boolean isRamp(String fromType, String toType){
+    private static String isRamp(String fromType, String toType){
         
         // 3 types: priority, traffic_light, dead_end
         // priority - priority = mainline. priority-dead_end = mainline
         // priority-trafficlight = ramp. trafficlight-dead end = ramp
         if(toType.equals("priority")){
             if(fromType.equals("traffic_light")){
-                return true;
+                return "merge";
             }
             else{
-                return false;
+                return "mainline";
             }
         }
         else if(fromType.equals("priority")){
             if(toType.equals("traffic_light")){
-                return true;
+                return "on-ramp";
             }
             else{
-                return false;
+                return "mainline";
             }
         }
         
-        if(toType.equals("traffic_light") || fromType.equals("traffic_light")){
-            return true;
-        }
-        else{
-            return false;
-        }
+        return "mainline";
     }
             
     private static ResultFactory emptyResult(){

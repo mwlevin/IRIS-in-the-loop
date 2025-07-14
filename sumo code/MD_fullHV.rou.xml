@@ -15,22 +15,22 @@
     
     
     <!-- Vehicles, persons and containers (sorted by depart) -->
-    <flow id="HV_M1" type="HV_M" begin="0.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="600.00" vehsPerHour="2227.00"/>
-    <flow id="HV_R1_1" type="HV_R" begin="0.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="600.00" vehsPerHour="708.00"/>
-    <flow id="HV_R2_1" type="HV_R" begin="0.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="600.00" vehsPerHour="708.00"/>
-    <flow id="HV_M2" type="HV_M" begin="600.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="1200.00" vehsPerHour="2567.00"/>
-    <flow id="HV_R1_2" type="HV_R" begin="600.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="1200.00" vehsPerHour="642.00"/>
-    <flow id="HV_R2_2" type="HV_R" begin="600.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="1200.00" vehsPerHour="642.00"/>
-    <flow id="HV_M3" type="HV_M" begin="1200.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="1800.00" vehsPerHour="2470"/>
-    <flow id="HV_R1_3" type="HV_R" begin="1200.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="1800.00" vehsPerHour="708.00"/>
-    <flow id="HV_R2_3" type="HV_R" begin="1200.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="1800.00" vehsPerHour="708.00"/>
-    <flow id="HV_M4" type="HV_M" begin="1800.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="2400.00" vehsPerHour="2493"/>
-    <flow id="HV_R1_4" type="HV_R" begin="1800.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="2400.00" vehsPerHour="623.00"/>
-    <flow id="HV_R2_4" type="HV_R" begin="1800.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="2400.00" vehsPerHour="623.00"/>
-    <flow id="HV_M5" type="HV_M" begin="2400.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="3000.00" vehsPerHour="2396.00"/>
-    <flow id="HV_R1_5" type="HV_R" begin="2400.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="3000.00" vehsPerHour="623.00"/>
-    <flow id="HV_R2_5" type="HV_R" begin="2400.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="3000.00" vehsPerHour="623.00"/>
-    <flow id="HV_M6" type="HV_M" begin="3000.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="3600.00" vehsPerHour="2350.00"/>
-    <flow id="HV_R1_6" type="HV_R" begin="3000.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="3600.00" vehsPerHour="672.00"/>
-    <flow id="HV_R2_6" type="HV_R" begin="3000.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="3600.00" vehsPerHour="672.00"/>
+    <flow id="HV_M1" type="HV_M" begin="0.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="600.00" vehsPerHour="1527.00"/>
+    <flow id="HV_R1_1" type="HV_R" begin="0.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="600.00" vehsPerHour="1008.00"/>
+    <flow id="HV_R2_1" type="HV_R" begin="0.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="600.00" vehsPerHour="1008.00"/>
+    <flow id="HV_M2" type="HV_M" begin="600.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="1200.00" vehsPerHour="1867.00"/>
+    <flow id="HV_R1_2" type="HV_R" begin="600.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="1200.00" vehsPerHour="942.00"/>
+    <flow id="HV_R2_2" type="HV_R" begin="600.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="1200.00" vehsPerHour="942.00"/>
+    <flow id="HV_M3" type="HV_M" begin="1200.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="1800.00" vehsPerHour="1770"/>
+    <flow id="HV_R1_3" type="HV_R" begin="1200.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="1800.00" vehsPerHour="1008.00"/>
+    <flow id="HV_R2_3" type="HV_R" begin="1200.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="1800.00" vehsPerHour="1008.00"/>
+    <flow id="HV_M4" type="HV_M" begin="1800.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="2400.00" vehsPerHour="1793"/>
+    <flow id="HV_R1_4" type="HV_R" begin="1800.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="2400.00" vehsPerHour="923.00"/>
+    <flow id="HV_R2_4" type="HV_R" begin="1800.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="2400.00" vehsPerHour="923.00"/>
+    <flow id="HV_M5" type="HV_M" begin="2400.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="3000.00" vehsPerHour="1696.00"/>
+    <flow id="HV_R1_5" type="HV_R" begin="2400.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="3000.00" vehsPerHour="923.00"/>
+    <flow id="HV_R2_5" type="HV_R" begin="2400.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="3000.00" vehsPerHour="923.00"/>
+    <flow id="HV_M6" type="HV_M" begin="3000.00" departLane="free" departSpeed="avg" from="main_ent" to="exit" end="3600.00" vehsPerHour="1650.00"/>
+    <flow id="HV_R1_6" type="HV_R" begin="3000.00" departLane="free" departSpeed="avg" from="ramp_ent" to="exit" end="3600.00" vehsPerHour="972.00"/>
+    <flow id="HV_R2_6" type="HV_R" begin="3000.00" departLane="free" departSpeed="avg" from="ramp_ent2" to="exit" end="3600.00" vehsPerHour="972.00"/>
 </routes>

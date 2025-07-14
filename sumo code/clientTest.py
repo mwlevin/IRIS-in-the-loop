@@ -66,6 +66,35 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     phase2 = 'notStarted' # Initial Phase
     
     
+    
+    
+    meters = []
+    lanes = dict()
+    
+    with open("meters.txt") as file:
+        lines = [line.rstrip() for line in file]
+        for line in lines:
+            data = line.split()
+            meters.append(data[0])
+            lanes[data[0]] = data[1]
+    
+    #lanes["J3"] = "rampStart_0"
+    #lanes["J9"] = "ramp2Start_0"
+    
+    print("meters: "+meters)
+    print("lanes: "+lanes)    
+    
+    
+    # detPass1 and detPass3 hvae the same location as detPass2 and detPass 4 but a different period?
+    detectors = []
+    with open("detectors.txt") as file:
+        detectors = [line.rstrip() for line in file]
+    
+    print("detectors: "+detectors)
+    
+    #detectors = ["detDemandA", "detDemandB", "detDemandC", "detDemandD", "detMerge1", "detMerge2", "detGreen1", "detGreen2", "detDown1", "detDown2", "detPass2", "detPass4", "detUp1", "detUp2", "detDSA1", "detDSA2", "detDSB1", "detDSB2", "detUSB1", "detUSB2"]
+    
+    
     if control and not test:
         connection = socket.socket()
         host = "localhost"
@@ -77,23 +106,15 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     else:
         print("test only, no server conection")
     
-    lanes = dict()
+    
 
     endStep = 72000*3 # Time to simulate (0.05 seconds steps)
 
-    # this is hardcoded for now
-    meters = ["J3", "J9"]
-    lanes["J3"] = "rampStart_0"
-    lanes["J9"] = "ramp2Start_0"
+
     
     
     
-    
-    # detPass1 and detPass3 hvae the same location as detPass2 and detPass 4 but a different period?
-    detectors = ["detDemandA", "detDemandB", "detDemandC", "detDemandD", "detMerge1", "detMerge2", "detGreen1", "detGreen2", "detDown1", "detDown2", "detPass2", "detPass4", "detUp1", "detUp2", "detDSA1", "detDSA2", "detDSB1", "detDSB2", "detUSB1", "detUSB2"]
-    
-    
-    
+    cc = {d : 0 for d in detectors}
     
     
     detectors_abbrv = dict()
@@ -106,7 +127,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
         #counts[det] = 0
         #occupancies[det] = 0
         # necessary due to limitations of PSQL database
-        detectors_abbrv[det] = det.replace("Demand", "Dem").replace("Down", "Do").replace("Pass", "Pa").replace("Green", "Gr").replace("Merge", "Me")
+        detectors_abbrv[det] = det.replace("Demand", "D").replace("Down", "Do").replace("Pass", "P").replace("Green", "G").replace("Merge", "M").replace("det", "d")
         
     
     metering_rates = dict()
@@ -123,6 +144,8 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
         metering_rates[m]["green-active-2"] = True
         metering_rates[m]["phase"] = 0
         metering_rates[m]["changed"] = False
+        
+        traci.lane.setDisallowed(lanes[m], ['passenger'])
         
     listen_thread = None
         
@@ -144,6 +167,8 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                 
                 # update detector counts
                 count = readCount(det, vehIds[det])
+                
+                cc[det] += count
                 #counts[det] += count
                 det_occ = traci.inductionloop.getLastIntervalOccupancy(det)
                 
@@ -154,7 +179,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                     print(det, det_occ, occ)
                 '''
                 
-                print("detector ", det, "count=", count, "occupancy=", det_occ, "as % of 30sec interval")
+                print("detector ", det, "count=", count, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval")
                     
                 msg = "det,"+detectors_abbrv[det]+","+str(count)+","+str(occ)
                 #counts[det] = 0
@@ -303,7 +328,8 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
                     phase = 0
                     
                     if metering_rates[m]["on"] == False:
-                        traci.lane.setDisallowed(lanes[m], ['passenger']) # Only 1 lane used when meter off
+                        # don't disable the lane after meter is on
+                        #traci.lane.setDisallowed(lanes[m], ['passenger']) # Only 1 lane used when meter off
                         traci.trafficlight.setPhase(m, 0)
                     else:
                         traci.lane.setDisallowed(lanes[m], []) # Now 2 lines form for meter
