@@ -34,8 +34,8 @@ public class ReadSumoNetwork {
 		DevelCfg.get("server.prop.file",
 			"etc/iris/iris-server.properties");
     
-    public static void main(String[] args) throws Exception {
-        readSumo("sumo code/site_trial.net.xml", "sumo code/detectors.xml", "sumo code/meters.txt", "sumo code/detectors.txt");
+    public static void main(String network, String netfile) throws Exception {
+        readSumo("sumo code/"+network+"/"+netfile+".net.xml", "sumo code/"+network+"/detectors.xml", "sumo code/"+network+"/meters.txt", "sumo code/"+network+"/detectors.txt");
     }
     
     static class Edge{
@@ -186,6 +186,7 @@ public class ReadSumoNetwork {
                     junctions.put(to, new Node(to));
                 }
     
+                System.out.println(name+" "+line);
                 double length = Double.parseDouble(findVar("length", line));
                 
                 edges.put(name, new Edge(name, junctions.get(from), junctions.get(to), length, 1, null));
@@ -486,6 +487,7 @@ public class ReadSumoNetwork {
                 name = name.replaceAll("Pass", "P"); // name is too long!
                 name = name.replaceAll("Green", "G"); // name is too long!
                 name = name.replaceAll("Merge", "M"); // name is too long!
+                name = name.replaceAll("Exit", "Ex"); // name is too long!
                 
                 String lane = findVar("lane", line);
                 String edge = lane.substring(0, lane.indexOf("_"));
@@ -500,6 +502,7 @@ public class ReadSumoNetwork {
                     loc = createdNodes.get(nodeid);
                 }
                 
+                System.out.println(lane);
                 Node from = lanes.get(lane).from;
                 boolean ramp = lanes.get(lane).type.equals("on-ramp");
                 
@@ -562,6 +565,7 @@ public class ReadSumoNetwork {
                     
                     store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline0', '0', '"+cross+"', '2', '0', '', "+x+", "+y+");");
                     nodekey++;
+                    
 
                     
                     store.update("INSERT INTO iris.r_node VALUES ('"+nodename+"', '"+locname+"', "+nodekey+", "+node_type+", 'true', 'false', 0, "+numlanes+", 'true', "+0+", 'true', '"+stationname+"', "+speedlimit+", '');");

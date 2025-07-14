@@ -15,8 +15,8 @@ import java.util.Scanner;
  * @author michael
  */
 public class CreateSumoDemand {
-    public static void main(String[] args) throws IOException{
-        PrintStream fileout = new PrintStream(new File("sumo code/610/demand.rou.xml"));
+    public static void main(String network) throws IOException{
+        PrintStream fileout = new PrintStream(new File("sumo code/"+network+"/demand.rou.xml"));
         
         
         printHeader(fileout);
@@ -26,8 +26,8 @@ public class CreateSumoDemand {
         
         
         
-        processFile(new File("sumo code/610/test.txt"), fileout, 0, 3600);
-        
+        processFile(new File("sumo code/"+network+"/WB.txt"), fileout, 0, 3600);
+        processFile(new File("sumo code/"+network+"/EB.txt"), fileout, 0, 3600);
         
         
         
@@ -38,6 +38,8 @@ public class CreateSumoDemand {
         
     }
     
+    public static int flow_id = 1;
+    
     public static void processFile(File input, PrintStream fileout, int begin, int end) throws IOException {
         Scanner filein = new Scanner(input);
         
@@ -45,7 +47,6 @@ public class CreateSumoDemand {
         double total = 0;
         double carry = 0;
      
-        int flow_id = 1;
         
         filein.nextLine(); // header line
         
@@ -54,6 +55,8 @@ public class CreateSumoDemand {
             String type = filein.next();
             
             double count = 0;
+            
+            
             
             if(filein.hasNextDouble()){
                 count = filein.nextDouble();
@@ -78,6 +81,7 @@ public class CreateSumoDemand {
                     
                     if(vph > 0){
                         fileout.println("<flow id=\"HV_"+flow_id+"\" type=\"HV_M\" begin=\""+String.format("%.2f", (double)begin)+"\" departLane=\"free\" departSpeed=\"avg\" from=\""+r+"\" to=\""+name+"\" end=\""+String.format("%.2f", (double)end)+"\" vehsPerHour=\""+String.format("%.2f", (double)vph)+"\"/>");
+                        flow_id ++;
                     }
                     
                     entrances.put(r, entrances.get(r) - vph);

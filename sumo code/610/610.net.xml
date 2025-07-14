@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-07-14 10:01:20 by Eclipse SUMO netedit Version 1.22.0
+<!-- generated on 2025-07-14 15:17:28 by Eclipse SUMO netedit Version 1.22.0
 <neteditConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/neteditConfiguration.xsd">
 
     <input>
@@ -324,6 +324,9 @@
     <edge id=":J19_1" function="internal">
         <lane id=":J19_1_0" index="0" speed="26.80" length="6.30" shape="419.40,-13.88 421.22,-13.64 422.42,-13.10 423.62,-12.55 425.44,-12.30"/>
         <lane id=":J19_1_1" index="1" speed="26.80" length="6.30" shape="419.40,-10.68 421.22,-10.44 422.41,-9.90 423.61,-9.35 425.42,-9.10"/>
+    </edge>
+    <edge id=":J197_0" function="internal">
+        <lane id=":J197_0_0" index="0" speed="20.34" length="0.10" shape="116.13,13.41 116.13,13.41"/>
     </edge>
     <edge id=":J2_0" function="internal">
         <lane id=":J2_0_0" index="0" speed="26.80" length="0.30" shape="-57.60,-13.60 -57.31,-13.60"/>
@@ -675,8 +678,11 @@
         <lane id=":J89_0_0" index="0" speed="23.45" length="7.97" shape="1308.24,-84.31 1310.31,-83.25 1311.54,-82.16 1312.75,-81.03 1314.77,-79.84"/>
     </edge>
     <edge id=":J9_0" function="internal">
-        <lane id=":J9_0_0" index="0" speed="26.80" length="0.30" shape="126.02,-1.42 125.74,-1.42"/>
-        <lane id=":J9_0_1" index="1" speed="26.80" length="0.30" shape="126.05,-4.62 125.74,-4.62"/>
+        <lane id=":J9_0_0" index="0" speed="7.97" length="7.52" shape="129.62,-1.38 128.16,-1.13 126.69,-0.35 125.20,0.96 123.70,2.81"/>
+    </edge>
+    <edge id=":J9_1" function="internal">
+        <lane id=":J9_1_0" index="0" speed="26.80" length="8.12" shape="129.62,-1.38 121.52,-1.42"/>
+        <lane id=":J9_1_1" index="1" speed="26.80" length="8.12" shape="129.65,-4.58 121.52,-4.62"/>
     </edge>
     <edge id=":J90_0" function="internal">
         <lane id=":J90_0_0" index="0" speed="9.01" length="11.65" shape="1397.96,-68.92 1395.71,-70.68 1393.16,-71.65 1390.31,-71.82 1387.16,-71.21"/>
@@ -884,8 +890,8 @@
         <lane id="EB610-9a_1" index="1" speed="26.80" length="122.00" shape="825.63,-10.52 840.48,-10.52"/>
         <lane id="EB610-9a_2" index="2" speed="26.80" length="122.00" shape="825.63,-7.32 840.48,-7.32"/>
     </edge>
-    <edge id="EB610/Broadway" from="J61" to="J64" priority="-1" spreadType="center">
-        <lane id="EB610/Broadway_0" index="0" speed="13.89" length="9.37" shape="1018.67,-17.56 1025.26,-24.22"/>
+    <edge id="EB610/Broadway" from="J61" to="J64" priority="-1" spreadType="center" length="200.00">
+        <lane id="EB610/Broadway_0" index="0" speed="13.89" length="200" shape="1018.67,-17.56 1025.26,-24.22"/>
     </edge>
     <edge id="EB610/CoonRapids" from="J103" to="J105" priority="-1" spreadType="center" length="200.00">
         <lane id="EB610/CoonRapids_0" index="0" speed="26.80" length="200.00" shape="1716.37,-14.17 1716.99,-14.70"/>
@@ -1091,12 +1097,12 @@
         <lane id="WB610-3a_1" index="1" speed="26.80" length="217.00" shape="9.60,-5.01 -5.06,-5.23"/>
     </edge>
     <edge id="WB610-4" from="J9" to="J8" priority="-1" spreadType="center" length="393.00">
-        <lane id="WB610-4_0" index="0" speed="26.80" length="393.00" shape="125.74,-1.42 85.47,-1.42"/>
-        <lane id="WB610-4_1" index="1" speed="26.80" length="393.00" shape="125.74,-4.62 85.47,-4.62"/>
+        <lane id="WB610-4_0" index="0" speed="26.80" length="393.00" shape="121.52,-1.42 85.47,-1.42"/>
+        <lane id="WB610-4_1" index="1" speed="26.80" length="393.00" shape="121.52,-4.62 85.47,-4.62"/>
     </edge>
     <edge id="WB610-5" from="J15" to="J9" priority="-1" spreadType="center" length="843.00">
-        <lane id="WB610-5_0" index="0" speed="26.80" length="843.00" shape="221.49,-0.52 126.02,-1.42"/>
-        <lane id="WB610-5_1" index="1" speed="26.80" length="843.00" shape="221.52,-3.72 126.05,-4.62"/>
+        <lane id="WB610-5_0" index="0" speed="26.80" length="843.00" shape="221.49,-0.52 129.62,-1.38"/>
+        <lane id="WB610-5_1" index="1" speed="26.80" length="843.00" shape="221.52,-3.72 129.65,-4.58"/>
     </edge>
     <edge id="WB610-6" from="J18" to="J15" priority="-1" spreadType="center" length="1169.00">
         <lane id="WB610-6_0" index="0" speed="26.80" length="1169.00" shape="380.09,-1.09 230.36,-0.56"/>
@@ -1127,6 +1133,9 @@
     </edge>
     <edge id="WB610/Foley" from="J102" to="J104" priority="-1" spreadType="center" length="200.00">
         <lane id="WB610/Foley_0" index="0" speed="26.80" length="200.00" shape="1684.79,12.65 1688.20,19.12"/>
+    </edge>
+    <edge id="WB610/MapleGrove" from="J9" to="J197" priority="-1" length="200.00">
+        <lane id="WB610/MapleGrove_0" index="0" speed="26.80" length="200.00" shape="123.70,2.81 116.13,13.41"/>
     </edge>
     <edge id="WB610/NB169" from="J54" to="J52" priority="-1" spreadType="center" length="200.00">
         <lane id="WB610/NB169_0" index="0" speed="26.80" length="200.00" shape="880.26,22.45 871.67,7.49"/>
@@ -1325,8 +1334,8 @@
     <edge id="exit-EB610/NBUniversity" from="J116" to="J172" priority="-1" length="100.00">
         <lane id="exit-EB610/NBUniversity_0" index="0" speed="13.89" length="100.00" shape="1871.47,-4.83 1881.99,-20.14"/>
     </edge>
-    <edge id="exit-EB610/River" from="J101" to="J169" priority="-1">
-        <lane id="exit-EB610/River_0" index="0" speed="13.89" length="8.85" shape="1640.62,-45.98 1648.85,-49.24"/>
+    <edge id="exit-EB610/River" from="J101" to="J169" priority="-1" length="100.00">
+        <lane id="exit-EB610/River_0" index="0" speed="13.89" length="100.00" shape="1640.62,-45.98 1648.85,-49.24"/>
     </edge>
     <edge id="exit-EB610/SB169" from="J44" to="J157" priority="-1" length="100.00">
         <lane id="exit-EB610/SB169_0" index="0" speed="13.89" length="100.00" shape="812.24,-27.21 819.25,-37.67"/>
@@ -1345,6 +1354,9 @@
     </edge>
     <edge id="exit-WB610-94" from="J0" to="J4" priority="-1" spreadType="center" length="200.00">
         <lane id="exit-WB610-94_0" index="0" speed="26.80" length="200.00" shape="-57.81,-3.31 -82.66,-3.22"/>
+    </edge>
+    <edge id="exit-WB610/MapleGrove" from="J197" to="J198" priority="-1" length="100.00">
+        <lane id="exit-WB610/MapleGrove_0" index="0" speed="13.89" length="100.00" shape="116.13,13.41 104.48,29.72"/>
     </edge>
     <edge id="exit-WB610/NB169-2" from="J58" to="J140" priority="-1" length="100.00">
         <lane id="exit-WB610/NB169-2_0" index="0" speed="13.89" length="100.00" shape="918.60,16.87 910.15,22.88"/>
@@ -1778,6 +1790,10 @@
     <junction id="J194" type="dead_end" x="603.92" y="29.95" incLanes="" intLanes="" shape="603.92,29.95 599.96,34.98"/>
     <junction id="J195" type="dead_end" x="263.59" y="29.66" incLanes="" intLanes="" shape="263.59,29.66 259.69,34.74"/>
     <junction id="J196" type="dead_end" x="50.78" y="32.28" incLanes="" intLanes="" shape="50.78,32.28 45.89,36.41"/>
+    <junction id="J197" type="priority" x="114.83" y="12.48" incLanes="WB610/MapleGrove_0" intLanes=":J197_0_0" shape="117.43,14.34 114.83,12.48 117.43,14.35">
+        <request index="0" response="0" foes="0" cont="0"/>
+    </junction>
+    <junction id="J198" type="dead_end" x="103.18" y="28.79" incLanes="exit-WB610/MapleGrove_0" intLanes="" shape="105.78,30.65 103.18,28.79"/>
     <junction id="J2" type="priority" x="-57.47" y="-12.00" incLanes="ent-EB610-94_0 ent-EB610-94_1" intLanes=":J2_0_0 :J2_0_1" shape="-57.34,-8.80 -57.30,-15.20 -57.58,-15.20 -57.66,-8.80">
         <request index="0" response="00" foes="00" cont="0"/>
         <request index="1" response="00" foes="00" cont="0"/>
@@ -2080,9 +2096,10 @@
     <junction id="J89" type="priority" x="1311.31" y="-81.42" incLanes="rmp-EB610/NBNoble_0 rmp-EB610/NBNoble_1" intLanes=":J89_0_0" shape="1314.10,-78.38 1315.43,-81.30 1313.10,-83.73 1312.74,-85.14 1312.36,-86.54 1311.57,-87.79 1309.96,-88.79 1307.67,-82.82 1310.17,-81.41 1310.92,-80.69 1311.67,-79.94 1312.65,-79.18">
         <request index="0" response="0" foes="0" cont="0"/>
     </junction>
-    <junction id="J9" type="priority" x="125.89" y="-3.02" incLanes="WB610-5_0 WB610-5_1" intLanes=":J9_0_0 :J9_0_1" shape="126.01,0.18 126.07,-6.22 125.74,-6.22 125.74,0.18">
-        <request index="0" response="00" foes="00" cont="0"/>
-        <request index="1" response="00" foes="00" cont="0"/>
+    <junction id="J9" type="priority" x="125.89" y="-3.02" incLanes="WB610-5_0 WB610-5_1" intLanes=":J9_0_0 :J9_1_0 :J9_1_1" shape="129.61,0.21 129.67,-6.18 121.52,-6.22 121.52,0.18 122.55,0.37 122.78,0.60 122.84,0.93 122.71,1.36 122.40,1.88 125.00,3.73 126.64,1.77 127.42,1.09 128.17,0.60 128.90,0.31">
+        <request index="0" response="000" foes="000" cont="0"/>
+        <request index="1" response="000" foes="000" cont="0"/>
+        <request index="2" response="000" foes="000" cont="0"/>
     </junction>
     <junction id="J90" type="priority" x="1391.25" y="-75.81" incLanes="WB610/NB252_0 WB610-23_0 WB610-23_1" intLanes=":J90_0_0 :J90_1_0 :J90_1_1" shape="1396.81,-67.80 1399.10,-70.03 1398.43,-70.97 1398.43,-71.27 1398.67,-71.45 1399.13,-71.52 1399.82,-71.47 1400.65,-77.81 1397.27,-78.41 1394.73,-79.06 1392.62,-79.59 1390.54,-79.85 1388.07,-79.66 1384.81,-78.85 1387.63,-69.68 1391.17,-70.24 1392.76,-70.08 1394.23,-69.62 1395.58,-68.86">
         <request index="0" response="000" foes="000" cont="0"/>
@@ -2319,8 +2336,9 @@
     <connection from="WB610-3" to="WB610-3a" fromLane="0" toLane="1" via=":J6_1_1" dir="s" state="M"/>
     <connection from="WB610-3a" to="WB610-2" fromLane="1" toLane="0" via=":J1_0_0" dir="s" state="M"/>
     <connection from="WB610-4" to="WB610-3" fromLane="1" toLane="0" via=":J8_0_0" dir="s" state="M"/>
-    <connection from="WB610-5" to="WB610-4" fromLane="0" toLane="0" via=":J9_0_0" dir="s" state="M"/>
-    <connection from="WB610-5" to="WB610-4" fromLane="1" toLane="1" via=":J9_0_1" dir="s" state="M"/>
+    <connection from="WB610-5" to="WB610/MapleGrove" fromLane="0" toLane="0" via=":J9_0_0" dir="r" state="M"/>
+    <connection from="WB610-5" to="WB610-4" fromLane="0" toLane="0" via=":J9_1_0" dir="s" state="M"/>
+    <connection from="WB610-5" to="WB610-4" fromLane="1" toLane="1" via=":J9_1_1" dir="s" state="M"/>
     <connection from="WB610-6" to="WB610-5" fromLane="0" toLane="0" via=":J15_1_0" dir="s" state="M"/>
     <connection from="WB610-6" to="WB610-5" fromLane="1" toLane="1" via=":J15_1_1" dir="s" state="M"/>
     <connection from="WB610-7" to="WB610/WB81-2" fromLane="0" toLane="0" via=":J18_0_0" dir="R" state="M"/>
@@ -2338,6 +2356,7 @@
     <connection from="WB610/CoonRapids" to="WB610-26a" fromLane="0" toLane="0" via=":J106_0_0" dir="r" state="m"/>
     <connection from="WB610/CoonRapids" to="WB610-26a" fromLane="0" toLane="1" via=":J106_0_1" dir="r" state="m"/>
     <connection from="WB610/CoonRapids" to="WB610-26a" fromLane="0" toLane="2" via=":J106_0_2" dir="r" state="m"/>
+    <connection from="WB610/MapleGrove" to="exit-WB610/MapleGrove" fromLane="0" toLane="0" via=":J197_0_0" dir="s" state="M"/>
     <connection from="WB610/NB169" to="WB610-14" fromLane="0" toLane="0" via=":J52_0_0" dir="r" state="m"/>
     <connection from="WB610/NB169-2" to="exit-WB610/NB169-2" fromLane="0" toLane="0" via=":J58_0_0" dir="s" state="M"/>
     <connection from="WB610/NB252" to="WB610-22" fromLane="0" toLane="0" via=":J90_0_0" dir="r" state="M"/>
@@ -2573,6 +2592,7 @@
     <connection from=":J19_0" to="EB610-6a" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from=":J19_1" to="EB610-6a" fromLane="0" toLane="1" dir="s" state="M"/>
     <connection from=":J19_1" to="EB610-6a" fromLane="1" toLane="2" dir="s" state="M"/>
+    <connection from=":J197_0" to="exit-WB610/MapleGrove" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from=":J2_0" to="EB610-1" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from=":J2_0" to="EB610-1" fromLane="1" toLane="1" dir="s" state="M"/>
     <connection from=":J20_0" to="exit-EB610/EB81" fromLane="0" toLane="0" dir="s" state="M"/>
@@ -2726,8 +2746,9 @@
     <connection from=":J88_1" to="EB610-18" fromLane="0" toLane="1" dir="s" state="M"/>
     <connection from=":J88_1" to="EB610-18" fromLane="1" toLane="2" dir="s" state="M"/>
     <connection from=":J89_0" to="EB610/NBNoble" fromLane="0" toLane="0" dir="s" state="M"/>
-    <connection from=":J9_0" to="WB610-4" fromLane="0" toLane="0" dir="s" state="M"/>
-    <connection from=":J9_0" to="WB610-4" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from=":J9_0" to="WB610/MapleGrove" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from=":J9_1" to="WB610-4" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from=":J9_1" to="WB610-4" fromLane="1" toLane="1" dir="s" state="M"/>
     <connection from=":J90_0" to="WB610-22" fromLane="0" toLane="0" dir="r" state="M"/>
     <connection from=":J90_1" to="WB610-22" fromLane="0" toLane="1" dir="s" state="M"/>
     <connection from=":J90_1" to="WB610-22" fromLane="1" toLane="2" dir="s" state="M"/>
