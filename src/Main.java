@@ -16,8 +16,8 @@ public class Main {
 //
         //CreateSumoDemand.main("610");
         //ReadSumoNetwork.main("test_network", "site_trial");
-        ReadSumoNetwork.main("610", "610");
-        //MainServer.main(args);
+        //ReadSumoNetwork.main("610", "610");
+        MainServer.main(args);
         
     }
 }

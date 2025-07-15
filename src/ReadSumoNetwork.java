@@ -186,7 +186,7 @@ public class ReadSumoNetwork {
                     junctions.put(to, new Node(to));
                 }
     
-                System.out.println(name+" "+line);
+
                 double length = Double.parseDouble(findVar("length", line));
                 
                 edges.put(name, new Edge(name, junctions.get(from), junctions.get(to), length, 1, null));
@@ -344,14 +344,19 @@ public class ReadSumoNetwork {
                 
                 if(edges.get(edge).from.name.equals(name) && edges.get(edge).type.equals("on-ramp")){
                     //System.out.println(edge);
-                    cross = edge.substring(0, edge.indexOf("Start"));
+                    cross = "x-"+edge;
+                    
                 }
                 else if(edges.get(edge).to.name.equals(name) && edges.get(edge).type.equals("on-ramp"))
                 {
-                    cross = edge.substring(0, edge.indexOf("Start"));
+                    cross = "x-"+edge;
                     
                     
                 }
+            }
+            
+            if(cross.length() > 20){
+                cross = cross.substring(0, 20);
             }
             
             if(!cross.equals("none")){
@@ -359,7 +364,7 @@ public class ReadSumoNetwork {
                 store.query("SELECT * FROM iris.road WHERE name='"+cross+"';", counter);
 
                 if(counter.length == 0){
-                    store.update("INSERT INTO iris.road VALUES ('"+cross+"', '"+cross+"', 6, 2);");
+                    store.update("INSERT INTO iris.road VALUES ('"+cross+"', '"+cross.substring(0, 6)+"', 6, 2);");
                 }
             }
             
@@ -591,7 +596,7 @@ public class ReadSumoNetwork {
         filein.close();
         
 
-        store.update("update iris.ramp_meter set algorithm = 4;");
+        //store.update("update iris.ramp_meter set algorithm = 4;");
         
         
         
