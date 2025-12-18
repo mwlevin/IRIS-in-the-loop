@@ -337,5 +337,10 @@
     <inductionLoop id="detGreen214" lane="WB610/SBMapleGrove_0" pos="5.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detMerge214" lane="WB610/SBMapleGrove_0" pos="195.00" period="30.00" file="detector.xml"/>
     
+    <inductionLoop id="detDemand215A" lane="rmp-WB610/University_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand215B" lane="rmp-WB610/University_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass215" lane="WB610/University_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen215" lane="WB610/University_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge215" lane="WB610/University_0" pos="195.00" period="30.00" file="detector.xml"/>
 
 </additional>

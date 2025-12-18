@@ -96,12 +96,21 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
     
     
     if control and not test:
-        connection = socket.socket()
+        
         host = "localhost"
         port = 5452
     
         print("connecting to IRIS server ", host, port);
-        connection.connect((host, port))
+        
+        while(True):
+            try:
+                connection = socket.socket()
+                connection.connect((host, port))
+                break
+            except ConnectionRefusedError:
+                print("Waiting for IRIS server")
+                time.sleep(1)
+                
         print("connected")
     else:
         print("test only, no server conection")

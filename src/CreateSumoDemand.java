@@ -24,10 +24,10 @@ public class CreateSumoDemand {
         
         
         
+        double scale = 1;
         
-        
-        processFile(new File("sumo code/"+network+"/WB.txt"), fileout, 0, 3600);
-        processFile(new File("sumo code/"+network+"/EB.txt"), fileout, 0, 3600);
+        processFile(new File("sumo code/"+network+"/WB.txt"), fileout, 0, 3600, scale);
+        processFile(new File("sumo code/"+network+"/EB.txt"), fileout, 0, 3600, scale);
         
         
         
@@ -40,7 +40,7 @@ public class CreateSumoDemand {
     
     public static int flow_id = 1;
     
-    public static void processFile(File input, PrintStream fileout, int begin, int end) throws IOException {
+    public static void processFile(File input, PrintStream fileout, int begin, int end, double scale) throws IOException {
         Scanner filein = new Scanner(input);
         
         HashMap<String, Double> entrances = new HashMap<>();
@@ -59,7 +59,7 @@ public class CreateSumoDemand {
             
             
             if(filein.hasNextDouble()){
-                count = filein.nextDouble();
+                count = filein.nextDouble()*scale;
             }
             else{
                 count = carry * 0.2; // if no data, assume 20% vehicles enter or exit, could be changed later

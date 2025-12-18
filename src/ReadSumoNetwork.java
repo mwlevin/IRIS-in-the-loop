@@ -488,13 +488,13 @@ public class ReadSumoNetwork {
                 
                 detectors.add(name);
                 
-                name=name.replaceAll("det", "d");
-                name = name.replaceAll("Demand", "D"); // name is too long!
-                name = name.replaceAll("Down", "Do"); // name is too long!
-                name = name.replaceAll("Pass", "P"); // name is too long!
-                name = name.replaceAll("Green", "G"); // name is too long!
-                name = name.replaceAll("Merge", "M"); // name is too long!
-                name = name.replaceAll("Exit", "Ex"); // name is too long!
+                String sqlname=name.replaceAll("det", "d");
+                sqlname = sqlname.replaceAll("Demand", "D"); // name is too long!
+                sqlname = sqlname.replaceAll("Down", "Do"); // name is too long!
+                sqlname = sqlname.replaceAll("Pass", "P"); // name is too long!
+                sqlname = sqlname.replaceAll("Green", "G"); // name is too long!
+                sqlname = sqlname.replaceAll("Merge", "M"); // name is too long!
+                sqlname = sqlname.replaceAll("Exit", "Ex"); // name is too long!
                 
                 String lane = findVar("lane", line);
                 String edge = lane.substring(0, lane.indexOf("_"));
@@ -503,7 +503,7 @@ public class ReadSumoNetwork {
                 String nodeid = edge+"_"+pos;
                 
                 
-                String loc = name;
+                String loc = sqlname;
                 
                 if(createdNodes.containsKey(nodeid)){
                     loc = createdNodes.get(nodeid);
@@ -535,37 +535,30 @@ public class ReadSumoNetwork {
                 
                 String cross = "none";
                 
-                if(edge.indexOf("Start") >= 0){
-                    cross = edge.substring(0, edge.indexOf("Start"));
-                    node_type = 1;
-                    
-                    if(name.indexOf("Dem") >= 0){
-                        det_type = 'Q';
-                    }
-                    else if(name.indexOf("Gr") >= 0){
-                        det_type = 'G';
-                    }
-                    
+                
+                if(name.indexOf("Dem") >= 0){
+                    det_type = 'Q';
                     nodename = "n-"+edges.get(edge).to;
-                }
-                else if(edge.indexOf("End") >= 0){
-                    cross = edge.substring(0, edge.indexOf("End"));
                     node_type = 1;
-                    
-                    
-                    if(name.indexOf("Pa") >= 0){
-                        det_type = 'P';
-                    }
-                    else if(name.indexOf("Me") >= 0){
-                        det_type = 'M';
-                    }
-                    else if(name.indexOf("Gr") >= 0){
-                        det_type = 'G';
-                    }
-                    
-                    nodename = "n-"+edges.get(edge).from;
-                    
                 }
+                else if(name.indexOf("Gr") >= 0){
+                    det_type = 'G';
+                    nodename = "n-"+edges.get(edge).from;
+                    node_type = 1;
+                }
+                else if(name.indexOf("Pa") >= 0){
+                    det_type = 'P';
+                    nodename = "n-"+edges.get(edge).from;
+                    node_type = 1;
+                }
+                else if(name.indexOf("Me") >= 0){
+                    det_type = 'M';
+                    nodename = "n-"+edges.get(edge).from;
+                    node_type = 1;
+                }
+                
+                System.out.println(name+" "+det_type);
+
                 
                 if(!createdNodes.containsKey(nodeid) && !createdNodes.containsKey(nodename)){
                     
@@ -585,7 +578,7 @@ public class ReadSumoNetwork {
                 
 
                 //String controllername = "det_ctl_"+name;
-                String detname = name;
+                String detname = sqlname;
 
                 
 

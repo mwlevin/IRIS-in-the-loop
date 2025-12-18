@@ -583,12 +583,14 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 
 	/** Set the algorithm operating state */
 	public void setOperating(boolean o) {
-            //System.out.println("operating "+getName()+" "+o);
+            System.out.println("set operating "+getName()+" "+o);
 		if (o) {
-			if (alg_state == null)
+			if (alg_state == null){
 				alg_state = createState();
+                                
+                        }
                         
-                        //System.out.println(alg_state);
+                        System.out.println(alg_state);
 		} else {
 			alg_state = null;
 			setRatePlanned(null);
@@ -603,6 +605,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 	/** Create the meter algorithm state */
 	private MeterAlgorithmState createState() {
             
+                //System.out.println("meter "+algorithm+" "+(MeterAlgorithm.fromOrdinal(algorithm)==K_ADAPTIVE));
                 
 		switch (MeterAlgorithm.fromOrdinal(algorithm)) {
 		case SIMPLE:
@@ -694,7 +697,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 		else
 			ratePlanned = r;
                 
-                System.out.println("set rate planned "+getName()+" "+r+" "+ratePlanned);
+                //System.out.println("set rate planned "+getName()+" "+r+" "+ratePlanned+" "+alg_state.getClass().getName());
 	}
 
 	/** Update the planned rate */
@@ -816,6 +819,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 		Corridor corridor = getCorridor();
                 
                 
+                
 		if (corridor != null) {
 			R_NodeImpl n = corridor.findActiveNode(finder);
                         
@@ -862,16 +866,22 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 	/** Check if a node is an entrance for the meter */
 	private boolean checkNode(R_NodeImpl n) {
                 
-                
+               
                 
 		if (n.getNodeType() != R_NodeType.ENTRANCE.ordinal())
 			return false;
+                
+                //System.out.println("my loc "+geo_loc.getName());
+                //System.out.println("\t\t\tchecknode "+n.getName()+" "+(n.getNodeType() != R_NodeType.ENTRANCE.ordinal())+" "+!matchesCross(n.getGeoLoc()));
+                
+                //System.out.println("\t\t\t\t"+n.getNodeType()+" "+R_NodeType.ENTRANCE.ordinal());
                 
 		if (!matchesCross(n.getGeoLoc()))
 			return false;
 		SamplerSet greens = n.getSamplerSet().filter(LaneCode.GREEN);
                 
-                //System.out.println("check node "+n+" "+greens+" "+n.getSamplerSet());
+
+                //System.out.println("\t\t\t\tcheck node "+n+" "+greens+" "+n.getSamplerSet());
 		return greens.size() == 1;
 	}
 
@@ -880,15 +890,18 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 	private boolean matchesCross(GeoLoc loc) {
 		Road x = geo_loc.getCrossStreet();
                 
-                //if(loc.getName().equals("loc-J6-0") && geo_loc.getName().equals("loc-J3-0"))
+                /*
+                System.out.println("\t\t\tcheck cross "+loc.getName()+" "+geo_loc.getName());
+                if(loc.getName().equals("loc-J6-0") && geo_loc.getName().equals("loc-J3-0"))
                 {
                     //System.out.println("***FOUND***");
                 
-                    //System.out.println("consider "+loc+" vs "+geo_loc);
-                    //System.out.println("\tcross is "+x+"\tcross street is "+loc.getCrossStreet());
-                    //System.out.println("\tcrossdir "+geo_loc.getCrossDir()+" "+loc.getCrossDir());
-                    //System.out.println("\tcrossmod "+geo_loc.getCrossMod()+" "+loc.getCrossMod());
+                    System.out.println("consider "+loc+" vs "+geo_loc);
+                    System.out.println("\tcross is "+x+"\tcross street is "+loc.getCrossStreet()+" "+(x == loc.getCrossStreet()));
+                    System.out.println("\tcrossdir "+geo_loc.getCrossDir()+" "+loc.getCrossDir()+" "+(geo_loc.getCrossDir() == loc.getCrossDir()));
+                    System.out.println("\tcrossmod "+geo_loc.getCrossMod()+" "+loc.getCrossMod()+" "+(geo_loc.getCrossMod() == loc.getCrossMod()));
                 }
+                */
 		return (x != null) &&
 		       (x == loc.getCrossStreet()) &&
 		       (geo_loc.getCrossDir() == loc.getCrossDir()) &&
