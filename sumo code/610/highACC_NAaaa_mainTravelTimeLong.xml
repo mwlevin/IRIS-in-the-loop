@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-07-29 19:23:36 by Eclipse SUMO sumo Version 1.22.0
+<!-- generated on 2025-12-18T10:00:48.708293-06:00 by Eclipse SUMO sumo 1.25.0
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="test_network/site_trial.net.xml"/>
-        <route-files value="test_network/MD_fullHV.rou.xml"/>
-        <additional-files value="test_network/detectors.xml"/>
+        <net-file value="610/610.net.xml"/>
+        <route-files value="610/demand.rou.xml"/>
+        <additional-files value="610/detectors.xml"/>
     </input>
 
     <output>
@@ -23,7 +23,7 @@
     </report>
 
     <traci_server>
-        <remote-port value="58354"/>
+        <remote-port value="49502"/>
     </traci_server>
 
 </sumoConfiguration>

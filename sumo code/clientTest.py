@@ -41,7 +41,7 @@ from densityFunctions_3 import computeRed, computeSwitchMeter,calcRateLimits, co
 # critDensity and jamDensity: Critical and Jam Densities used in algorithm
 # rampStorageLength: Length of ramp that can be used for queue storage (upstream of meter, depends on site)
 
-def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low):
+def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low):
     
     if control:
         print("meter active")
@@ -71,7 +71,7 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     meters = []
     lanes = dict()
     
-    with open("meters.txt") as file:
+    with open(directory+"/meters.txt") as file:
         lines = [line.rstrip() for line in file]
         for line in lines:
             data = line.split()
@@ -81,16 +81,16 @@ def run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low
     #lanes["J3"] = "rampStart_0"
     #lanes["J9"] = "ramp2Start_0"
     
-    print("meters: "+meters)
-    print("lanes: "+lanes)    
+    print("meters: ", meters)
+    print("lanes: ", lanes)    
     
     
     # detPass1 and detPass3 hvae the same location as detPass2 and detPass 4 but a different period?
     detectors = []
-    with open("detectors.txt") as file:
+    with open(directory+"/detectors.txt") as file:
         detectors = [line.rstrip() for line in file]
     
-    print("detectors: "+detectors)
+    print("detectors: ", detectors)
     
     #detectors = ["detDemandA", "detDemandB", "detDemandC", "detDemandD", "detMerge1", "detMerge2", "detGreen1", "detGreen2", "detDown1", "detDown2", "detPass2", "detPass4", "detUp1", "detUp2", "detDSA1", "detDSA2", "detDSB1", "detDSB2", "detUSB1", "detUSB2"]
     

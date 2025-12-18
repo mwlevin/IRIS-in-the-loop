@@ -102,6 +102,9 @@ public class ReadSumoNetwork {
     public static void readSumo(String netfile, String detectorfile, String meters_out, String detectors_out) throws Exception{
         Properties props = PropertyLoader.load(PROP_FILE);
         
+        
+        int algorithm = 3; // k-adaptive
+        
         SQLConnection store = createStore(props);
         
         
@@ -186,7 +189,6 @@ public class ReadSumoNetwork {
                     junctions.put(to, new Node(to));
                 }
     
-
                 double length = Double.parseDouble(findVar("length", line));
                 
                 edges.put(name, new Edge(name, junctions.get(from), junctions.get(to), length, 1, null));
@@ -434,7 +436,7 @@ public class ReadSumoNetwork {
                 pin++;
                 store.update("INSERT INTO iris.beacon VALUES ('"+beaconname+"', '"+locname+"', '"+controllername+"', "+(pin++)+", '', '', 0, 'true', '"+preset+"', 0);");
                 preset++;
-                store.update("INSERT INTO iris.ramp_meter VALUES ('meter-"+name+"', '"+locname+"', '"+controllername+"', "+(pin++)+", '', 2, 100, 240, 3, 1800, 1800, '"+beaconname+"', '"+preset+"', 'false', '{}');");
+                store.update("INSERT INTO iris.ramp_meter VALUES ('meter-"+name+"', '"+locname+"', '"+controllername+"', "+(pin++)+", '', 2, 100, 240, "+algorithm+", 1800, 1800, '"+beaconname+"', '"+preset+"', 'false', '{}');");
                 preset++;
                 
                 String on_ramp = "";

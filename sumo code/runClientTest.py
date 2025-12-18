@@ -52,7 +52,11 @@ rampStorageDensity = 20/180
 stepsize = '.05'
 # site = ["site3_fullHV.sumocfg","site3_fullACC.sumocfg","site3_fullAV.sumocfg","site3_highHV.sumocfg","site3_highACC.sumocfg","site3_highAV.sumocfg"]
 # site = ['highACC.sumocfg','highAV.sumocfg']
-site = ['new_network.sumocfg']
+
+#directory = "test_network"
+#site = [directory+'/new_network.sumocfg']
+directory = "610"
+site = [directory+'/610.sumocfg']
 
 if adjust == 0:
     # output_prefix = ['fullHV','fullACC','fullAV','highHV','highACC','highAV']
@@ -109,11 +113,14 @@ for i in range(len(site)):
             alpha_desired = 0.95
             alpha_low = 0.79 
         
-        
+    print("starting TraCI")
     traci.start([sumoBinary,"--step-length",stepsize, "-c", site[i], "--statistic-output","tripinfo.xml", "--duration-log.statistics","--output-prefix",output_prefix[i]]) 
+    
+    
+    print("running simulation")
     # passage_count,demand_count,meterActivate,flushActivate,stoppedActivate,minRates,maxRates,rates = run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
     #passage1_count,demand1_count,meter1Activate,flush1Activate,stopped1Activate,min1Rates,max1Rates,rates1,passage2_count,demand2_count,meter2Activate,flush2Activate,stopped2Activate,min2Rates,max2Rates,rates2 = run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
-    run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
+    run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
 
     # Mainline Density [veh/mi] : From .xml File not Traci retrieval
     fieldL = 16.4042
