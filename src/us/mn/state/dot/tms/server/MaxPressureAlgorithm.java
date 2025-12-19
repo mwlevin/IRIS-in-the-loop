@@ -785,6 +785,12 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         upstream = findUpstreamStation(s_node, min_link_len);
                         downstream = findDownstreamStation(s_node, min_link_len);
                         
+                        System.out.println("\tupstream pos "+upstream.mile+" merge "+mergepoint.mile+" downstream "+downstream.mile);
+                        
+                        
+                        if(downstream == null){
+                            System.out.println(mtr.getEntranceNode().getName()+" "+(v_u * STEP_SECONDS/3600));
+                        }
                         
                         
                         int ramp_lanes = 2; // assume 2 lanes form on ramp
@@ -856,10 +862,12 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 private StationNode findMergePoint(Node start){
                     
                     StationNode closest = null;
+                    /*
                     for(Node n : nodes){
                         if(n instanceof StationNode)
                         System.out.println("\t"+n+" "+n.mile+" "+node+" "+node.mile);
                     }
+                    */
                     
                     for(Node n : nodes){
                         if(start.mile > n.mile){
@@ -1417,7 +1425,21 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 }
                 
                 private double getRampQueueLength(long stamp){
-                    return queue.getCumulativeCount(stamp, PERIOD_MS) - green.getCumulativeCount(stamp, PERIOD_MS);
+                    double queuein = queue.getCumulativeCount(stamp, PERIOD_MS);
+                    double queueout = queuein;
+                    
+                    if(green.isPerfect()){
+                        queueout = green.getCumulativeCount(stamp, PERIOD_MS);
+                        
+                        if(bypass.isPerfect()){
+                            queueout += bypass.getCumulativeCount(stamp, PERIOD_MS);
+                        }
+                    }
+                    else if(passage.isPerfect()){
+                        queueout = passage.getCumulativeCount(stamp, PERIOD_MS);
+                    }
+                    
+                    return queuein - queueout;
                 }
                 private double getRampSendingFlow(long stamp){
                     double S_rd = Math.min(Q_r * STEP_SECONDS / 3600.0, getRampQueueLength(stamp));

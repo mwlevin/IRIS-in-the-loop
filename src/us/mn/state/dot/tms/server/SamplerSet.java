@@ -115,6 +115,7 @@ public class SamplerSet implements VehicleSampler {
 
 	/** Get a vehicle count */
 	@Override
+        /*
 	public int getVehCount(long stamp, int per_ms) {
 		int count = 0;
 		int n_count = 0;
@@ -127,6 +128,21 @@ public class SamplerSet implements VehicleSampler {
 				return MISSING_DATA;
 		}
 		return (n_count > 0) ? count : MISSING_DATA;
+	}
+        */
+        
+        // I need counts even if 1 detector isn't working. Approximate if one detector is bad.
+        public int getVehCount(long stamp, int per_ms) {
+		int count = 0;
+		int n_count = 0;
+		for (VehicleSampler vs: samplers) {
+			int c = vs.getVehCount(stamp, per_ms);
+			if (c >= 0) {
+				count += c;
+				n_count++;
+			} 
+		}
+		return (n_count > 0) ? (int)Math.round(count * (samplers.size() / n_count)) : MISSING_DATA;
 	}
 
 	/** Get a total flow rate */
