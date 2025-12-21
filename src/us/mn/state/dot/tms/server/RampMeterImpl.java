@@ -737,7 +737,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
                 MeterPoller mp = getMeterPoller();
                 
                 if(mp != null && mp instanceof SumoPoller){
-                    System.out.println("send meter rate old="+getStatusRate()+" new="+r+" poller="+mp);
+                    //System.out.println("send meter rate old="+getStatusRate()+" new="+r+" poller="+mp);
                     mp.sendReleaseRate(this, r);
                 }
                 else if (mp != null && !objectEquals(r, getStatusRate())) 

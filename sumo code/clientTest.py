@@ -118,7 +118,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
     
     
 
-    endStep = 3600*20*2 # Time to simulate (0.05 seconds steps)
+    endStep = 3600*20*1.2 # Time to simulate (0.05 seconds steps)
 
 
     
@@ -210,7 +210,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                         print(det, det_occ, occ)
                     '''
                     
-                    print("detector ", det, "count=", count, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval")
+                    #print("detector ", det, "count=", count, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval")
                         
                     msg = "det,"+detectors_abbrv[det]+","+str(count)+","+str(occ)
                     #counts[det] = 0

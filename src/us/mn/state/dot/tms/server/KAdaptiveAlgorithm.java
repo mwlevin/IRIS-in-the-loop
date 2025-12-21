@@ -778,7 +778,7 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 			min_rate = filterRate(calculateMinimumRate());
 			max_rate = filterRate(calculateMaximumRate());
                         
-                        System.out.println("validate "+meter.getName()+" "+s_node+" "+min_rate+" "+max_rate);
+                        //System.out.println("validate "+meter.getName()+" "+s_node+" "+min_rate+" "+max_rate);
 			if (s_node != null)
 				calculateMeteringRate();
 		}

@@ -60,7 +60,7 @@ site = [directory+'/610.sumocfg']
 
 if adjust == 0:
     # output_prefix = ['fullHV','fullACC','fullAV','highHV','highACC','highAV']
-    output_prefix = ['highACC_NAaaa_']
+    output_prefix = ['fullHV_A2']
 
 elif adjust == 1: 
     output_prefix = ['fullHV_A1','fullACC_A1','fullAV_A1','highHV_A1','highACC_A1','highAV_A1']
@@ -114,7 +114,7 @@ for i in range(len(site)):
             alpha_low = 0.79 
         
     print("starting TraCI")
-    traci.start([sumoBinary,"--step-length",stepsize, "-c", site[i], "--statistic-output","tripinfo.xml", "--duration-log.statistics","--output-prefix",output_prefix[i]]) 
+    traci.start([sumoBinary,"--step-length",stepsize, "-c", site[i], "--tripinfo-output","tripinfo.xml", "--statistic-output","statistics.xml", "--duration-log.statistics","--output-prefix",output_prefix[i]]) 
     
     
     print("running simulation")
