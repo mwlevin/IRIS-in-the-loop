@@ -778,10 +778,13 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         //mergepoint = findMergePoint(s_node); // this is not always the same as s_node
                         
                         
-                        upstream = findUpstreamStation(s_node, min_link_len);
-                        downstream = findDownstreamStation(s_node, min_link_len);
+                        System.out.println(mtr.getGeoLoc().getName()+" "+en.rnode.getName());
+                        upstream = findUpstreamStation(en, min_link_len);
+                        downstream = findDownstreamStation(en, min_link_len);
                         
-                        System.out.println("\tupstream pos "+upstream.mile+" merge "+s_node.mile+" downstream "+downstream.mile);
+                        
+                        
+                        System.out.println("\tupstream  "+upstream+" merge "+en+" downstream "+downstream);
                         
                         
                         if(downstream == null){
@@ -813,8 +816,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         
                         //Q_d = Q_u;
                         
-                        L_u = s_node.mile - upstream.mile;
-                        L_d = downstream.mile - s_node.mile;
+                        L_u = en.mile - upstream.mile;
+                        L_d = downstream.mile - en.mile;
                         
                         // calculate critical density. Assume triangle.
                         double kc_u = Q_u / v_u;
@@ -826,14 +829,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         double w_r = v_r/2;
                         double w_d = v_d/2;
                         
-                        System.out.println("FD u: "+v_u+" "+kc_u+" "+w_u+" "+Q_u+" "+K_u);
-                        System.out.println("FD d: "+v_d+" "+kc_d+" "+w_d+" "+Q_d+" "+K_d);
+                        //System.out.println("FD u: "+v_u+" "+kc_u+" "+w_u+" "+Q_u+" "+K_u);
+                        //System.out.println("FD d: "+v_d+" "+kc_d+" "+w_d+" "+Q_d+" "+K_d);
                         
                         upstream_link = new CTMLink(L_u, v_u, Q_u, w_u, K_u);
                         downstream_link = new CTMLink(L_d, v_d, Q_d, w_d, K_d);
                         ramp_queue = 0;
 
-                        System.out.println("check rate bounds "+RampMeterHelper.getMaxRelease()+" "+RampMeterHelper.getMinRelease());
+                        //System.out.println("check rate bounds "+RampMeterHelper.getMaxRelease()+" "+RampMeterHelper.getMinRelease());
                         
                         
                         // this has units of hours; convert to ms
@@ -951,10 +954,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     // assume that nodes are in sorted order
                     // s_node is the base point. I want the closest node with distance > min_link_len
                     StationNode closest = null;
+                    short road_dir = start.rnode.getGeoLoc().getRoadDir();
                     
                     for(Node n : nodes){
+                        
+                        
                         if(start.mile - n.mile > min_link_len){
-                            if((n instanceof StationNode) && n.rnode.getSamplerSet().filter(LaneCode.MAINLINE).size() > 0){
+                            if((n instanceof StationNode) && n.rnode.getSamplerSet().filter(LaneCode.MAINLINE).size() > 0
+                                     && n.rnode.getGeoLoc().getRoadDir() == road_dir){
                                 closest = (StationNode)n;
                             }
                         }
@@ -970,10 +977,11 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 private StationNode findDownstreamStation(Node start, double min_link_len){
                     // assume nodes in sorted order
                     // s_node is the base point. I want the closest node with distance > min_link_len
-  
+                    short road_dir = start.rnode.getGeoLoc().getRoadDir();
+                    
                     for(Node n : nodes){
                         // first matching node is the closest
-                        if((n instanceof StationNode) && (n.mile - start.mile  > min_link_len) && n.rnode.getSamplerSet().filter(LaneCode.MAINLINE).size() > 0){
+                        if((n instanceof StationNode) && (n.mile - start.mile  > min_link_len) && n.rnode.getSamplerSet().filter(LaneCode.MAINLINE).size() > 0 && n.rnode.getGeoLoc().getRoadDir() == road_dir){
                             return (StationNode)n;
                         }
                     }
@@ -1378,7 +1386,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         System.out.println("det count check");
                         System.out.println("us="+count_u.getCumulativeCount(stamp, PERIOD_MS)+
                                 " ds="+count_d.getCumulativeCount(stamp, PERIOD_MS)+
-                                " ramp-pass"+merge.getCumulativeCount(stamp, PERIOD_MS));
+                                " ramp-pass="+merge.getCumulativeCount(stamp, PERIOD_MS));
+                        System.out.println("us="+upstream.rnode.getName()+" ds="+downstream.rnode.getName());
                     }
 
 

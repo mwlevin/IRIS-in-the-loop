@@ -44,6 +44,8 @@ public class ReadSumoNetwork {
         public double length;
         public int numlanes;
         
+        public int direction = 0;
+        
         public Edge(String name, Node from, Node to, double length, int numlanes, String type){
             this.name = name;
             this.from = from;
@@ -61,6 +63,8 @@ public class ReadSumoNetwork {
     static class Node{
         public String name, type;
         public double x, y;
+        
+        public int direction = 0;
         
         public Node(String name){
             this(name, -1, -1, null);
@@ -211,20 +215,37 @@ public class ReadSumoNetwork {
         // therefore: mainline has x=0 and ramps are 90 degrees
         // arbitrarily pick one junction to be (0,0).
         // one of the priority junctions should be (0,0)
+        // need one junction in each direction
+        
+        
+        for(String e : edges.keySet()){
+            if(e.indexOf("EB")>=0){
+                edges.get(e).direction = 1;
+            }
+        }
+        
+        for(String j : junctions.keySet()){
+            Node n = junctions.get(j);
+            
+            for(String e : edges.keySet()){
+                Node from = edges.get(e).from;
+                Node to = edges.get(e).to;
+                
+                if(from.equals(n) || to.equals(n)){
+                    if(edges.get(e).direction == 1){
+                        n.direction = 1;
+                    }
+                }
+            }
+        }
         
         Stack<Node> unsettled = new Stack<>();
         
-        for(String name : junctions.keySet()){
-            Node n = junctions.get(name);
-            
-            if(n.type.equals("priority")){
-                
-                n.x = 0.0;
-                n.y = 0.0;
-                unsettled.push(n);
-                break;
-            }
-        }
+        unsettled.push(junctions.get("J15"));
+        unsettled.push(junctions.get("J13"));
+        
+        
+        System.out.println(unsettled);
         
         while(!unsettled.isEmpty()){
             Node junc = unsettled.pop();
@@ -327,8 +348,10 @@ public class ReadSumoNetwork {
             double y = junctions.get(name).y;
             String type = junctions.get(name).type;
             
-            String locname = "loc-"+name+"-0";
-            String locname2 = "loc-"+name+"-1";
+            int direction = junctions.get(name).direction;
+            
+            String locname = "loc-"+name+"-"+direction;
+            //String locname2 = "loc-"+name+"-1";
             
             saved_loc = locname;
             
@@ -373,8 +396,8 @@ public class ReadSumoNetwork {
       
 
             // create geo_loc
-            store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline0', '0', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 
-            store.update("INSERT INTO iris.geo_loc VALUES ('"+locname2+"', '', 'mainline1', '1', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 
+            store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline"+direction+"', '"+direction+"', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 
+            //store.update("INSERT INTO iris.geo_loc VALUES ('"+locname2+"', '', 'mainline1', '1', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 
             
             if(!created_controller){
                 store.update("INSERT INTO iris.controller VALUES ('"+controllername+"', "+drop_id+", 'sumo', 'sumo_fake', '"+saved_loc+"', 1, '', 'meter', 'true', 'true', '2100-Jan-01');");
@@ -498,6 +521,7 @@ public class ReadSumoNetwork {
                 
                 String lane = findVar("lane", line);
                 String edge = lane.substring(0, lane.indexOf("_"));
+                
                 double pos = Double.parseDouble(findVar("pos", line));
                 
                 String nodeid = edge+"_"+pos;
@@ -515,7 +539,9 @@ public class ReadSumoNetwork {
                 
                 int numlanes = (int)edges.get(edge).numlanes;
                 
-                char det_type = '0';
+                int direction = edges.get(edge).direction;
+                
+                String det_type = "";
                 
                 String stationname = "st-"+loc;
                 String nodename = "n-"+loc;
@@ -537,24 +563,27 @@ public class ReadSumoNetwork {
                 
                 
                 if(name.indexOf("Dem") >= 0){
-                    det_type = 'Q';
+                    det_type = "Q";
                     nodename = "n-"+edges.get(edge).to;
                     node_type = 1;
                 }
                 else if(name.indexOf("Gr") >= 0){
-                    det_type = 'G';
+                    det_type = "G";
                     nodename = "n-"+edges.get(edge).from;
                     node_type = 1;
                 }
                 else if(name.indexOf("Pa") >= 0){
-                    det_type = 'P';
+                    det_type = "P";
                     nodename = "n-"+edges.get(edge).from;
                     node_type = 1;
                 }
                 else if(name.indexOf("Me") >= 0){
-                    det_type = 'M';
+                    det_type = "M";
                     nodename = "n-"+edges.get(edge).from;
                     node_type = 1;
+                }
+                else if(name.indexOf("Ex") >= 0){
+                    det_type = "X";
                 }
                 
                 System.out.println(name+" "+det_type);
@@ -563,7 +592,7 @@ public class ReadSumoNetwork {
                 if(!createdNodes.containsKey(nodeid) && !createdNodes.containsKey(nodename)){
                     
                     
-                    store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline0', '0', '"+cross+"', '2', '0', '', "+x+", "+y+");");
+                    store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline"+direction+"', '"+direction+"', '"+cross+"', '2', '0', '', "+x+", "+y+");");
                     nodekey++;
                     
 
