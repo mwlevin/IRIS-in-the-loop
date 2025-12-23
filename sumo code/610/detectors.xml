@@ -154,7 +154,14 @@
     <inductionLoop id="4180" lane="WB610-27_0" pos="404.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="4181" lane="WB610-27_1" pos="404.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="4182" lane="WB610-27_2" pos="404.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="WB610a" lane="WB610-29_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="WB610b" lane="WB610-29_1" pos="10.00" period="30.00" file="detector.xml"/>
 
+    <inductionLoop id="EB10a" lane="EB10_0" pos="1195.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="EB10b" lane="EB10_1" pos="1195.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="EB10c" lane="EB10_2" pos="1195.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="EB10d" lane="EB10_3" pos="1195.00" period="30.00" file="detector.xml"/>
     
     <!-- EB exits -->
     <inductionLoop id="detExit101" lane="EB610/NBMapleGrove_0" pos="10.00" period="30.00" file="detector.xml"/>

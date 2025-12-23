@@ -86,7 +86,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                             }
                             
                             
-                            System.out.println("Received: "+message);
+                            //System.out.println("Received: "+message);
                             
                             String[] split = message.split(",");
                             
@@ -95,8 +95,8 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                                 int count = Integer.parseInt(split[2].trim());
                                 int occ = (int)Math.round(Double.parseDouble(split[3].trim()) * MAX_SCANS / 300) ; // data is time (sec) out of 30sec
                                 if(!detData.containsKey(name)){
-                                    System.out.println("could not find detector "+name);
-                                    System.out.println("\tall detectors: "+detData.keySet());
+                                    //System.out.println("could not find detector "+name);
+                                    //System.out.println("\tall detectors: "+detData.keySet());
                                 }
                                 else{
                                     //System.out.println("Updating detector "+name);
@@ -237,7 +237,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
     }
     
     private void sendMessage(String msg){
-        System.out.println("sending message \""+msg+"\"");
+        //System.out.println("sending message \""+msg+"\"");
         if(output != null){
             try{
                 output.write((msg+"\n").getBytes(StandardCharsets.UTF_8));

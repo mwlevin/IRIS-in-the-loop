@@ -752,11 +752,11 @@
         <lane id=":J99_1_2" index="2" speed="26.80" length="17.26" shape="1600.55,-24.41 1605.47,-22.38 1609.07,-21.66 1612.81,-21.37 1618.16,-20.67"/>
     </edge>
 
-    <edge id="EB10" from="J112" to="J113" priority="-1" spreadType="center" length="800.00">
-        <lane id="EB10_0" index="0" speed="26.80" length="800.00" shape="1941.91,-0.27 1974.55,0.62"/>
-        <lane id="EB10_1" index="1" speed="26.80" length="800.00" shape="1941.82,2.93 1974.46,3.82"/>
-        <lane id="EB10_2" index="2" speed="26.80" length="800.00" shape="1941.74,6.13 1974.38,7.02"/>
-        <lane id="EB10_3" index="3" speed="26.80" length="800.00" shape="1941.65,9.33 1974.29,10.21"/>
+    <edge id="EB10" from="J112" to="J113" priority="-1" spreadType="center" length="1600.00">
+        <lane id="EB10_0" index="0" speed="26.80" length="1600.00" shape="1941.91,-0.27 1974.55,0.62"/>
+        <lane id="EB10_1" index="1" speed="26.80" length="1600.00" shape="1941.82,2.93 1974.46,3.82"/>
+        <lane id="EB10_2" index="2" speed="26.80" length="1600.00" shape="1941.74,6.13 1974.38,7.02"/>
+        <lane id="EB10_3" index="3" speed="26.80" length="1600.00" shape="1941.65,9.33 1974.29,10.21"/>
     </edge>
     <edge id="EB610-1" from="J2" to="J3" priority="-1" spreadType="center" length="1007.00">
         <lane id="EB610-1_0" index="0" speed="26.80" length="1007.00" shape="-57.31,-13.60 25.31,-13.07"/>

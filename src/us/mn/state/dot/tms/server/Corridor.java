@@ -51,7 +51,7 @@ public class Corridor extends CorridorBase<R_NodeImpl> {
 			assert m != null;
 			R_NodeImpl n = n_points.get(m);
                         
-                        //System.out.println("\t\t"+n.getName()+" "+n.getActive()+" "+finder.check(m, n));
+                        //System.out.println("\t\t"+n.getName()+" "+n.getActive()+" "+n.getNodeType());
 			if (n.getActive() && finder.check(m, n))
 				return n;
 		}
