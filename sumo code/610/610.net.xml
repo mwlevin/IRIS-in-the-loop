@@ -1228,8 +1228,9 @@
         <lane id="ent-EB610-94_0" index="0" speed="26.80" length="200.00" shape="-82.26,-13.89 -57.60,-13.60"/>
         <lane id="ent-EB610-94_1" index="1" speed="26.80" length="200.00" shape="-82.30,-10.69 -57.64,-10.40"/>
     </edge>
-    <edge id="ent-EB610/EB10" from="J175" to="J127" priority="-1" length="100.00">
-        <lane id="ent-EB610/EB10_0" index="0" speed="13.89" length="100.00" shape="1904.23,15.31 1914.96,15.21"/>
+    <edge id="ent-EB610/EB10" from="J175" to="J127" priority="-1" length="200.00">
+        <lane id="ent-EB610/EB10_0" index="0" speed="13.89" length="200.00" shape="1904.23,15.31 1914.96,15.21"/>
+        <lane id="ent-EB610/EB10_1" index="0" speed="13.89" length="200.00" shape="1904.23,15.31 1914.96,15.21"/>
     </edge>
     <edge id="ent-EB610/EB81-2" from="J154" to="J153" priority="-1" length="200.00">
         <lane id="ent-EB610/EB81-2_0" index="0" speed="20.10" length="200.00" shape="390.16,-54.85 403.49,-42.49"/>
@@ -1263,9 +1264,9 @@
         <lane id="ent-EB610/SB169-2_0" index="0" speed="20.10" length="200.00" shape="821.65,-57.91 831.38,-44.58"/>
         <lane id="ent-EB610/SB169-2_1" index="1" speed="20.10" length="200.00" shape="819.06,-56.02 828.80,-42.70"/>
     </edge>
-    <edge id="ent-EB610/SBMapleGrove" from="J133" to="J151" priority="-1" length="100.00">
-        <lane id="ent-EB610/SBMapleGrove_0" index="0" speed="20.10" length="100.00" shape="102.15,-60.16 104.60,-47.61"/>
-        <lane id="ent-EB610/SBMapleGrove_1" index="1" speed="20.10" length="100.00" shape="99.01,-59.55 101.46,-47.00"/>
+    <edge id="ent-EB610/SBMapleGrove" from="J133" to="J151" priority="-1" length="200.00">
+        <lane id="ent-EB610/SBMapleGrove_0" index="0" speed="20.10" length="200.00" shape="102.15,-60.16 104.60,-47.61"/>
+        <lane id="ent-EB610/SBMapleGrove_1" index="1" speed="20.10" length="200.00" shape="99.01,-59.55 101.46,-47.00"/>
     </edge>
     <edge id="ent-EB610/University" from="J182" to="J173" priority="-1" length="200.00">
         <lane id="ent-EB610/University_0" index="0" speed="20.10" length="200.00" shape="1885.04,-50.81 1898.62,-42.15"/>
@@ -1322,9 +1323,9 @@
         <lane id="ent-WB610/SBZane_0" index="0" speed="20.10" length="200.00" shape="1180.32,26.17 1169.58,17.84"/>
         <lane id="ent-WB610/SBZane_1" index="1" speed="20.10" length="200.00" shape="1182.28,23.64 1171.54,15.31"/>
     </edge>
-    <edge id="ent-WB610/University" from="J183" to="J74" priority="-1" length="26.80">
-        <lane id="ent-WB610/University_0" index="0" speed="20.10" length="26.80" shape="1860.29,91.82 1852.70,76.84"/>
-        <lane id="ent-WB610/University_1" index="1" speed="20.10" length="26.80" shape="1863.14,90.37 1855.55,75.39"/>
+    <edge id="ent-WB610/University" from="J183" to="J74" priority="-1" length="200.00">
+        <lane id="ent-WB610/University_0" index="0" speed="20.10" length="200.00" shape="1860.29,91.82 1852.70,76.84"/>
+        <lane id="ent-WB610/University_1" index="1" speed="20.10" length="200.00" shape="1863.14,90.37 1855.55,75.39"/>
     </edge>
     <edge id="ent-WB610/WB81" from="J195" to="J148" priority="-1" length="200.00">
         <lane id="ent-WB610/WB81_0" index="0" speed="20.10" length="200.00" shape="260.67,33.47 249.01,24.51"/>

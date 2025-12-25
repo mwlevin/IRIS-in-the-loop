@@ -42,8 +42,8 @@
     <inductionLoop id="8234" lane="EB610-18_1" pos="311.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="8235" lane="EB610-18_2" pos="311.00" period="30.00" file="detector.xml"/>
     
-    <inductionLoop id="8239" lane="EB610-17_0" pos="12.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="8240" lane="EB610-17_1" pos="12.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8239" lane="EB610-17_0" pos="171.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8240" lane="EB610-17_1" pos="171.00" period="30.00" file="detector.xml"/>
     
     <inductionLoop id="7794" lane="EB610-1_0" pos="235.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="7795" lane="EB610-1_1" pos="235.00" period="30.00" file="detector.xml"/>
@@ -67,9 +67,9 @@
     <inductionLoop id="8227" lane="EB610-17_0" pos="596.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="8228" lane="EB610-17_1" pos="596.00" period="30.00" file="detector.xml"/>
     
-    <inductionLoop id="8236" lane="EB610-18_0" pos="1167.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="8237" lane="EB610-18_1" pos="1167.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="8238" lane="EB610-18_2" pos="1167.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8236" lane="EB610-18_0" pos="1093.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8237" lane="EB610-18_1" pos="1093.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8238" lane="EB610-18_2" pos="1093.00" period="30.00" file="detector.xml"/>
     
     <inductionLoop id="8243" lane="EB610-20_0" pos="301.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="8244" lane="EB610-20_1" pos="301.00" period="30.00" file="detector.xml"/>
