@@ -80,7 +80,8 @@ public class CreateSumoDemand {
                     int vph = (int)Math.round(exitcount * entrances.get(r)/total);
                     
                     if(vph > 0){
-                        fileout.println("<flow id=\"HV_"+flow_id+"\" type=\"HV_M\" begin=\""+String.format("%.2f", (double)begin)+"\" departLane=\"free\" departSpeed=\"avg\" from=\""+r+"\" to=\""+name+"\" end=\""+String.format("%.2f", (double)end)+"\" vehsPerHour=\""+String.format("%.2f", (double)vph)+"\"/>");
+                        fileout.println("<flow id=\"HV_"+flow_id+"_0\" type=\"HV_M\" begin=\""+String.format("%.2f", (double)begin)+"\" departLane=\"0\" departSpeed=\"avg\" from=\""+r+"\" to=\""+name+"\" end=\""+String.format("%.2f", (double)end)+"\" vehsPerHour=\""+String.format("%.2f", (double)vph/2.0)+"\"/>");
+                        fileout.println("<flow id=\"HV_"+flow_id+"_1\" type=\"HV_M\" begin=\""+String.format("%.2f", (double)begin)+"\" departLane=\"1\" departSpeed=\"avg\" from=\""+r+"\" to=\""+name+"\" end=\""+String.format("%.2f", (double)end)+"\" vehsPerHour=\""+String.format("%.2f", (double)vph/2.0)+"\"/>");
                         flow_id ++;
                     }
                     

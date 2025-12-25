@@ -107,7 +107,7 @@ public class ReadSumoNetwork {
         Properties props = PropertyLoader.load(PROP_FILE);
         
         
-        int algorithm = 3; // k-adaptive
+        int algorithm = 4; // k-adaptive
         
         SQLConnection store = createStore(props);
         
@@ -193,6 +193,7 @@ public class ReadSumoNetwork {
                     junctions.put(to, new Node(to));
                 }
     
+                System.out.println(line);
                 double length = Double.parseDouble(findVar("length", line));
                 
                 edges.put(name, new Edge(name, junctions.get(from), junctions.get(to), length, 1, null));
