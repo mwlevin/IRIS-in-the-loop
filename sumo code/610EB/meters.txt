@@ -1,0 +1,10 @@
+J21	rmp-EB610/EB81-2_0
+J97	rmp-EB610/NB252_0
+J78	rmp-EB610/NBZane_0
+J89	rmp-EB610/NBNoble_0
+J47	rmp-EB610/SB169-2_0
+J69	rmp-EB610/NBBroadway_0
+J14	rmp-EB610/SBMapleGrove_0
+J35	rmp-EB610/NBZachary_0
+J59	rmp-EB610/NB169-2_0
+J117	rmp-EB610/University_0

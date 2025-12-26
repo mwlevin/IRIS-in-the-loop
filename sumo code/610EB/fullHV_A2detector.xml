@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-12-26T17:39:07.311351-06:00 by Eclipse SUMO sumo 1.25.0
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="610EB/610EB.net.xml"/>
+        <route-files value="610EB/demand.rou.xml"/>
+        <additional-files value="610EB/detectors.xml"/>
+    </input>
+
+    <output>
+        <output-prefix value="fullHV_A2"/>
+        <tripinfo-output value="tripinfo.xml"/>
+        <statistic-output value="statistics.xml"/>
+    </output>
+
+    <time>
+        <step-length value=".05"/>
+    </time>
+
+    <report>
+        <duration-log.statistics value="true"/>
+    </report>
+
+    <traci_server>
+        <remote-port value="58850"/>
+    </traci_server>
+
+</sumoConfiguration>

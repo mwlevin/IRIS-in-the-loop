@@ -14,9 +14,9 @@ import us.mn.state.dot.tms.SystemAttrEnum;
 public class Main {
     public static void main(String[] args) throws Exception{
 //
-        //CreateSumoDemand.main("610");
+        //CreateSumoDemand.main("610EB");
         //ReadSumoNetwork.main("test_network", "site_trial");
-        //ReadSumoNetwork.main("610", "610");
+        //ReadSumoNetwork.main("610EB", "610EB");
         MainServer.main(args);
     }
 }

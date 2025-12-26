@@ -26,8 +26,8 @@ public class CreateSumoDemand {
         
         double scale = 1;
         
-        processFile(new File("sumo code/"+network+"/WB.txt"), fileout, 0, 3600, scale);
-        processFile(new File("sumo code/"+network+"/EB.txt"), fileout, 0, 3600, scale);
+        processFile(new File("sumo code/"+network+"/counts.txt"), fileout, 0, 3600, scale);
+        //processFile(new File("sumo code/"+network+"/EB.txt"), fileout, 0, 3600, scale);
         
         
         

@@ -242,11 +242,15 @@ public class ReadSumoNetwork {
         
         Stack<Node> unsettled = new Stack<>();
         
-        junctions.get("J15").y=0;
-        unsettled.push(junctions.get("J15"));
-        junctions.get("J13").y=0;
-        unsettled.push(junctions.get("J13"));
+        if(netfile.indexOf("WB") >= 0){
+            junctions.get("J15").y=0;
+            unsettled.push(junctions.get("J15"));
+        }
         
+        if(netfile.indexOf("EB") >= 0){
+            junctions.get("J13").y=0;
+            unsettled.push(junctions.get("J13"));
+        }
         
         System.out.println(unsettled);
         

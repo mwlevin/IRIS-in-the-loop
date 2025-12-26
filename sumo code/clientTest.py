@@ -153,9 +153,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
         
     listen_thread = None
         
-    if multithread:
-         listen_thread = threading.Thread(target=listen, args=(metering_rates))
-         listen_thread.start()
+    
          
     speeds = dict()
     waitingTime = dict()
@@ -214,7 +212,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
         
         
         for meter in meters:
-            passCount = -1
+            passCount = dict()
             queueCount = 0
             
             ramp = lanes[meter][4:].replace("_0", "")
@@ -225,15 +223,14 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
             for det in detectors:
                 detlane = traci.inductionloop.getLaneID(det)
                 if "G" in det and (detlane == mergelane+"_0" or detlane == mergelane+"_1"):
-                    if passCount < 0:
-                        passCount = 0
-                    passCount += passed[det]
+                    passCount[detlane] = passed[det]
                 
             
             rate = metering_rates[meter]["rate"]
             
             if rate > 0:
-                print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", traci.lane.getLastStepVehicleNumber(queuelane+"_0"), traci.lane.getLastStepVehicleNumber(queuelane+"_1"))
+                print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", traci.lane.getLastStepVehicleNumber(queuelane+"_0"), traci.lane.getLastStepVehicleNumber(queuelane+"_1"),
+                "ds lane use is ", traci.lane.getLastStepVehicleNumber(mergelane+"_0"), traci.lane.getLastStepVehicleNumber(mergelane+"_1"))
                     
         if control:
             if test:
@@ -310,8 +307,9 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                             metering_rates[m]["last-green"] = step
                     else:
                         # switch to a block green time
-                        # assume capacity is 1800 veh/hr/lane
-                        green_time = rate / 3600 * 30 #+ 2 # startup lost time
+                        # assume capacity is 2100 veh/hr/lane
+                        green_time = rate / (2.0*2100.0) * 30 + 2 # startup lost time
+                        
                         red_time = 30 - green_time
                         
                         if step - metering_rates[m]["last-green"] == green_time * steps_per_sec:
@@ -319,9 +317,10 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                             
                             print(m, "transition red", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], green_time, "phase", traci.trafficlight.getRedYellowGreenState(m), )
                         elif step - metering_rates[m]["last-green"] >= red_time * steps_per_sec:
+                            
+                            print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], green_time, "phase", traci.trafficlight.getRedYellowGreenState(m), )
                             metering_rates[m]["last-green"] = step
                             traci.trafficlight.setPhase(m, 0)
-                            print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], green_time, "phase", traci.trafficlight.getRedYellowGreenState(m), )
                             
                          
                 
@@ -342,14 +341,22 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
         waitingTime[id] = waitingTime[id] / dataCount
     
     with open("output.txt", "w") as f:
-        for id in traci.lane.getIDList():
-            if 'ent' not in id and 'rmp' not in id and '/' not in id:
-                f.write(str(id)+ "\t"+ str(speeds[id])+ "\n")
+        for lid in traci.lane.getIDList():
+            if 'ent' not in lid and 'rmp' not in lid and '/' not in lid:
+                f.write(str(lid)+ "\t"+ str(speeds[lid])+ "\n")
         f.write("\n")
         
-        for id in traci.lane.getIDList():
-            if 'rmp' in id:
-                f.write(str(id)+ "\t"+ str(waitingTime[id])+ "\n")       
+        for lid in traci.lane.getIDList():
+            if 'rmp' in lid:
+                ent_name = "ent-"+lid[4:0]
+                incCount = 0
+                
+                for det in detectors:
+                    if ent_name+"_0" == traci.inductionloop.getLaneID(det) or ent_name+"_1" == traci.inductionloop.getLaneID(det):
+                        incCount += cc[det]
+                    
+                f.write(str(id)+ "\t"+ str(waitingTime[id])+ "\t"+str(incCount) + "\n") 
+                      
  
     traci.close()
     sys.stdout.flush()

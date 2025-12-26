@@ -55,8 +55,8 @@ stepsize = '.05'
 
 #directory = "test_network"
 #site = [directory+'/new_network.sumocfg']
-directory = "610"
-site = [directory+'/610.sumocfg']
+directory = "610EB"
+site = [directory+'/'+directory+'.sumocfg']
 
 if adjust == 0:
     # output_prefix = ['fullHV','fullACC','fullAV','highHV','highACC','highAV']
