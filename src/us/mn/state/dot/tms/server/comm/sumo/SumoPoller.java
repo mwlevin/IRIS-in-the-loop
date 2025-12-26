@@ -34,6 +34,7 @@ import static us.mn.state.dot.tms.server.comm.mndot.OpQuerySamples5Min.SAMPLE_PE
  */
 public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
  
+    private static final boolean exitOnClose = true;
     private static final int serverPort = 5452;
     
     private ServerSocket server;
@@ -263,6 +264,10 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
         
         for(String n : detData.keySet()){
             detData.get(n).clear();
+        }
+        
+        if(exitOnClose){
+            System.exit(1);
         }
     }
 

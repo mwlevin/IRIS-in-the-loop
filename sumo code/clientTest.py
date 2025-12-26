@@ -56,11 +56,10 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
     time_period = 30
     
     
-    test = True
-    multithread = False
+    test = False
     
     min_red_time = 2 # constant minimum red time for meter
-    green_time = 2 # constant green time for meter
+    green_time = 3 # constant green time for meter
     
     phase = 'notStarted' # Initial Phase
     phase1 = 'notStarted' # Initial Phase
@@ -240,14 +239,14 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
             if test:
                 for meter in meters:
                     if step*stepsize < 300:
-                        rate = 720
+                        rate = 0
                     elif step*stepsize < 3600:
-                        rate = 1440
+                        rate = 1800
                     else:
                         rate = -1
                     
                     updateRate(meter, rate, metering_rates)
-            elif not multithread:
+            else:
                 # wait for meter rates
                 for i in range(0, len(meters)):
                     meter = ""
@@ -256,9 +255,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                     message = readLine(connection)
                     meter, rate = processMessage(message)
                     updateRate(meter, rate, metering_rates)
-            else:
-                # wait a bit to give time for server communications
-                time.sleep(time_period / 3.0)        
+                  
                 
       
         sim_start_ms = time.time()* 1000
@@ -274,38 +271,58 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
             # meter timing
             for m in meters:
 
+                if rate == 0:
+                    traci.lane.setDisallowed(lanes[m], []) # Now 2 lines form for meter
+                    traci.trafficlight.setPhase(m, 1)
+                    continue
+                    
                 rate = metering_rates[m]["rate"]
                 headway = 3600.0/rate * steps_per_sec
                 
                 # set traffic signal
-                if(rate < 0):
+                if rate < 0:
                     traci.trafficlight.setPhase(m, 0)
-                    traci.lane.setDisallowed(lanes[m], ['passenger']) # disable lane 1
+                    #traci.lane.setDisallowed(lanes[m], ['passenger']) # disable lane 1
                     traci.trafficlight.setPhase(m, 0) # this is set to gg phase
                 else:
                     traci.lane.setDisallowed(lanes[m], []) # Now 2 lines form for meter
                     
-                    
-                    # switch to rr
-                    if step - metering_rates[m]["last-green"] == green_time * steps_per_sec:
-                        traci.trafficlight.setPhase(m, 1)
-                        metering_rates[m]["lane"] = 1 - metering_rates[m]["lane"] # switch active lane
-                        
-                        #print(m, "transition red", step, metering_rates[m]["last-green"])
-                        #print("\tphase check ", m, traci.trafficlight.getPhase(m))
-                    elif step - metering_rates[m]["last-green"] >= headway:
-                        
-                        
-                        
-                        if metering_rates[m]["lane"] == 0:
-                            traci.trafficlight.setPhase(m, 2) # rg
+                    if(rate <= 1200):
+                        # switch to rr
+                        if step - metering_rates[m]["last-green"] == green_time * steps_per_sec:
+                            traci.trafficlight.setPhase(m, 1)
+                            metering_rates[m]["lane"] = 1 - metering_rates[m]["lane"] # switch active lane
                             
-                        else:
-                            traci.trafficlight.setPhase(m, 3) # gr
-                    
-                        #print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], headway, "phase", traci.trafficlight.getRedYellowGreenState(m), )
+                            #print(m, "transition red", step, metering_rates[m]["last-green"])
+                            #print("\tphase check ", m, traci.trafficlight.getPhase(m))
+                        elif step - metering_rates[m]["last-green"] >= headway:
+                            
+                            
+                            
+                            if metering_rates[m]["lane"] == 0:
+                                traci.trafficlight.setPhase(m, 2) # rg
+                                
+                            else:
+                                traci.trafficlight.setPhase(m, 3) # gr
                         
-                        metering_rates[m]["last-green"] = step
+                            #print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], headway, "phase", traci.trafficlight.getRedYellowGreenState(m), )
+                            
+                            metering_rates[m]["last-green"] = step
+                    else:
+                        # switch to a block green time
+                        # assume capacity is 1800 veh/hr/lane
+                        green_time = rate / 3600 * 30 #+ 2 # startup lost time
+                        red_time = 30 - green_time
+                        
+                        if step - metering_rates[m]["last-green"] == green_time * steps_per_sec:
+                            traci.trafficlight.setPhase(m, 1)
+                            
+                            print(m, "transition red", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], green_time, "phase", traci.trafficlight.getRedYellowGreenState(m), )
+                        elif step - metering_rates[m]["last-green"] >= red_time * steps_per_sec:
+                            metering_rates[m]["last-green"] = step
+                            traci.trafficlight.setPhase(m, 0)
+                            print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], green_time, "phase", traci.trafficlight.getRedYellowGreenState(m), )
+                            
                          
                 
             traci.simulationStep() # Progress Sim by 1 time step       

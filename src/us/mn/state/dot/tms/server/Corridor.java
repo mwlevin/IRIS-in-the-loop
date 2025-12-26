@@ -25,6 +25,7 @@ import us.mn.state.dot.tms.Direction;
 import us.mn.state.dot.tms.GeoLoc;
 import us.mn.state.dot.tms.GeoLocHelper;
 import us.mn.state.dot.tms.R_NodeHelper;
+import us.mn.state.dot.tms.R_NodeType;
 import us.mn.state.dot.tms.Road;
 
 /**
@@ -51,7 +52,7 @@ public class Corridor extends CorridorBase<R_NodeImpl> {
 			assert m != null;
 			R_NodeImpl n = n_points.get(m);
                         
-                        //System.out.println("\t\t"+n.getName()+" "+n.getActive()+" "+n.getNodeType());
+                        //System.out.println("\t\t active? "+n.getName()+" "+n.getActive()+" "+n.getNodeType()+" "+R_NodeType.ENTRANCE.ordinal());
 			if (n.getActive() && finder.check(m, n))
 				return n;
 		}
@@ -79,10 +80,16 @@ public class Corridor extends CorridorBase<R_NodeImpl> {
 
 	/** Get the corridor IDs of all linked CD roads */
 	public Iterator<String> getLinkedCDRoads() {
+            System.out.println(this.getName());
+            
 		HashSet<String> cds = new HashSet<String>();
 		for (R_NodeImpl n: n_points.values()) {
+                    
+                    
 			if (R_NodeHelper.isEntrance(n)) {
 				GeoLoc l = n.getGeoLoc();
+                                
+                                
 				if (matchesCD(l)) {
 					cds.add(
 						GeoLocHelper.getLinkedName(l)
@@ -90,6 +97,8 @@ public class Corridor extends CorridorBase<R_NodeImpl> {
 				}
 			}
 		}
+                
+                
 		return cds.iterator();
 	}
 
@@ -97,6 +106,8 @@ public class Corridor extends CorridorBase<R_NodeImpl> {
 	private boolean matchesCD(GeoLoc loc) {
 		Road xs = (loc != null) ? loc.getCrossStreet() : null;
 		String nm = (xs != null) ? xs.getName() : "";
+                
+                
 		return nm.startsWith(roadway.toString())
 		    && nm.matches(".*\\bCD\\b.*");
 	}

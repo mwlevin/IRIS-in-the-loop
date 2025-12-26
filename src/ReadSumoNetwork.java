@@ -107,7 +107,7 @@ public class ReadSumoNetwork {
         Properties props = PropertyLoader.load(PROP_FILE);
         
         
-        int algorithm = 4; // k-adaptive
+        int algorithm = 3; // k-adaptive
         
         SQLConnection store = createStore(props);
         
@@ -125,8 +125,8 @@ public class ReadSumoNetwork {
         store.update("DELETE from iris.road");
         
         
-        store.update("INSERT INTO iris.road VALUES ('mainline0', 'm0', 6, 0);");
-        store.update("INSERT INTO iris.road VALUES ('mainline1', 'm1', 6, 1);");
+        store.update("INSERT INTO iris.road VALUES ('m0', 'm0', 6, 0);");
+        store.update("INSERT INTO iris.road VALUES ('m1', 'm1', 6, 1);");
         store.update("INSERT INTO iris.road VALUES ('none', 'none', 0, 2);");
         
         Map<String, String> meters = new HashMap<>();
@@ -193,7 +193,7 @@ public class ReadSumoNetwork {
                     junctions.put(to, new Node(to));
                 }
     
-                System.out.println(line);
+                //System.out.println(line);
                 double length = Double.parseDouble(findVar("length", line));
                 
                 edges.put(name, new Edge(name, junctions.get(from), junctions.get(to), length, 1, null));
@@ -367,25 +367,37 @@ public class ReadSumoNetwork {
 
             String cross = "none";
             
+            String roadname = "m"+direction;
+            
+            
+            
             for(String edge : edges.keySet()){
+                
+                
                 
                 
                 if(edges.get(edge).from.name.equals(name) && edges.get(edge).type.equals("on-ramp")){
                     //System.out.println(edge);
-                    cross = "x-"+edge;
+                    cross = edge.replaceAll("rmp", "CD").replaceAll("ent", "CD").replaceAll("610", "");
                     
                 }
                 else if(edges.get(edge).to.name.equals(name) && edges.get(edge).type.equals("on-ramp"))
                 {
-                    cross = "x-"+edge;
-                    
-                    
+                    cross = edge.replaceAll("rmp", "CD").replaceAll("ent", "CD").replaceAll("610", "");
                 }
+
+                
             }
             
-            if(cross.length() > 20){
-                cross = cross.substring(0, 20);
+            if(cross.length() > 17){
+                cross = cross.substring(0, 17);
             }
+            
+            
+            
+            
+            
+            
             
             if(!cross.equals("none")){
                 ResultCounterFactory counter = new ResultCounterFactory();
@@ -393,13 +405,23 @@ public class ReadSumoNetwork {
 
                 if(counter.length == 0){
                     store.update("INSERT INTO iris.road VALUES ('"+cross+"', '"+cross.substring(0, 6)+"', 6, 2);");
+                    store.update("INSERT INTO iris.road VALUES ('"+cross+" SB', '"+cross.substring(0, 6)+"', 6, 2);");
+                    store.update("INSERT INTO iris.road VALUES ('"+cross+" NB', '"+cross.substring(0, 6)+"', 6, 3);");
                 }
             }
+            
+            
+            if(type.equals("entrance") && !cross.equals("none")){
+                String temp = ""+cross+" SB";
+                cross = ""+roadname;
+                roadname = ""+temp;
+            }
+            
             
       
 
             // create geo_loc
-            store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline"+direction+"', '"+direction+"', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 
+            store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', '"+roadname+"', '"+direction+"', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 
             //store.update("INSERT INTO iris.geo_loc VALUES ('"+locname2+"', '', 'mainline1', '1', '"+cross+"', '2', '0', '', "+x+", "+y+");"); 
             
             if(!created_controller){
@@ -536,7 +558,7 @@ public class ReadSumoNetwork {
                     loc = createdNodes.get(nodeid);
                 }
                 
-                System.out.println(lane);
+                //System.out.println(lane);
                 Node from = lanes.get(lane).from;
                 boolean ramp = lanes.get(lane).type.equals("on-ramp");
                 
@@ -577,25 +599,38 @@ public class ReadSumoNetwork {
                 }
                 else if(name.indexOf("Pa") >= 0){
                     det_type = "P";
-                    nodename = "n-"+edges.get(edge).from;
+                    
+                    for(String e : edges.keySet()){
+                        if(edges.get(e).to == edges.get(edge).from){
+                            nodename = "n-"+edges.get(e).from;
+                        }
+                    }
+                    
                     node_type = 1;
                 }
                 else if(name.indexOf("Me") >= 0){
                     det_type = "M";
-                    nodename = "n-"+edges.get(edge).from;
+                    
+                    for(String e : edges.keySet()){
+                        if(edges.get(e).to == edges.get(edge).from){
+                            nodename = "n-"+edges.get(e).from;
+                        }
+                    }
+                    
+                    
                     node_type = 1;
                 }
                 else if(name.indexOf("Ex") >= 0){
                     det_type = "X";
                 }
                 
-                System.out.println(name+" "+det_type);
+                //System.out.println(name+" "+det_type);
 
                 
                 if(!createdNodes.containsKey(nodeid) && !createdNodes.containsKey(nodename)){
                     
                     
-                    store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'mainline"+direction+"', '"+direction+"', '"+cross+"', '2', '0', '', "+x+", "+y+");");
+                    store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'm"+direction+"', '"+direction+"', '"+cross+"', '2', '0', '', "+x+", "+y+");");
                     nodekey++;
                     
 
@@ -649,24 +684,17 @@ public class ReadSumoNetwork {
         // 3 types: priority, traffic_light, dead_end
         // priority - priority = mainline. priority-dead_end = mainline
         // priority-trafficlight = ramp. trafficlight-dead end = ramp
-        if(toType.equals("priority")){
-            if(fromType.equals("traffic_light")){
-                return "merge";
-            }
-            else{
-                return "mainline";
-            }
+        if(fromType.equals("traffic_light")){
+            return "merge";
         }
-        else if(fromType.equals("priority")){
-            if(toType.equals("traffic_light")){
-                return "on-ramp";
-            }
-            else{
-                return "mainline";
-            }
+        else if(toType.equals("traffic_light")){
+            return "on-ramp";
+        }
+        else{
+            return "mainline";
         }
         
-        return "mainline";
+
     }
             
     private static ResultFactory emptyResult(){

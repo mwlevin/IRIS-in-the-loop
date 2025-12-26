@@ -11,6 +11,8 @@ import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 public class Cell {
     protected double n, y;
     private CTMLink link;
+    
+    protected double cc;
 
     public Cell(CTMLink link){
         this.link = link;
@@ -25,9 +27,16 @@ public class Cell {
 
     public double getReceivingFlow()
     {
+        double actual_Q = link.Q;
+        // capacity drop
+        if(getDensity() > link.getCriticalDensity()){
+            //System.out.println("activating capacity drop "+link.start.getName()+" "+getDensity()+" "+link.getCriticalDensity());
+            actual_Q = link.Q * 0.8;
+        }
+        
         //System.out.println("\t\t"+n+ " "+link.w+" "+link.v+" "+link.K +" "+link.cell_len+" "+(link.cell_len * link.K)
         //       +" "+ (link.w / link.v * (link.K * link.cell_len - n)));
-        return Math.min(link.Q * MaxPressureAlgorithm.CTM_DT/3600.0, link.w / link.v * (getMaxOccupancy() - n));
+        return Math.min(actual_Q * MaxPressureAlgorithm.CTM_DT/3600.0, link.w / link.v * (getMaxOccupancy() - n));
     }
     
     public double getMaxOccupancy(){
@@ -49,6 +58,8 @@ public class Cell {
     {
         n += y;
         y = 0;
+        
+        cc += y;
     }
 
     public double getDensity(){

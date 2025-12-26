@@ -61,6 +61,14 @@ public class CTMLink extends SimLink {
         return 0;
     }
     
+    public double getDensity(){
+        return getOccupancy() / (cell_len * cells.length);
+    }
+    
+    public double getAvgDensity(){
+        return getDensity()/lanes;
+    }
+    
     public double cleanupAddFlow(double y){
         double total_added = 0;
         
@@ -108,9 +116,7 @@ public class CTMLink extends SimLink {
         // nothing to do here
     }
 
-    public double getAvgDensity(){
-        return getOccupancy()/L;
-    }
+    
 
     public void addFlow(double y){
         cells[0].n += y;
@@ -156,6 +162,10 @@ public class CTMLink extends SimLink {
     // units of veh
     public double getReceivingFlow(){
         return cells[0].getReceivingFlow();
+    }
+    
+    public double getCriticalDensity(){
+        return Q / v;
     }
 
     // calculate state at next CTM time step

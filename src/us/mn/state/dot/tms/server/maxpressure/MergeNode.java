@@ -4,6 +4,7 @@
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
+import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 import us.mn.state.dot.tms.server.R_NodeImpl;
 
 /**
@@ -55,6 +56,8 @@ public class MergeNode extends SimNode {
     public void step(){
         double S_ramp = inc_ramp.getSendingFlow(); // units of veh
         double S_up = inc_mainline.getSendingFlow(); // units of veh
+        
+        
         double R_down = out.getReceivingFlow(); // units of veh
 
         double y_ramp = 0; // ramp veh leaving
@@ -65,9 +68,11 @@ public class MergeNode extends SimNode {
             y_up = S_up;
         }
         else{
+           
             // proportional allocation
-            double lambda_ramp = R_down * inc_ramp.Q / (inc_mainline.Q + inc_ramp.Q);
-            y_ramp = median(R_down - S_up, S_ramp, lambda_ramp);
+            //double lambda_ramp = R_down * inc_ramp.Q / (inc_mainline.Q + inc_ramp.Q);
+            //y_ramp = median(R_down - S_up, S_ramp, lambda_ramp);
+            y_ramp = Math.min(R_down, S_ramp);
             y_up = R_down - y_ramp;
         }
         

@@ -30,6 +30,13 @@ public class CTMNetwork {
         this.center_merge = center_merge;
     }
     
+    public boolean isDownstreamCongested(){
+        return center_merge.out.getDensity() > center_merge.out.getCriticalDensity();
+    }
+    
+    
+    
+    
     public double getTotalOccupancy(){
         
         double total = 0;
@@ -86,7 +93,34 @@ public class CTMNetwork {
         }
         while(true);
         
-        return 0;
+        return total;
+    }
+    
+    public double getUpstreamOccupancy(){
+        double total = 0;
+        
+        CTMLink l = center_merge.inc_mainline;
+        
+        while(l != null){
+            total += l.getOccupancy();
+            
+            l = l.start.getMainlineIn();
+        }
+        return total;
+    }
+    
+    public double getDownstreamOccupancy(){
+        double total = 0;
+        
+        CTMLink l = center_merge.out;
+        
+        while(l != null){
+            total += l.getOccupancy();
+            
+            l = l.end.getMainlineOut();
+        }
+        
+        return total;
     }
     
     public double getDownstreamReceivingFlow(){
@@ -99,8 +133,12 @@ public class CTMNetwork {
         return center_merge.out.getAvgDensity();
     }
     
+    public double getUpstreamAvgDensity(){
+        return center_merge.inc_mainline.getAvgDensity();
+    }
+    
     // calculate max-pressure weight for incoming link
-    public double getUpstreamWeight(){
+    public double getUpstreamWeight(boolean print){
 
         double look_len = center_merge.inc_mainline.v * MaxPressureAlgorithm.STEP_SECONDS / 3600.0; // this could be (should be) less than link length
         // remaining length to evaluate
@@ -122,7 +160,8 @@ public class CTMNetwork {
                 
                 double integral = (end*end / 2 - start*start / 2) / look_len * k;
                 
-                //System.out.println("check upstream weight "+start+" "+end+" "+k+" "+look_len+" "+integral);
+                if(print)
+                System.out.println("check upstream weight "+String.format("%.2f", start)+" "+String.format("%.2f", end)+" "+String.format("%.2f", k)+" "+look_len+" "+String.format("%.2f", integral));
                 
                 output += integral;
 
@@ -149,7 +188,7 @@ public class CTMNetwork {
     
     
     // calculate max-pressure weight for downstream link
-    public double getDownstreamWeight(){
+    public double getDownstreamWeight(boolean print){
 
         double look_len = center_merge.out.v * MaxPressureAlgorithm.STEP_SECONDS / 3600.0; // this could be (should be) less than link length
 
@@ -169,7 +208,8 @@ public class CTMNetwork {
                 double k = link.cells[i].getDensity();
                 double integral = (end - start) * k - (end*end/2 - start*start/2) / look_len * k;
                 
-                //System.out.println("check downstream weight "+start+" "+end+" "+k+" "+look_len+" "+integral);
+                if(print)
+                    System.out.println("check downstream weight "+String.format("%.2f", start)+" "+String.format("%.2f", end)+" "+String.format("%.2f", k)+" "+look_len+" "+String.format("%.2f", integral));
                 output += integral;;
 
                 // stop after reaching look_len

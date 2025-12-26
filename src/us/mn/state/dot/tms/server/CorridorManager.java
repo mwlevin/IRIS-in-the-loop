@@ -78,6 +78,7 @@ public class CorridorManager {
 
 	/** Lookup the named corridor */
 	public synchronized Corridor getCorridor(String cid) {
+            
 		return (cid != null) ? corridors.get(cid) : null;
 	}
 

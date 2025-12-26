@@ -653,8 +653,10 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
                 
 		if (s != null)
 			s.validate(this);
-		else
+                else{
 			logError("validateAlgorithm: No state");
+                        System.out.println("validate error");
+                }
                 
                 
 	}
@@ -823,7 +825,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 		if (corridor != null) {
 			R_NodeImpl n = corridor.findActiveNode(finder);
                         
-                        //System.out.println("find active node "+n);
+                        System.out.println("find active node "+n);
 			if (n != null)
 				return n;
 			Iterator<String> it = corridor.getLinkedCDRoads();
@@ -832,9 +834,11 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 				String cd = it.next();
 				Corridor cd_road = corridors.getCorridor(cd);
                                 
-                                
+                                System.out.println("<"+cd+"> "+cd_road);
 				if (cd_road != null) {
 					n = cd_road.findActiveNode(finder);
+                                        
+                                        System.out.println("check "+n);
 					if (n != null) {
 						updateFault(null);
 						return n;
@@ -871,18 +875,15 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 		if (n.getNodeType() != R_NodeType.ENTRANCE.ordinal())
 			return false;
                 
-                //System.out.println("my loc "+geo_loc.getName());
-                //System.out.println("\t\t\tchecknode "+n.getName()+" "+(n.getNodeType() != R_NodeType.ENTRANCE.ordinal())+" "+!matchesCross(n.getGeoLoc()));
                 
-                //System.out.println("\t\t\t\t"+n.getNodeType()+" "+R_NodeType.ENTRANCE.ordinal());
                 
 		if (!matchesCross(n.getGeoLoc()))
 			return false;
-		SamplerSet greens = n.getSamplerSet().filter(LaneCode.GREEN);
-                
+		
+                SamplerSet greens = n.getSamplerSet().filter(LaneCode.GREEN);
 
                 //System.out.println("\t\t\t\tcheck node "+n+" "+greens+" "+n.getSamplerSet());
-		return greens.size() == 1;
+		return greens.size() >= 1 && greens.size() <= 2;
 	}
 
 	/** Test if a location cross street and direction matches the meter.
