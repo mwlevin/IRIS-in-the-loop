@@ -355,7 +355,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                     if ent_name+"_0" == traci.inductionloop.getLaneID(det) or ent_name+"_1" == traci.inductionloop.getLaneID(det):
                         incCount += cc[det]
                     
-                f.write(str(id)+ "\t"+ str(waitingTime[id])+ "\t"+str(incCount) + "\n") 
+                f.write(str(lid)+ "\t"+ str(waitingTime[lid])+ "\t"+str(incCount) + "\n") 
                       
  
     traci.close()
