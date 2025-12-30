@@ -180,11 +180,20 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
         if step > 0:
             
             # testing occupancy
-            upstream_occ = traci.lane.getLastStepVehicleNumber('EB610-17_0') + traci.lane.getLastStepVehicleNumber('EB610-17_1')
-            downstream_occ = traci.lane.getLastStepVehicleNumber('EB610-18_0') + traci.lane.getLastStepVehicleNumber('EB610-18_1') + traci.lane.getLastStepVehicleNumber('EB610-18_2')
-            ramp_occ = traci.lane.getLastStepVehicleNumber('rmp-EB610/NBNoble_0') + traci.lane.getLastStepVehicleNumber('rmp-EB610/NBNoble_1')
-            
-            print(step*stepsize, "J89 occ check", upstream_occ, downstream_occ, ramp_occ)
+            if "610EB" in directory:
+                upstream_occ = traci.lane.getLastStepVehicleNumber('EB610-17_0') + traci.lane.getLastStepVehicleNumber('EB610-17_1')
+                downstream_occ = traci.lane.getLastStepVehicleNumber('EB610-18_0') + traci.lane.getLastStepVehicleNumber('EB610-18_1') + traci.lane.getLastStepVehicleNumber('EB610-18_2')
+                ramp_occ = traci.lane.getLastStepVehicleNumber('rmp-EB610/NBNoble_0') + traci.lane.getLastStepVehicleNumber('rmp-EB610/NBNoble_1')
+                
+                print(step*stepsize, "J89 occ check", upstream_occ, downstream_occ, ramp_occ)
+            elif "test_network" in directory:
+                upstream_occ = traci.lane.getLastStepVehicleNumber('switchACC_0') + traci.lane.getLastStepVehicleNumber('switchACC_1')
+                downstream_occ = traci.lane.getLastStepVehicleNumber('endSeg_0') + traci.lane.getLastStepVehicleNumber('endSeg_1')
+                ramp_occ = traci.lane.getLastStepVehicleNumber('ramp2End_0') #+ traci.lane.getLastStepVehicleNumber('ramp2End_1')
+                ramp_queue = traci.lane.getLastStepVehicleNumber('ramp2Start_0')+traci.lane.getLastStepVehicleNumber('ramp2Start_1')
+                
+                print(step*stepsize, "J9 occ check", upstream_occ, downstream_occ, ramp_occ)
+                print("\t", "ramp queue", ramp_queue)
             
             
             for det in detectors:
@@ -210,27 +219,27 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                 if control and not test:
                     sendMessage(connection, msg)
         
-        
-        for meter in meters:
-            passCount = dict()
-            queueCount = 0
-            
-            ramp = lanes[meter][4:].replace("_0", "")
-            mergelane = "merge-"+ramp
-            queuelane = "rmp-"+ramp
-            
-            
-            for det in detectors:
-                detlane = traci.inductionloop.getLaneID(det)
-                if "G" in det and (detlane == mergelane+"_0" or detlane == mergelane+"_1"):
-                    passCount[detlane] = passed[det]
+        if test:
+            for meter in meters:
+                passCount = dict()
+                queueCount = 0
                 
-            
-            rate = metering_rates[meter]["rate"]
-            
-            if rate > 0:
-                print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", traci.lane.getLastStepVehicleNumber(queuelane+"_0"), traci.lane.getLastStepVehicleNumber(queuelane+"_1"),
-                "ds lane use is ", traci.lane.getLastStepVehicleNumber(mergelane+"_0"), traci.lane.getLastStepVehicleNumber(mergelane+"_1"))
+                ramp = lanes[meter][4:].replace("_0", "")
+                mergelane = "merge-"+ramp
+                queuelane = "rmp-"+ramp
+                
+                
+                for det in detectors:
+                    detlane = traci.inductionloop.getLaneID(det)
+                    if "G" in det and (detlane == mergelane+"_0" or detlane == mergelane+"_1"):
+                        passCount[detlane] = passed[det]
+                    
+                
+                rate = metering_rates[meter]["rate"]
+                
+                if rate > 0:
+                    print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", traci.lane.getLastStepVehicleNumber(queuelane+"_0"), traci.lane.getLastStepVehicleNumber(queuelane+"_1"),
+                    "ds lane use is ", traci.lane.getLastStepVehicleNumber(mergelane+"_0"), traci.lane.getLastStepVehicleNumber(mergelane+"_1"))
                     
         if control:
             if test:

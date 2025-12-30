@@ -107,7 +107,7 @@ public class ReadSumoNetwork {
         Properties props = PropertyLoader.load(PROP_FILE);
         
         
-        int algorithm = 3; // k-adaptive
+        int algorithm = 4; // k-adaptive
         
         SQLConnection store = createStore(props);
         
@@ -242,15 +242,25 @@ public class ReadSumoNetwork {
         
         Stack<Node> unsettled = new Stack<>();
         
+        // this is hardcoded for 610
+        
         if(netfile.indexOf("WB") >= 0){
             junctions.get("J15").y=0;
             unsettled.push(junctions.get("J15"));
         }
-        
-        if(netfile.indexOf("EB") >= 0){
+        else if(netfile.indexOf("EB") >= 0){
             junctions.get("J13").y=0;
             unsettled.push(junctions.get("J13"));
         }
+        else if(netfile.indexOf("site_trial") >= 0){
+            junctions.get("J7").y=0;
+            unsettled.push(junctions.get("J7"));
+        }
+        
+        
+        // if only 1 direction is being used, we can simply choose one of the mainline nodes to be coordinate 0
+        
+        
         
         System.out.println(unsettled);
         
@@ -466,7 +476,22 @@ public class ReadSumoNetwork {
             
             String nodename = "n-"+name;
              
-            store.update("INSERT INTO iris.r_node VALUES ('"+nodename+"', '"+locname+"', "+nodekey+", "+node_type+", 'true', 'false', 0, "+numlanes+", 'true', "+0+", 'true', '"+stationname+"', "+speedlimit+", '');");
+            if(netfile.indexOf("site_trial") >= 0){
+                if(nodename.equals("n-J6")){
+                    nodename = "n-J3";
+                }
+                else if(nodename.equals("n-J10")){
+                    nodename = "n-J9";
+                }
+                else{
+                    store.update("INSERT INTO iris.r_node VALUES ('"+nodename+"', '"+locname+"', "+nodekey+", "+node_type+", 'true', 'false', 0, "+numlanes+", 'true', "+0+", 'true', '"+stationname+"', "+speedlimit+", '');");
+                }
+            }
+            else{
+                store.update("INSERT INTO iris.r_node VALUES ('"+nodename+"', '"+locname+"', "+nodekey+", "+node_type+", 'true', 'false', 0, "+numlanes+", 'true', "+0+", 'true', '"+stationname+"', "+speedlimit+", '');");
+            }
+            
+            
 
             nodekey++;
             
@@ -615,10 +640,15 @@ public class ReadSumoNetwork {
                 else if(name.indexOf("Me") >= 0){
                     det_type = "M";
                     
-                    for(String e : edges.keySet()){
-                        if(edges.get(e).to == edges.get(edge).from){
-                            nodename = "n-"+edges.get(e).from;
+                    if(netfile.indexOf("610") >= 0){
+                        for(String e : edges.keySet()){
+                            if(edges.get(e).to == edges.get(edge).from){
+                                nodename = "n-"+edges.get(e).from;
+                            }
                         }
+                    }
+                    else{
+                        nodename = "n-"+edges.get(edge).from;
                     }
                     
                     
@@ -637,7 +667,7 @@ public class ReadSumoNetwork {
                     store.update("INSERT INTO iris.geo_loc VALUES ('"+locname+"', '', 'm"+direction+"', '"+direction+"', '"+cross+"', '2', '0', '', "+x+", "+y+");");
                     nodekey++;
                     
-
+                    
                     
                     store.update("INSERT INTO iris.r_node VALUES ('"+nodename+"', '"+locname+"', "+nodekey+", "+node_type+", 'true', 'false', 0, "+numlanes+", 'true', "+0+", 'true', '"+stationname+"', "+speedlimit+", '');");
                     

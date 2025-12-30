@@ -29,10 +29,10 @@ public class CTMLink extends SimLink {
 
         // want cell length to be approximately v * dt
         cell_len = v * MaxPressureAlgorithm.CTM_DT / 3600;
-        int ncells = Math.max(1, (int)Math.round(L / (v * MaxPressureAlgorithm.CTM_DT / 3600)));
+        int ncells = Math.max(1, (int)Math.ceil(L / (v * MaxPressureAlgorithm.CTM_DT / 3600.0)));
         // minimum of 1 cell
 
-        //System.out.println("length check "+ncells+" "+cell_len+" "+L);
+        System.out.println("length check "+ncells+" "+cell_len+" "+L);
 
         cells = new Cell[ncells];
 

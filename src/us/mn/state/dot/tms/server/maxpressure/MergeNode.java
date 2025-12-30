@@ -33,7 +33,7 @@ public class MergeNode extends SimNode {
     }
     
     public String toString(){
-        return getName()+" [<-"+inc_ramp.start.getName()+"] L="+inc_mainline.L;
+        return getName()+" [<-"+inc_ramp.start.getName()+"] L="+inc_mainline.L+" lanes="+inc_mainline.lanes;
     }
     
     public CTMLink getMainlineIn(){
@@ -59,6 +59,8 @@ public class MergeNode extends SimNode {
         
         
         double R_down = out.getReceivingFlow(); // units of veh
+        
+        //System.out.println("merge receiving flow check "+R_down+" "+S_ramp+" "+S_up);
 
         double y_ramp = 0; // ramp veh leaving
         double y_up = 0; // upstream veh leaving
@@ -70,10 +72,15 @@ public class MergeNode extends SimNode {
         else{
            
             // proportional allocation
-            //double lambda_ramp = R_down * inc_ramp.Q / (inc_mainline.Q + inc_ramp.Q);
-            //y_ramp = median(R_down - S_up, S_ramp, lambda_ramp);
-            y_ramp = Math.min(R_down, S_ramp);
+            double lambda_ramp = R_down * inc_ramp.Q / (inc_mainline.Q + inc_ramp.Q);
+            y_ramp = median(R_down - S_up, S_ramp, lambda_ramp);
+            
+            //y_ramp = Math.min(R_down, S_ramp);
             y_up = R_down - y_ramp;
+            
+            
+            //y_ramp = lambda_ramp;
+            //y_up = R_down * inc_mainline.Q / (inc_mainline.Q + inc_ramp.Q);
         }
         
         inc_mainline.removeFlow(y_up);

@@ -311,7 +311,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 	private Node createNode(R_NodeImpl rnode, float mile) {
                 //System.out.println(rnode.getName()+" "+mile+" "+ R_NodeType.fromOrdinal(rnode.getNodeType())+" "+(R_NodeType.fromOrdinal(rnode.getNodeType())==STATION));
                 
-                //System.out.println(rnode.getName()+" "+mile+" "+rnode.getDetectors().length);
+                //System.out.println(rnode.getName()+" "+mile+" "+rnode.getSamplerSet());
                 
             switch (R_NodeType.fromOrdinal(rnode.getNodeType())) {
             case ENTRANCE:
@@ -382,7 +382,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 	private boolean createMeterState(RampMeterImpl meter) {
 		EntranceNode en = findEntranceNode(meter);
                 
-                
+                //System.out.println("entrance "+en);
 		if (en != null) {
 			MeterState ms = new MeterState(meter, en);
 			meter_states.put(meter.getName(), ms);
@@ -403,6 +403,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 		if (null == rnode)
 			return null;
 		for (Node n : nodes) {
+                        System.out.println("\t checking "+n+" "+n.rnode);
 			if (n instanceof EntranceNode) {
 				EntranceNode en = (EntranceNode) n;
 				if (en.rnode.equals(rnode))
@@ -922,12 +923,12 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 }
                 
                 public double getW(double ffspeed){
-                    //return 22.586274214148*2.23694;
-                    return ffspeed/2;
+                    return 22.586274214148*2.23694;
+                    //return ffspeed/3;
                 }
                 
                 private double getFFSpeed(double speed_limit){
-                    return 26.82*2.23694; // sumo
+                    return 26.82*2.23694 - 5; // sumo
                     //return speed_limit + 5;
                 }
                 
@@ -1017,7 +1018,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                             
                             
                             EntranceLink ent = new EntranceLink(next.rnode, 
-                                next.rnode.getSamplerSet().filter(LaneCode.MERGE));
+                                next.rnode.getSamplerSet().filter(LaneCode.GREEN));
                             
                             curr_build = new MergeNode(next.rnode, mainline, ent);
                             
@@ -1497,6 +1498,9 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
                 private double step = -STEP_SECONDS;
                 
+                private String checkmeter = "meter-J9";
+                // J89
+                
 		/** Calculate the metering rate */
 		private void calculateMeteringRate() {
 
@@ -1504,7 +1508,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     
                     network.simulateLastTimestep(stamp, PERIOD_MS);
                     
-                    if(meter.getName().equals("meter-J89"))
+                    if(meter.getName().equals(checkmeter))
                     System.out.println("\ncalc meter rate "+meter.getName()+" "+downstream.getSpeed()+" "+network.getDownstreamAvgDensity());
                     
                     
@@ -1524,11 +1528,11 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     double S_ud = network.getUpstreamSendingFlow(); // units of veh
                     double R_d = network.getDownstreamReceivingFlow(); // units of veh
 
-
-
-                    if(meter.getName().equals("meter-J89")){
+                    
+                    if(meter.getName().equals(checkmeter)){
                         System.out.println("S_ud "+S_ud+" S_rd "+S_rd+" R_d "+R_d);
-                        System.out.println(step+" J89 occ check "+network.getUpstreamOccupancy()+" "+network.getDownstreamOccupancy()+" "+getRampQueueLength(stamp));
+                        System.out.println(step+" "+meter.getName()+" occ check "+network.getUpstreamOccupancy()+" "+network.getDownstreamOccupancy()+" "+network.getOnrampOccupancy());
+                        System.out.println("\tramp queue "+getRampQueueLength(stamp));
                         System.out.println("\tk "+network.getUpstreamAvgDensity()+" "+network.getDownstreamAvgDensity());
                         System.out.println("\tR "+R_d * 3600.0/STEP_SECONDS);
                         System.out.println("\tocc "+network.getTotalOccupancy()+" "+network.getDetOccupancy(stamp, PERIOD_MS));
@@ -1545,14 +1549,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     double ramp_weight = c_r * getRampWeight(stamp);
                     double upstream_weight = c_u * network.getUpstreamWeight(false);
 
-                    if(meter.getName().equals("meter-J89"))
+                    if(meter.getName().equals(checkmeter))
                     System.out.println("weights d="+downstream_weight+" r="+ramp_weight+" u="+upstream_weight);
                     
                     
                     double weight_ud = upstream_weight - downstream_weight;
                     double weight_rd = ramp_weight - downstream_weight;
 
-                    if(meter.getName().equals("meter-J89"))
+                    if(meter.getName().equals(checkmeter))
                     System.out.println("\tr="+weight_rd +" u="+weight_ud);
 
 
@@ -1601,7 +1605,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                             best_rate = min_rate;
                         }
                         
-                        if(meter.getName().equals("meter-J89"))
+                        if(meter.getName().equals(checkmeter))
                             System.out.println("calc best rate "+best_rate);
                         return best_rate;
                     }
@@ -1630,7 +1634,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         }
                     }   
                     
-                    if(meter.getName().equals("meter-J89"))
+                    if(meter.getName().equals(checkmeter))
                     System.out.println("calc best rate "+best_rate+" "+best_obj);
                     
                     return best_rate;

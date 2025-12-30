@@ -43,7 +43,7 @@ public class SeriesNode extends SimNode {
             return ((EntranceLink)inc).getName()+" [entrance]\n\t"+super.toString()+" [series]";
         }
         else if(out instanceof ExitLink){
-            return super.toString()+" [series] L="+inc.L+"\n\t"+
+            return super.toString()+" [series] L="+inc.L+" lanes="+((CTMLink)inc).lanes+"\n\t"+
                     ((ExitLink)out).getName()+" [exit]";
         }
         else{

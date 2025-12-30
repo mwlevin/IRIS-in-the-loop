@@ -116,16 +116,16 @@
     <edge id="ramp2End" from="J9" to="J5" priority="-1" length="220.00">
         <lane id="ramp2End_0" index="0" speed="26.82" length="220.00" shape="-67.02,-54.74 -0.27,-108.78"/>
     </edge>
-    <edge id="ramp2Start" from="J10" to="J9" priority="-1" length="800.00">
-        <lane id="ramp2Start_0" index="0" speed="20.12" length="800.00" shape="-129.71,52.44 -75.24,-49.71"/>
-        <lane id="ramp2Start_1" index="1" speed="20.12" length="800.00" shape="-126.89,53.94 -72.41,-48.20"/>
+    <edge id="ramp2Start" from="J10" to="J9" priority="-1" length="200.00">
+        <lane id="ramp2Start_0" index="0" speed="20.12" length="200.00" shape="-129.71,52.44 -75.24,-49.71"/>
+        <lane id="ramp2Start_1" index="1" speed="20.12" length="200.00" shape="-126.89,53.94 -72.41,-48.20"/>
     </edge>
     <edge id="rampEnd" from="J3" to="J2" priority="-1" length="220.00">
         <lane id="rampEnd_0" index="0" speed="26.82" length="220.00" shape="-16.81,143.41 3.46,55.44"/>
     </edge>
-    <edge id="rampStart" from="J6" to="J3" priority="-1" length="800.00">
-        <lane id="rampStart_0" index="0" speed="20.12" length="800.00" shape="-39.33,203.32 -21.90,149.81"/>
-        <lane id="rampStart_1" index="1" speed="20.12" length="800.00" shape="-36.29,204.31 -18.86,150.80"/>
+    <edge id="rampStart" from="J6" to="J3" priority="-1" length="200.00">
+        <lane id="rampStart_0" index="0" speed="20.12" length="200.00" shape="-39.33,203.32 -21.90,149.81"/>
+        <lane id="rampStart_1" index="1" speed="20.12" length="200.00" shape="-36.29,204.31 -18.86,150.80"/>
     </edge>
     <edge id="ramp_ent" from="J12" to="J6" priority="-1" length="200.00">
         <lane id="ramp_ent_0" index="0" speed="20.12" length="200.00" shape="-54.31,244.33 -38.99,211.18"/>
@@ -143,16 +143,16 @@
     </edge>
 
     <tlLogic id="J3" type="static" programID="0" offset="0">
-        <phase duration="1000" state="gg"/>
-        <phase duration="4"  state="rr"/>
-        <phase duration="3"  state="gr"/>
-        <phase duration="3"  state="rg"/>
+        <phase duration="3600" state="GG"/>
+        <phase duration="3600"  state="rr"/>
+        <phase duration="360"  state="Gr"/>
+        <phase duration="3600"  state="rG"/>
     </tlLogic>
     <tlLogic id="J9" type="static" programID="0" offset="0">
-        <phase duration="1000" state="gg"/>
-        <phase duration="4"  state="rr"/>
-        <phase duration="3"  state="gr"/>
-        <phase duration="3"  state="rg"/>
+         <phase duration="3600" state="GG"/>
+        <phase duration="3600"  state="rr"/>
+        <phase duration="360"  state="Gr"/>
+        <phase duration="3600"  state="rG"/>
     </tlLogic>
 
     <junction id="J0" type="priority" x="5.26" y="-246.01" incLanes="endSeg_0 endSeg_1" intLanes=":J0_0_0 :J0_0_1" shape="-1.13,-245.59 5.27,-245.84 5.25,-246.18 -1.14,-245.82">

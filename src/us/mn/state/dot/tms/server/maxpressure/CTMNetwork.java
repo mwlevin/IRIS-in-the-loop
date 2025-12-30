@@ -30,6 +30,23 @@ public class CTMNetwork {
         this.center_merge = center_merge;
     }
     
+    public String printCells(){
+        String before = "[";
+        String after = "[";
+        for(Cell c : center_merge.inc_mainline.cells){
+            before += String.format("%.1f", c.n)+", "; 
+        }
+        
+        for(Cell c : center_merge.out.cells){
+            after += String.format("%.1f", c.n)+", "; 
+        }
+        
+        before += "]";
+        after += "]";
+        
+        return before+" | "+after;
+    }
+    
     public boolean isDownstreamCongested(){
         return center_merge.out.getDensity() > center_merge.out.getCriticalDensity();
     }
@@ -121,6 +138,11 @@ public class CTMNetwork {
         }
         
         return total;
+    }
+    
+    // occupancy of vehicles waiting to merge
+    public double getOnrampOccupancy(){
+        return center_merge.inc_ramp.queue;
     }
     
     public double getDownstreamReceivingFlow(){
@@ -375,6 +397,7 @@ public class CTMNetwork {
             
         }
         */
+        
        
 
 

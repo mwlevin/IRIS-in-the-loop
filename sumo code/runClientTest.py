@@ -53,9 +53,8 @@ stepsize = '.05'
 # site = ["site3_fullHV.sumocfg","site3_fullACC.sumocfg","site3_fullAV.sumocfg","site3_highHV.sumocfg","site3_highACC.sumocfg","site3_highAV.sumocfg"]
 # site = ['highACC.sumocfg','highAV.sumocfg']
 
-#directory = "test_network"
-#site = [directory+'/new_network.sumocfg']
-directory = "610EB"
+directory = "test_network"
+#directory = "610EB"
 site = [directory+'/'+directory+'.sumocfg']
 
 if adjust == 0:

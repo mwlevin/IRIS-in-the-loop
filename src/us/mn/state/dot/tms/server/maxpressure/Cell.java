@@ -28,15 +28,22 @@ public class Cell {
     public double getReceivingFlow()
     {
         double actual_Q = link.Q;
+        
+        
         // capacity drop
+        
         if(getDensity() > link.getCriticalDensity()){
             //System.out.println("activating capacity drop "+link.start.getName()+" "+getDensity()+" "+link.getCriticalDensity());
-            actual_Q = link.Q * 0.8;
+            actual_Q = link.Q * 0.70;
         }
+        
         
         //System.out.println("\t\t"+n+ " "+link.w+" "+link.v+" "+link.K +" "+link.cell_len+" "+(link.cell_len * link.K)
         //       +" "+ (link.w / link.v * (link.K * link.cell_len - n)));
-        return Math.min(actual_Q * MaxPressureAlgorithm.CTM_DT/3600.0, link.w / link.v * (getMaxOccupancy() - n));
+        double term1 = actual_Q * MaxPressureAlgorithm.CTM_DT/3600.0;
+        double term2 = link.w / link.v * (getMaxOccupancy() - n);
+        //System.out.println("R check "+term1+" "+term2);
+        return Math.min(term1, term2);
     }
     
     public double getMaxOccupancy(){
