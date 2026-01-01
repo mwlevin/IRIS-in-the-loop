@@ -24,6 +24,10 @@ else:
 '''
 
 from sumolib import checkBinary
+
+
+
+
 def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--nogui", action="store_true",default=False, help="run the commandline version of sumo")
@@ -56,6 +60,8 @@ stepsize = '.05'
 directory = "test_network"
 #directory = "610EB"
 site = [directory+'/'+directory+'.sumocfg']
+
+network = directory+"/site_trial.net.xml"
 
 if adjust == 0:
     # output_prefix = ['fullHV','fullACC','fullAV','highHV','highACC','highAV']
@@ -119,7 +125,7 @@ for i in range(len(site)):
     print("running simulation")
     # passage_count,demand_count,meterActivate,flushActivate,stoppedActivate,minRates,maxRates,rates = run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
     #passage1_count,demand1_count,meter1Activate,flush1Activate,stopped1Activate,min1Rates,max1Rates,rates1,passage2_count,demand2_count,meter2Activate,flush2Activate,stopped2Activate,min2Rates,max2Rates,rates2 = run(control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
-    run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
+    run(network, directory, control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low)
 
     # Mainline Density [veh/mi] : From .xml File not Traci retrieval
     fieldL = 16.4042

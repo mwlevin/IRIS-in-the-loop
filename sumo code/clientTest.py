@@ -5,7 +5,7 @@ import os
 import sys
 import optparse
 import time
-
+from mpro import *
 import socket
 
 
@@ -41,8 +41,30 @@ from densityFunctions_3 import computeRed, computeSwitchMeter,calcRateLimits, co
 # critDensity and jamDensity: Critical and Jam Densities used in algorithm
 # rampStorageLength: Length of ramp that can be used for queue storage (upstream of meter, depends on site)
 
-def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low):
+def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength,alpha_desired,alpha_low):
     
+    network = sumolib.net.readNet(networkname)
+    links = network.getEdges()
+
+    rampnodes = dict()
+    Es, Er, Eh, Er_merge = set(), set(), set(), set()
+    
+    
+    for link in links:
+        linkstr = link.getID()
+
+        if "ramp" in linkstr and "start" in linkstr.lower():
+            Er.add(link)
+            rampnodes[link.getToNode().getID()] = link.getToNode()
+        elif "ramp" in linkstr and "end" in linkstr.lower():
+            Er_merge.add(link)
+        else:
+            Eh.add(link)
+    
+    E_entry = Er.union({network.getEdge("entry")})
+        
+        
+        
     if control:
         print("meter active")
     else:
@@ -58,7 +80,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
     
     test = False
     
-    min_red_time = 2 # constant minimum red time for meter
+    min_red_time = 1 # constant minimum red time for meter
     green_time = 3 # constant green time for meter
     
     phase = 'notStarted' # Initial Phase
@@ -120,7 +142,8 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
     
     endStep = 3600* steps_per_sec *1.2 # Time to simulate (0.05 seconds steps)
 
-
+    if test:
+        endStep = 1200 * steps_per_sec
     
     
     
@@ -219,14 +242,14 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                 if control and not test:
                     sendMessage(connection, msg)
         
-        if test:
+        if "test_network" in directory:
             for meter in meters:
                 passCount = dict()
                 queueCount = 0
                 
-                ramp = lanes[meter][4:].replace("_0", "")
-                mergelane = "merge-"+ramp
-                queuelane = "rmp-"+ramp
+                ramp = lanes[meter].replace("_0", "")
+                mergelane = ramp.replace("Start", "End")
+                queuelane = ramp
                 
                 
                 for det in detectors:
@@ -238,19 +261,17 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                 rate = metering_rates[meter]["rate"]
                 
                 if rate > 0:
-                    print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", traci.lane.getLastStepVehicleNumber(queuelane+"_0"), traci.lane.getLastStepVehicleNumber(queuelane+"_1"),
-                    "ds lane use is ", traci.lane.getLastStepVehicleNumber(mergelane+"_0"), traci.lane.getLastStepVehicleNumber(mergelane+"_1"))
+                    print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", traci.lane.getLastStepVehicleNumber(queuelane+"_0"), traci.lane.getLastStepVehicleNumber(queuelane+"_1"),)
+                    #"ds lane use is ", traci.lane.getLastStepVehicleNumber(mergelane+"_0"), traci.lane.getLastStepVehicleNumber(mergelane+"_1"))
                     
         if control:
             if test:
                 for meter in meters:
-                    if step*stepsize < 300:
-                        rate = 0
-                    elif step*stepsize < 3600:
-                        rate = 1800
-                    else:
-                        rate = -1
+                    rate = 0
                     
+                    if step * stepsize > 600:
+                        rate = 1500
+
                     updateRate(meter, rate, metering_rates)
             else:
                 # wait for meter rates
@@ -261,8 +282,16 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                     message = readLine(connection)
                     meter, rate = processMessage(message)
                     updateRate(meter, rate, metering_rates)
+                    
+                    mine = rate
+                    arian = optimal_control(rampnodes[meter])
+                    
+                    if arian > 0 :
+                        arian = arian * 2107
+                    
+                    
+                    print("compare rates", mine, arian)
                   
-                
       
         sim_start_ms = time.time()* 1000
         
@@ -291,11 +320,16 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                     #traci.lane.setDisallowed(lanes[m], ['passenger']) # disable lane 1
                     traci.trafficlight.setPhase(m, 0) # this is set to gg phase
                 else:
+                    actual_green_time = green_time
+                    
+                    if rate >= 1200:
+                        actual_green_time = 3.5
+                        
                     traci.lane.setDisallowed(lanes[m], []) # Now 2 lines form for meter
                     
-                    if(rate <= 1200):
+                    if(rate <= 1900):
                         # switch to rr
-                        if step - metering_rates[m]["last-green"] == green_time * steps_per_sec:
+                        if step - metering_rates[m]["last-green"] == actual_green_time * steps_per_sec:
                             traci.trafficlight.setPhase(m, 1)
                             metering_rates[m]["lane"] = 1 - metering_rates[m]["lane"] # switch active lane
                             
@@ -314,22 +348,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
                             #print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], headway, "phase", traci.trafficlight.getRedYellowGreenState(m), )
                             
                             metering_rates[m]["last-green"] = step
-                    else:
-                        # switch to a block green time
-                        # assume capacity is 2100 veh/hr/lane
-                        green_time = rate / (2.0*2100.0) * 30 + 2 # startup lost time
-                        
-                        red_time = 30 - green_time
-                        
-                        if step - metering_rates[m]["last-green"] == green_time * steps_per_sec:
-                            traci.trafficlight.setPhase(m, 1)
-                            
-                            print(m, "transition red", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], green_time, "phase", traci.trafficlight.getRedYellowGreenState(m), )
-                        elif step - metering_rates[m]["last-green"] >= red_time * steps_per_sec:
-                            
-                            print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], green_time, "phase", traci.trafficlight.getRedYellowGreenState(m), )
-                            metering_rates[m]["last-green"] = step
-                            traci.trafficlight.setPhase(m, 0)
+                    
                             
                          
                 
@@ -356,7 +375,7 @@ def run(directory, control,critDensity,jamDensity,rampStorageLength,alpha_desire
         f.write("\n")
         
         for lid in traci.lane.getIDList():
-            if 'rmp' in lid:
+            if 'rmp' in lid or "ramp" in lid:
                 ent_name = "ent-"+lid[4:0]
                 incCount = 0
                 
@@ -439,6 +458,6 @@ def processMessage(message):
             rate = int(rate)
             
         return meter, rate
+        
 
-    
 
