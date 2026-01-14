@@ -5,10 +5,10 @@
 
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
     <!-- Detectors -->
-    <inductionLoop id="detDemandA" lane="rampStart_0" pos="5.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="detDemandB" lane="rampStart_1" pos="5.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="detDemandC" lane="ramp2Start_0" pos="5.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="detDemandD" lane="ramp2Start_1" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemandA" lane="rampStart_0" pos="2.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemandB" lane="rampStart_1" pos="2.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemandC" lane="ramp2Start_0" pos="2.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemandD" lane="ramp2Start_1" pos="2.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detDown1" lane="endSeg_0" pos="1445.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detDown2" lane="endSeg_1" pos="1445.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detPass1" lane="rampEnd_0" pos="25.00" period="90.00" file="detector.xml"/>
@@ -17,8 +17,8 @@
     <inductionLoop id="detPass4" lane="ramp2End_0" pos="25.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detGreen1" lane="rampEnd_0" pos="15.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detGreen2" lane="ramp2End_0" pos="15.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="detMerge1" lane="rampEnd_0" pos="215.00" period="30.00" file="detector.xml"/>
-    <inductionLoop id="detMerge2" lane="ramp2End_0" pos="215.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge1" lane="rampEnd_0" pos="95.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge2" lane="ramp2End_0" pos="95.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detUp1" lane="startSeg_0" pos="40.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detUp2" lane="startSeg_1" pos="40.00" period="30.00" file="detector.xml"/>
     <inductionLoop id="detDSA1" lane="startSeg_0" pos="1495.00" period="30.00" file="detector.xml"/>

@@ -113,19 +113,19 @@
         <lane id="merge2_1" index="1" speed="26.82" length="100.00" shape="5.00,-113.38 3.30,-172.32"/>
         <lane id="merge2_2" index="2" speed="26.82" length="100.00" shape="8.20,-113.48 6.50,-172.41"/>
     </edge>
-    <edge id="ramp2End" from="J9" to="J5" priority="-1" length="220.00">
-        <lane id="ramp2End_0" index="0" speed="26.82" length="220.00" shape="-67.02,-54.74 -0.27,-108.78"/>
+    <edge id="ramp2End" from="J9" to="J5" priority="-1" length="100.00">
+        <lane id="ramp2End_0" index="0" speed="26.82" length="100.00" shape="-67.02,-54.74 -0.27,-108.78"/>
     </edge>
-    <edge id="ramp2Start" from="J10" to="J9" priority="-1" length="200.00">
-        <lane id="ramp2Start_0" index="0" speed="20.12" length="200.00" shape="-129.71,52.44 -75.24,-49.71"/>
-        <lane id="ramp2Start_1" index="1" speed="20.12" length="200.00" shape="-126.89,53.94 -72.41,-48.20"/>
+    <edge id="ramp2Start" from="J10" to="J9" priority="-1" length="80.00">
+        <lane id="ramp2Start_0" index="0" speed="20.12" length="80.00" shape="-129.71,52.44 -75.24,-49.71"/>
+        <lane id="ramp2Start_1" index="1" speed="20.12" length="80.00" shape="-126.89,53.94 -72.41,-48.20"/>
     </edge>
-    <edge id="rampEnd" from="J3" to="J2" priority="-1" length="220.00">
-        <lane id="rampEnd_0" index="0" speed="26.82" length="220.00" shape="-16.81,143.41 3.46,55.44"/>
+    <edge id="rampEnd" from="J3" to="J2" priority="-1" length="100.00">
+        <lane id="rampEnd_0" index="0" speed="26.82" length="100.00" shape="-16.81,143.41 3.46,55.44"/>
     </edge>
-    <edge id="rampStart" from="J6" to="J3" priority="-1" length="200.00">
-        <lane id="rampStart_0" index="0" speed="20.12" length="200.00" shape="-39.33,203.32 -21.90,149.81"/>
-        <lane id="rampStart_1" index="1" speed="20.12" length="200.00" shape="-36.29,204.31 -18.86,150.80"/>
+    <edge id="rampStart" from="J6" to="J3" priority="-1" length="80.00">
+        <lane id="rampStart_0" index="0" speed="20.12" length="80.00" shape="-39.33,203.32 -21.90,149.81"/>
+        <lane id="rampStart_1" index="1" speed="20.12" length="80.00" shape="-36.29,204.31 -18.86,150.80"/>
     </edge>
     <edge id="ramp_ent" from="J12" to="J6" priority="-1" length="200.00">
         <lane id="ramp_ent_0" index="0" speed="20.12" length="200.00" shape="-54.31,244.33 -38.99,211.18"/>

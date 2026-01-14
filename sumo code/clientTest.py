@@ -88,6 +88,9 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     phase2 = 'notStarted' # Initial Phase
     
     
+    total_expected = 0
+    total_actual = 0
+    total_green = 0
     
     
     meters = []
@@ -140,7 +143,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     
     
     
-    endStep = 3600* steps_per_sec *1.2 # Time to simulate (0.05 seconds steps)
+    endStep = 3600* steps_per_sec *1.25 # Time to simulate (0.05 seconds steps)
 
     if test:
         endStep = 1200 * steps_per_sec
@@ -171,6 +174,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
         metering_rates[m]["last-green"] = 0
         metering_rates[m]["rate"] = -1
         metering_rates[m]["lane"] = 0
+        metering_rates[m]["green-count"] = 0
         
         traci.lane.setDisallowed(lanes[m], ['passenger'])
         
@@ -245,6 +249,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
         if "test_network" in directory:
             for meter in meters:
                 passCount = dict()
+                laneUse = dict()
                 queueCount = 0
                 
                 ramp = lanes[meter].replace("_0", "")
@@ -256,12 +261,25 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     detlane = traci.inductionloop.getLaneID(det)
                     if "G" in det and (detlane == mergelane+"_0" or detlane == mergelane+"_1"):
                         passCount[detlane] = passed[det]
-                    
+                
+                laneUse[queuelane+"_0"] = traci.lane.getLastStepVehicleNumber(queuelane+"_0")
+                laneUse[queuelane+"_1"] = traci.lane.getLastStepVehicleNumber(queuelane+"_1")   
                 
                 rate = metering_rates[meter]["rate"]
                 
                 if rate > 0:
-                    print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", traci.lane.getLastStepVehicleNumber(queuelane+"_0"), traci.lane.getLastStepVehicleNumber(queuelane+"_1"),)
+                    
+                    green_step = metering_rates[meter]["green-count"]
+                    total_green += green_step
+                    metering_rates[meter]["green-count"] = 0
+                    
+                    for link in passCount:
+                        total_actual += passCount[link]
+                    
+                    for link in laneUse:
+                        total_expected += rate * 30.0/3600 / 2
+                        
+                    print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", laneUse, "green is ", green_step)
                     #"ds lane use is ", traci.lane.getLastStepVehicleNumber(mergelane+"_0"), traci.lane.getLastStepVehicleNumber(mergelane+"_1"))
                     
         if control:
@@ -281,16 +299,20 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
             
                     message = readLine(connection)
                     meter, rate = processMessage(message)
-                    updateRate(meter, rate, metering_rates)
+                    
                     
                     mine = rate
                     arian = optimal_control(rampnodes[meter])
                     
-                    if arian > 0 :
-                        arian = arian * 2107
+                    if arian >= 0 :
+                        arian = max(300, arian * 2107)
+                        
                     
                     
                     print("compare rates", mine, arian)
+                    
+                    
+                    updateRate(meter, mine, metering_rates)
                   
       
         sim_start_ms = time.time()* 1000
@@ -332,6 +354,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                         if step - metering_rates[m]["last-green"] == actual_green_time * steps_per_sec:
                             traci.trafficlight.setPhase(m, 1)
                             metering_rates[m]["lane"] = 1 - metering_rates[m]["lane"] # switch active lane
+                            metering_rates[m]["green-count"] += 1
                             
                             #print(m, "transition red", step, metering_rates[m]["last-green"])
                             #print("\tphase check ", m, traci.trafficlight.getPhase(m))
@@ -367,6 +390,8 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     for id in traci.lane.getIDList():
         speeds[id] = speeds[id] / dataCount
         waitingTime[id] = waitingTime[id] / dataCount
+        
+    print("total expected", total_expected, "actual", total_actual, "green", total_green)
     
     with open("output.txt", "w") as f:
         for lid in traci.lane.getIDList():

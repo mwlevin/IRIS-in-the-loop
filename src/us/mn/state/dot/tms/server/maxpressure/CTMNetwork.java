@@ -83,11 +83,15 @@ public class CTMNetwork {
     
     
     public double getUpstreamSendingFlow(){
+        //return center_merge.inc_mainline.getSendingFlow();
+        
         double total = 0;
 
         CTMLink inc = center_merge.inc_mainline;
         
         int ncells = (int)Math.round(STEP_SECONDS / CTM_DT);
+        
+
         
         do{
             int n = Math.min(ncells, inc.cells.length);
@@ -111,6 +115,7 @@ public class CTMNetwork {
         while(true);
         
         return total;
+        
     }
     
     public double getUpstreamOccupancy(){
@@ -147,8 +152,21 @@ public class CTMNetwork {
     
     public double getDownstreamReceivingFlow(){
         // estimated value of receiving flow * number of CTM time steps
+        System.out.println("\t\tR calc Q="+center_merge.out.Q/3600.0+
+                " lanes="+center_merge.out.lanes+" delta T="+MaxPressureAlgorithm.CTM_DT+
+                " w="+center_merge.out.w+" uf="+center_merge.out.v+" N="+center_merge.out.cells[0].getMaxOccupancy());
         return center_merge.out.getReceivingFlow() * MaxPressureAlgorithm.STEP_SECONDS / MaxPressureAlgorithm.CTM_DT;
+        //return center_merge.out.getReceivingFlow();
     }
+    
+    public int getDownstreamLanes(){
+        return center_merge.out.lanes;
+    }
+    
+    public int getUpstreamLanes(){
+        return center_merge.inc_mainline.lanes;
+    }
+    
     
     
     public double getDownstreamAvgDensity(){

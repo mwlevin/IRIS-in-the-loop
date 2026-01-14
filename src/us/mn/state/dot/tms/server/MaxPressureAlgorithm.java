@@ -171,7 +171,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         
         // jam density
         //static private final double K = 5280.0/AVG_VEH_LEN;
-        static private final double K = 119.04761904761904 * 1.609;
+        static private final double K = 119.1 * 1.609;
         
         /** Ramp queue jam density (vehicles per foot) */
 	static private final float JAM_VPF = (float) K / FEET_PER_MILE;
@@ -865,7 +865,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         //Q_u = upstream_lanes * Math.min(2400, 2200 + 10 * (v_u - 50)); // from HCM
                         //Q_d = downstream_lanes * Math.min(2400, 2200 + 10 * (v_d - 50));
                        // Q_r = 1900; // from HCM, base ramp saturation flow
-                       Q_r = 2107.04688; // SUMO value 
+                       Q_r = 2107; // SUMO value 
                        Q_u = getCapacity(v_u);
                         Q_d = getCapacity(v_d);
                         
@@ -918,17 +918,17 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 
                 private double getCapacity(double ffspeed){
                     return 2150.3;
-                    //return 40 * ffspeed;
+                    //return 1907.9;
                     //return Math.min(2400, 2200 + 10 * (ffspeed - 50));
                 }
                 
                 public double getW(double ffspeed){
                     return 22.586274214148*2.23694;
-                    //return ffspeed/3;
+                    //return ffspeed/2;
                 }
                 
                 private double getFFSpeed(double speed_limit){
-                    return 26.82*2.23694 - 5; // sumo
+                    return 26.82*2.23694; // sumo
                     //return speed_limit + 5;
                 }
                 
@@ -1380,8 +1380,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 		/** Calculate minimum rate (vehicles / hour) */
 		private int calculateMinimumRate(long stamp) {
                         
-                    min_rate = 360;
-                    
+                    min_rate = 300;
+                    /*
                     if(smoothing){
                         if(release_rate < Q_r){
                             min_rate = Math.max((int)Math.round(release_rate * (1-smoothing_factor)), min_rate);
@@ -1400,7 +1400,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     else{ // rate for 4 min waiting time
                         min_rate = (int)Math.min(max_rate, Math.max(360, (int)Math.round(ramp_queue / 4.0 * 60))); // rate for 4 min waiting time
                     }
-                    
+                    */
                     
                     
                     return min_rate;
@@ -1498,7 +1498,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
                 private double step = -STEP_SECONDS;
                 
-                private String checkmeter = "meter-J9";
+                
                 // J89
                 
 		/** Calculate the metering rate */
@@ -1508,8 +1508,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     
                     network.simulateLastTimestep(stamp, PERIOD_MS);
                     
-                    if(meter.getName().equals(checkmeter))
-                    System.out.println("\ncalc meter rate "+meter.getName()+" "+downstream.getSpeed()+" "+network.getDownstreamAvgDensity());
+                    
+                    System.out.println("\n\ncalc meter rate "+meter.getName()+" "+downstream.getSpeed()+" "+network.getDownstreamAvgDensity());
                     
                     
 
@@ -1529,34 +1529,34 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                     double R_d = network.getDownstreamReceivingFlow(); // units of veh
 
                     
-                    if(meter.getName().equals(checkmeter)){
+                    
+                    {
                         System.out.println("S_ud "+S_ud+" S_rd "+S_rd+" R_d "+R_d);
                         System.out.println(step+" "+meter.getName()+" occ check "+network.getUpstreamOccupancy()+" "+network.getDownstreamOccupancy()+" "+network.getOnrampOccupancy());
                         System.out.println("\tramp queue "+getRampQueueLength(stamp));
                         System.out.println("\tk "+network.getUpstreamAvgDensity()+" "+network.getDownstreamAvgDensity());
-                        System.out.println("\tR "+R_d * 3600.0/STEP_SECONDS);
                         System.out.println("\tocc "+network.getTotalOccupancy()+" "+network.getDetOccupancy(stamp, PERIOD_MS));
                     }
 
                     // these are weighting factors
-                    double c_u = 1;
+                    double c_u = 1.0 / network.getUpstreamLanes();
                     // weight by number of upstream lanes so that the weights are more comparable
-                    double c_r = numlanes / 2.0; // divide by 2 because 2 ramp lanes
-                    double c_d = 1;
+                    double c_r = 1 / 2.0; // divide by 2 because 2 ramp lanes
+                    double c_d = 1.0 / network.getDownstreamLanes();
 
                     // these are the position weights
                     double downstream_weight = c_d * network.getDownstreamWeight(false);
                     double ramp_weight = c_r * getRampWeight(stamp);
                     double upstream_weight = c_u * network.getUpstreamWeight(false);
 
-                    if(meter.getName().equals(checkmeter))
+                    
                     System.out.println("weights d="+downstream_weight+" r="+ramp_weight+" u="+upstream_weight);
                     
                     
                     double weight_ud = upstream_weight - downstream_weight;
                     double weight_rd = ramp_weight - downstream_weight;
 
-                    if(meter.getName().equals(checkmeter))
+                    
                     System.out.println("\tr="+weight_rd +" u="+weight_ud);
 
 
@@ -1605,8 +1605,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                             best_rate = min_rate;
                         }
                         
-                        if(meter.getName().equals(checkmeter))
-                            System.out.println("calc best rate "+best_rate);
+                        
+                        System.out.println("calc best rate "+best_rate);
                         return best_rate;
                     }
                     
@@ -1634,7 +1634,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         }
                     }   
                     
-                    if(meter.getName().equals(checkmeter))
+                    
                     System.out.println("calc best rate "+best_rate+" "+best_obj);
                     
                     return best_rate;
