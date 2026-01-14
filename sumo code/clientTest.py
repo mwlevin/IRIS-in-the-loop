@@ -46,6 +46,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     network = sumolib.net.readNet(networkname)
     links = network.getEdges()
 
+    '''
     rampnodes = dict()
     Es, Er, Eh, Er_merge = set(), set(), set(), set()
     
@@ -62,7 +63,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
             Eh.add(link)
     
     E_entry = Er.union({network.getEdge("entry")})
-        
+    '''
         
         
     if control:
@@ -302,6 +303,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     
                     
                     mine = rate
+                    '''
                     arian = optimal_control(rampnodes[meter])
                     
                     if arian >= 0 :
@@ -310,7 +312,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     
                     
                     print("compare rates", mine, arian)
-                    
+                    '''
                     
                     updateRate(meter, mine, metering_rates)
                   
