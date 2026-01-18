@@ -861,10 +861,13 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 	protected float getDensityRaw(long stamp, int per_ms,
 		boolean ignore_auto_fail)
 	{
+            /*
 		float k = getDensityFromFlowSpeed(stamp, per_ms, ignore_auto_fail);
 		return (k >= 0)
 		      ? k
 		      : getDensityFromOccupancy(stamp, per_ms, ignore_auto_fail);
+            */
+            return getDensityFromOccupancy(stamp, per_ms, ignore_auto_fail);
 	}
 
 	/** Get the density from flow and speed (vehicles per mile) */
@@ -887,7 +890,13 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 		float occ = getOccupancy(stamp, per_ms, ignore_auto_fail);
 		if (occ >= 0 && field_length > 0) {
 			Distance fl = new Distance(field_length, FEET);
-			return occ / (fl.asFloat(MILES) * MAX_OCCUPANCY);
+                        
+                        
+                        float output= occ / (fl.asFloat(MILES) * MAX_OCCUPANCY);
+                        
+                        
+                        //System.out.println("k check occ="+occ+" output="+output+" fl="+field_length);
+                        return output;
 		} else
 			return MISSING_DATA;
 	}

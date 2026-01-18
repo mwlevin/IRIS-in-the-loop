@@ -94,7 +94,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                             if(split[0].equals("det")){
                                 String name = split[1];
                                 int count = Integer.parseInt(split[2].trim());
-                                int occ = (int)Math.round(Double.parseDouble(split[3].trim()) * MAX_SCANS / 300) ; // data is time (sec) out of 30sec
+                                int occ = (int)Math.round(Double.parseDouble(split[3].trim())) ; // data is time (sec) out of 30sec
                                 if(!detData.containsKey(name)){
                                     //System.out.println("could not find detector "+name);
                                     //System.out.println("\tall detectors: "+detData.keySet());

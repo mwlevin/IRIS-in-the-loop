@@ -57,10 +57,10 @@ stepsize = '.05'
 # site = ["site3_fullHV.sumocfg","site3_fullACC.sumocfg","site3_fullAV.sumocfg","site3_highHV.sumocfg","site3_highACC.sumocfg","site3_highAV.sumocfg"]
 # site = ['highACC.sumocfg','highAV.sumocfg']
 
-#directory = "test_network"
-#network = directory+"/site_trial.net.xml"
-directory = "610EB"
-network = directory+"/610EB.net.xml"
+directory = "test_network"
+network = directory+"/site_trial.net.xml"
+#directory = "610EB"
+#network = directory+"/610EB.net.xml"
 site = [directory+'/'+directory+'.sumocfg']
 
 

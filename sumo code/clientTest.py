@@ -144,7 +144,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     
     
     
-    endStep = 3600* steps_per_sec *1.25 # Time to simulate (0.05 seconds steps)
+    endStep = 3600* steps_per_sec *1.2 # Time to simulate (0.05 seconds steps)
 
     if test:
         endStep = 1200 * steps_per_sec
@@ -234,13 +234,29 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                 #counts[det] += count
                 det_occ = traci.inductionloop.getLastIntervalOccupancy(det)
                 
-                occ = det_occ * 30.0/100 # this is a percentage of the time step, so multiply by period (30sec) to get time
+                q = detcount / (30.0/3600) #veh/hr
+                u = traci.inductionloop.getLastIntervalMeanSpeed(det) * 2.23694 # m/s -> mi/hr
+                
+                k = 0
+                if u > 0:
+                    k = q/u
+                elif det_occ > 0.01:
+                    k = 191 # jam d
+                    
+                
+                    
+                occ = k * 100 * (1.0/5280) # undo kadaptive calc
+                
+                occ = occ * 0.5 # testing
+                print("k check", k, occ)
+                
+                #occ = det_occ * 30.0/100  # 0.5 for testing # this is a percentage of the time step, so multiply by period (30sec) to get time
                 #occupancies[det] += occ 
                 
                 
-                #print("detector ", det, "count=", count, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval")
+                print("detector ", det, "count=", detcount, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval", "converted=", occ)
                     
-                msg = "det,"+detectors_abbrv[det]+","+str(detcount)+","+str(occ)
+                msg = "det,"+detectors_abbrv[det]+","+str(detcount)+","+str(det_occ)
                 #counts[det] = 0
                 #occupancies[det] = 0
                 
