@@ -811,6 +811,8 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 		       : MISSING_DATA;
                 
                 //System.out.println(getName()+" cached "+scn+" "+" "+isSampling(ignore_auto_fail)+" "+scn_cache.getValue(stamp - per_ms, stamp));
+                
+                
 		return (scn >= 0)
 		      ? MAX_OCCUPANCY * scn * SCAN_MS / per_ms
 		      : MISSING_DATA;
@@ -888,6 +890,10 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 		boolean ignore_auto_fail)
 	{
 		float occ = getOccupancy(stamp, per_ms, ignore_auto_fail);
+                
+                
+                        
+                
 		if (occ >= 0 && field_length > 0) {
 			Distance fl = new Distance(field_length, FEET);
                         
@@ -895,7 +901,7 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
                         float output= occ / (fl.asFloat(MILES) * MAX_OCCUPANCY);
                         
                         
-                        //System.out.println("k check occ="+occ+" output="+output+" fl="+field_length);
+                        System.out.println("retrieve check occ="+occ+" output="+output+" fl="+field_length+" "+fl.asFloat(MILES)+" "+MAX_OCCUPANCY);
                         return output;
 		} else
 			return MISSING_DATA;

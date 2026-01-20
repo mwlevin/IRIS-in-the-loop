@@ -27,6 +27,9 @@ import us.mn.state.dot.tms.server.comm.MeterPoller;
 import us.mn.state.dot.tms.server.comm.SamplePoller;
 import us.mn.state.dot.tms.server.comm.mndot.MeterStatus;
 import static us.mn.state.dot.tms.server.comm.mndot.OpQuerySamples5Min.SAMPLE_PERIOD_SEC;
+import us.mn.state.dot.tms.units.Distance;
+import static us.mn.state.dot.tms.units.Distance.Units.FEET;
+import static us.mn.state.dot.tms.units.Distance.Units.MILES;
 
 /**
  * Use a server/socket connection to send the messages to a Python server connecting to Traci.
@@ -87,7 +90,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                             }
                             
                             
-                            //System.out.println("Received: "+message);
+                            System.out.println("Received: "+message);
                             
                             String[] split = message.split(",");
                             
@@ -95,6 +98,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                                 String name = split[1];
                                 int count = Integer.parseInt(split[2].trim());
                                 int occ = (int)Math.round(Double.parseDouble(split[3].trim())) ; // data is time (sec) out of 30sec
+                                //System.out.println("Storing "+occ);
                                 if(!detData.containsKey(name)){
                                     //System.out.println("could not find detector "+name);
                                     //System.out.println("\tall detectors: "+detData.keySet());
@@ -162,7 +166,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                 
                 long stamp = TimeSteward.currentTimeMillis();
                 int per_sec = 30;
-                int[] scans = new int[detData.size()];
+                int[] scans = new int[detData.size()]; 
                 int[] counts = new int[detData.size()];    
                 
                 c.storeVehCount(stamp, per_sec, firstPin, counts);
@@ -187,20 +191,33 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
         int[] counts = new int[detData.size()];
         
         if(connection != null){
+            
+            
             for(String name : detData.keySet()){
                 CCStorage data = detData.get(name);
                 int pin = data.pin;
-                scans[pin-firstPin] = data.getScan(per_sec);
+                
+                int k = data.getScan(per_sec); // this is actually density from SUMO
+                
+                
+                
+                
+                int scan = (int)Math.round(k * 10000.0 / 52.8);
+                
+                //System.out.println("k check k="+k+" scan="+scan);
+                
+                
+                scans[pin-firstPin] = scan; 
                 counts[pin-firstPin] = data.getCount(per_sec);
             }
         }
         
         
         // c.storeVehCount
-        // c.storeOccupancy
+        // c.storeOccupancyx
         //System.out.println("UPDATE detector");
         c.storeVehCount(stamp, per_sec, firstPin, counts);
-        c.storeOccupancy(stamp, per_sec, firstPin, scans, MAX_SCANS * per_sec/300);
+        c.storeOccupancy(stamp, per_sec, firstPin, scans, 1000000);
         
     }
     

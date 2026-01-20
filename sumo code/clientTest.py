@@ -245,18 +245,19 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     
                 
                     
-                occ = k * 100 * (1.0/5280) # undo kadaptive calc
                 
-                occ = occ * 0.5 # testing
-                print("k check", k, occ)
+                
+                k = k *0.5 # testing
+                
                 
                 #occ = det_occ * 30.0/100  # 0.5 for testing # this is a percentage of the time step, so multiply by period (30sec) to get time
                 #occupancies[det] += occ 
                 
                 
-                print("detector ", det, "count=", detcount, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval", "converted=", occ)
+                print("detector ", det, "count=", detcount, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval")
                     
-                msg = "det,"+detectors_abbrv[det]+","+str(detcount)+","+str(det_occ)
+                # passing k directly because it's easier
+                msg = "det,"+detectors_abbrv[det]+","+str(detcount)+","+str(k)
                 #counts[det] = 0
                 #occupancies[det] = 0
                 
