@@ -10,7 +10,6 @@ detGreen1
 detGreen2
 detMerge1
 detMerge2
-detLink
 detUp1
 detUp2
 detDSA1

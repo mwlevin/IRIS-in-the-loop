@@ -1,0 +1,18 @@
+Performance:
+ Duration: 4349.33s
+ TraCI-Duration: 4292.13s
+ Real time factor: 1.00016
+ UPS: 6816.946308
+Vehicles:
+ Inserted: 3607 (Loaded: 3649)
+ Running: 109
+ Waiting: 42
+ Emergency Stops: 9
+ Emergency Braking: 599
+Statistics (avg of 3498):
+ RouteLength: 6191.80
+ Speed: 14.72
+ Duration: 419.08
+ WaitingTime: 15.93
+ TimeLoss: 184.21
+ DepartDelay: 90.60
