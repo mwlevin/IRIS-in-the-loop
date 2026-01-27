@@ -146,8 +146,6 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     
     endStep = 3600* steps_per_sec *1.2 # Time to simulate (0.05 seconds steps)
 
-    if test:
-        endStep = 1200 * steps_per_sec
     
     
     
@@ -247,7 +245,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     
                 
                 
-                k = k *0.5 # testing
+                k = k  # testing
                 
                 
                 #occ = det_occ * 30.0/100  # 0.5 for testing # this is a percentage of the time step, so multiply by period (30sec) to get time
