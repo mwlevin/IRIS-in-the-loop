@@ -42,10 +42,15 @@ public class MeteringJob extends Job {
 
 	/** Job to be performed after data has been processed */
 	private final FlushXmlJob flush_job;
+        
+        
+        public static final int SUMO_DELAY = 30; // this is to give SUMO time to catch up. This is referenced in MaxPressureAlgorithm
+        
+        private long last_time;
 
 	/** Create a new metering job */
 	public MeteringJob(Scheduler f) {
-		super(Calendar.SECOND, 30, Calendar.SECOND, OFFSET_SECS);
+		super(Calendar.SECOND, 30 + SUMO_DELAY, Calendar.SECOND, OFFSET_SECS);
 		flush = f;
 		station_manager = new StationManager();
 		flush_job = new FlushXmlJob(station_manager);
@@ -55,6 +60,9 @@ public class MeteringJob extends Job {
 	@Override
 	public void perform() {
 		try {
+                    System.out.println("\n\nMetering job "+(System.currentTimeMillis()-last_time)/1000+"\n\n");
+                    last_time = System.currentTimeMillis();
+                    
 			station_manager.calculateData();
 			// Perform flush job after station data calculated
 			flush.addJob(flush_job);

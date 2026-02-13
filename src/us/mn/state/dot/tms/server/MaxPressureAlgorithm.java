@@ -81,7 +81,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
 	/** Number of milliseconds for one time step */
 	static private final int PERIOD_MS =
-		(int) new Interval(STEP_SECONDS).ms();
+		(int) new Interval(STEP_SECONDS + MeteringJob.SUMO_DELAY).ms();
         
         public static final double CTM_DT = STEP_SECONDS/5.0; // time step for CTM in seconds
         
