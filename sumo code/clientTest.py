@@ -14,7 +14,7 @@ import socket
 
 '''
 if 'SUMO_HOME' in os.environ:
-    tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
+    tools = os.path.join(os.environ['SUMO_HOME'], 'toocls')
     sys.path.append(tools)
 else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
@@ -78,6 +78,8 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     step = 0
     time_period = 30
     
+    avg_rate = 0
+    count_rate = 0
     
     test = False
     
@@ -144,7 +146,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     
     
     
-    endStep = 3600* steps_per_sec *1.2 # Time to simulate (0.05 seconds steps)
+    endStep = 3600* steps_per_sec *1.0 # Time to simulate (0.05 seconds steps)
 
     
     
@@ -353,6 +355,9 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                 rate = metering_rates[m]["rate"]
                 headway = 3600.0/rate * steps_per_sec
                 
+                avg_rate += rate
+                count_rate += 1
+                
                 # set traffic signal
                 if rate < 0:
                     traci.trafficlight.setPhase(m, 0)
@@ -408,7 +413,13 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
         speeds[id] = speeds[id] / dataCount
         waitingTime[id] = waitingTime[id] / dataCount
         
+    if count_rate > 0:
+        avg_rate = avg_rate / count_rate
+    else:
+        avg_rate = 0
+        
     print("total expected", total_expected, "actual", total_actual, "green", total_green)
+    print("avg metering rate", avg_rate)
     
     with open("output.txt", "w") as f:
         for lid in traci.lane.getIDList():
