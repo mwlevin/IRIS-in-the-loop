@@ -355,8 +355,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                 rate = metering_rates[m]["rate"]
                 headway = 3600.0/rate * steps_per_sec
                 
-                avg_rate += rate
-                count_rate += 1
+                
                 
                 # set traffic signal
                 if rate < 0:
@@ -365,6 +364,9 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     traci.trafficlight.setPhase(m, 0) # this is set to gg phase
                 else:
                     actual_green_time = green_time
+                    
+                    avg_rate += rate
+                    count_rate += 1
                     
                     if rate >= 1200:
                         actual_green_time = 3.5
