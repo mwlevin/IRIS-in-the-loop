@@ -164,7 +164,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
         #counts[det] = 0
         #occupancies[det] = 0
         # necessary due to limitations of PSQL database
-        detectors_abbrv[det] = det.replace("Demand", "D").replace("Down", "Do").replace("Pass", "P").replace("Green", "G").replace("Merge", "M").replace("det", "d")
+        detectors_abbrv[det] = det.replace("Demand", "D").replace("Exit", "Ex").replace("Down", "Do").replace("Pass", "P").replace("Green", "G").replace("Merge", "M").replace("det", "d")
         
     
     metering_rates = dict()
