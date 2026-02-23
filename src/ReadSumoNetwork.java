@@ -107,7 +107,7 @@ public class ReadSumoNetwork {
         Properties props = PropertyLoader.load(PROP_FILE);
         
         
-        int algorithm = 4; // k-adaptive
+        int algorithm = 3; // k-adaptive
         
         SQLConnection store = createStore(props);
         
@@ -616,17 +616,17 @@ public class ReadSumoNetwork {
                 String cross = "none";
                 
                 
-                if(name.indexOf("Dem") >= 0){
+                if(name.indexOf("Demand") >= 0){
                     det_type = "Q";
                     nodename = "n-"+edges.get(edge).to;
                     node_type = 1;
                 }
-                else if(name.indexOf("Gr") >= 0){
+                else if(name.indexOf("Green") >= 0){
                     det_type = "G";
                     nodename = "n-"+edges.get(edge).from;
                     node_type = 1;
                 }
-                else if(name.indexOf("Pa") >= 0){
+                else if(name.indexOf("Pass") >= 0){
                     det_type = "P";
                     
                     for(String e : edges.keySet()){
@@ -637,7 +637,7 @@ public class ReadSumoNetwork {
                     
                     node_type = 1;
                 }
-                else if(name.indexOf("Me") >= 0){
+                else if(name.indexOf("Merge") >= 0){
                     det_type = "M";
                     
                     if(netfile.indexOf("610") >= 0){
@@ -654,7 +654,7 @@ public class ReadSumoNetwork {
                     
                     node_type = 1;
                 }
-                else if(name.indexOf("Ex") >= 0){
+                else if(name.indexOf("Exit") >= 0){
                     det_type = "X";
                 }
                 
