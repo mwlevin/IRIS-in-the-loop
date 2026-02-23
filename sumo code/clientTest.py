@@ -264,42 +264,51 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                 if control and not test:
                     sendMessage(connection, msg)
         
-        if "test_network" in directory:
-            for meter in meters:
-                passCount = dict()
-                laneUse = dict()
-                queueCount = 0
-                
+        
+        for meter in meters:
+            passCount = dict()
+            laneUse = dict()
+            queueCount = 0
+            
+            mergelane = ""
+            queuelane = ""
+            ramp = ""
+            
+            if "test_network" in directory:
                 ramp = lanes[meter].replace("_0", "")
                 mergelane = ramp.replace("Start", "End")
                 queuelane = ramp
+            elif "610" in directory:
+                ramp = lanes[meter].replace("_0", "")
+                queuelane = ramp.replace("rmp", "merge")
+                mergelane = ramp
+            
+            
+            for det in detectors:
+                detlane = traci.inductionloop.getLaneID(det)
+                if "G" in det and (detlane == mergelane+"_0" or detlane == mergelane+"_1"):
+                    passCount[detlane] = passed[det]
+            
+            laneUse[queuelane+"_0"] = traci.lane.getLastStepVehicleNumber(queuelane+"_0")
+            laneUse[queuelane+"_1"] = traci.lane.getLastStepVehicleNumber(queuelane+"_1")   
+            
+            rate = metering_rates[meter]["rate"]
+            
+            if rate > 0:
                 
+                green_step = metering_rates[meter]["green-count"]
+                total_green += green_step
+                metering_rates[meter]["green-count"] = 0
                 
-                for det in detectors:
-                    detlane = traci.inductionloop.getLaneID(det)
-                    if "G" in det and (detlane == mergelane+"_0" or detlane == mergelane+"_1"):
-                        passCount[detlane] = passed[det]
+                for link in passCount:
+                    total_actual += passCount[link]
                 
-                laneUse[queuelane+"_0"] = traci.lane.getLastStepVehicleNumber(queuelane+"_0")
-                laneUse[queuelane+"_1"] = traci.lane.getLastStepVehicleNumber(queuelane+"_1")   
-                
-                rate = metering_rates[meter]["rate"]
-                
-                if rate > 0:
+                for link in laneUse:
+                    total_expected += rate * 30.0/3600 / 2
                     
-                    green_step = metering_rates[meter]["green-count"]
-                    total_green += green_step
-                    metering_rates[meter]["green-count"] = 0
-                    
-                    for link in passCount:
-                        total_actual += passCount[link]
-                    
-                    for link in laneUse:
-                        total_expected += rate * 30.0/3600 / 2
-                        
-                    print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", laneUse, "green is ", green_step)
+                print("compare rate", meter, "expected is ", rate * 30.0/3600, "actual is ", passCount, "lane use is ", laneUse, "green is ", green_step)
                     #"ds lane use is ", traci.lane.getLastStepVehicleNumber(mergelane+"_0"), traci.lane.getLastStepVehicleNumber(mergelane+"_1"))
-                    
+        
         if control:
             if test:
                 for meter in meters:
