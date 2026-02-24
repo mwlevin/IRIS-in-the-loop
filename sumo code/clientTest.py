@@ -507,11 +507,16 @@ def updateRate(meter, rate, metering_rates):
 def listen(metering_rates):
     while True:
         message = readLine(connection)
+        if message == "":
+            continue
+        
         meter, rate = processMessage(message)
         updateRate(meter, rate, metering_rates)
            
 def processMessage(message):
-    print("received \""+message+"\"");
+    print("received \""+message+"\"")
+    
+    
     
     s = message.split(",")
     
