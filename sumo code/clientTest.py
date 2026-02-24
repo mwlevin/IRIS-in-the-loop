@@ -33,7 +33,7 @@ def get_options():
     return options
 
 
-# Import Functions used 
+# Import Functions used
 from densityFunctions_3 import computeRed, computeSwitchMeter,calcRateLimits, computeRedFlush, computeSwitchFlush, computeSwitchMeterStopped
 
 # Define function to run script
@@ -81,7 +81,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     avg_rate = 0
     count_rate = 0
     
-    test = False
+    test = True
     
     min_red_time = 1 # constant minimum red time for meter
     green_time = 3 # constant green time for meter
@@ -110,7 +110,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     #lanes["J9"] = "ramp2Start_0"
     
     print("meters: ", meters)
-    print("lanes: ", lanes)    
+    print("lanes: ", lanes)
     
     
     # detPass1 and detPass3 hvae the same location as detPass2 and detPass 4 but a different period?
@@ -191,7 +191,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
         speeds[id] = 0
         waitingTime[id] = 0
             
-    # START SIMULATION, RUN FOR SET TIME 
+    # START SIMULATION, RUN FOR SET TIME
     while step <= endStep:
         
         
@@ -251,7 +251,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                 
                 
                 #occ = det_occ * 30.0/100  # 0.5 for testing # this is a percentage of the time step, so multiply by period (30sec) to get time
-                #occupancies[det] += occ 
+                #occupancies[det] += occ
                 
                 
                 print("detector ", det, "count=", detcount, "cc=", cc[det], "occupancy=", det_occ, "as % of 30sec interval")
@@ -290,7 +290,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     passCount[detlane] = passed[det]
             
             laneUse[queuelane+"_0"] = traci.lane.getLastStepVehicleNumber(queuelane+"_0")
-            laneUse[queuelane+"_1"] = traci.lane.getLastStepVehicleNumber(queuelane+"_1")   
+            laneUse[queuelane+"_1"] = traci.lane.getLastStepVehicleNumber(queuelane+"_1")
             
             rate = metering_rates[meter]["rate"]
             
@@ -312,10 +312,8 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
         if control:
             if test:
                 for meter in meters:
-                    rate = 0
+                    rate = 1200
                     
-                    if step * stepsize > 600:
-                        rate = 1500
 
                     updateRate(meter, rate, metering_rates)
             else:
@@ -382,12 +380,15 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                         
                     traci.lane.setDisallowed(lanes[m], []) # Now 2 lines form for meter
                     
+                    #print("check rate", rate)
                     if(rate <= 1900):
                         # switch to rr
                         if step - metering_rates[m]["last-green"] == actual_green_time * steps_per_sec:
                             traci.trafficlight.setPhase(m, 1)
                             metering_rates[m]["lane"] = 1 - metering_rates[m]["lane"] # switch active lane
-                            metering_rates[m]["green-count"] += 1
+                            
+                            
+                            #print("check green count", m, metering_rates[m]["green-count"])
                             
                             #print(m, "transition red", step, metering_rates[m]["last-green"])
                             #print("\tphase check ", m, traci.trafficlight.getPhase(m))
@@ -397,9 +398,10 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                             
                             if metering_rates[m]["lane"] == 0:
                                 traci.trafficlight.setPhase(m, 2) # rg
-                                
+                                metering_rates[m]["green-count"] += 1
                             else:
                                 traci.trafficlight.setPhase(m, 3) # gr
+                                metering_rates[m]["green-count"] += 1
                         
                             #print(m, "transition green", metering_rates[m]["lane"], step, metering_rates[m]["last-green"], headway, "phase", traci.trafficlight.getRedYellowGreenState(m), )
                             
@@ -408,7 +410,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                             
                          
                 
-            traci.simulationStep() # Progress Sim by 1 time step       
+            traci.simulationStep() # Progress Sim by 1 time step
             step += 1
             
         # end if no vehicles remaining
@@ -447,7 +449,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                     if ent_name+"_0" == traci.inductionloop.getLaneID(det) or ent_name+"_1" == traci.inductionloop.getLaneID(det):
                         incCount += cc[det]
                     
-                f.write(str(lid)+ "\t"+ str(waitingTime[lid])+ "\t"+str(incCount) + "\n") 
+                f.write(str(lid)+ "\t"+ str(waitingTime[lid])+ "\t"+str(incCount) + "\n")
                       
  
     traci.close()
@@ -496,7 +498,7 @@ def readLine(sock):
 def updateRate(meter, rate, metering_rates):
     if rate != metering_rates[meter]["rate"]:
         metering_rates[meter]["rate"] = rate
-        metering_rates[meter]["changed"] = True   
+        metering_rates[meter]["changed"] = True
         
         print("rate changed", meter, metering_rates[meter]["rate"], metering_rates[meter]["changed"])
         
