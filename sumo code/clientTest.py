@@ -81,7 +81,7 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
     avg_rate = 0
     count_rate = 0
     
-    test = True
+    test = False
     
     min_red_time = 1 # constant minimum red time for meter
     green_time = 3 # constant green time for meter
