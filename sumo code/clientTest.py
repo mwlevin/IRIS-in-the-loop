@@ -280,8 +280,8 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
                 queuelane = ramp
             elif "610" in directory:
                 ramp = lanes[meter].replace("_0", "")
-                queuelane = ramp.replace("rmp", "merge")
-                mergelane = ramp
+                queuelane = ramp
+                mergelane = ramp.replace("rmp", "merge")
             
             
             for det in detectors:
