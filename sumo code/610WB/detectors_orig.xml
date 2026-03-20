@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-03-03 13:57:21 by Eclipse SUMO netedit Version 1.18.0
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Detectors -->
+    
+    
+    
+    <!-- EB mainline -->
+    <inductionLoop id="4055" lane="EB610-21_0" pos="380.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4056" lane="EB610-21_1" pos="380.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4057" lane="EB610-21_2" pos="380.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="4065" lane="EB610-22_0" pos="248.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4066" lane="EB610-22_1" pos="248.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4067" lane="EB610-22_2" pos="248.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="6991" lane="EB610-6_0" pos="223.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="6992" lane="EB610-6_1" pos="223.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="6993" lane="EB610-6_0" pos="952.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="6994" lane="EB610-6_1" pos="952.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="6999" lane="EB610-8_0" pos="319.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7000" lane="EB610-8_1" pos="319.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7001" lane="EB610-8_0" pos="1034.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7002" lane="EB610-8_1" pos="1034.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7003" lane="EB610-9_0" pos="184.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7004" lane="EB610-9_1" pos="184.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8215" lane="EB610-14_0" pos="212.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8216" lane="EB610-14_1" pos="212.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8224" lane="EB610-16_0" pos="266.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8225" lane="EB610-16_1" pos="266.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8233" lane="EB610-18_0" pos="311.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8234" lane="EB610-18_1" pos="311.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8235" lane="EB610-18_2" pos="311.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8239" lane="EB610-17_0" pos="171.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8240" lane="EB610-17_1" pos="171.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7794" lane="EB610-1_0" pos="235.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7795" lane="EB610-1_1" pos="235.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7796" lane="EB610-3_0" pos="23.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7797" lane="EB610-3_1" pos="23.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7798" lane="EB610-4_0" pos="322.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7799" lane="EB610-4_1" pos="322.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7800" lane="EB610-5_0" pos="199.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7801" lane="EB610-5_1" pos="199.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8209A" lane="EB610-12_0" pos="325.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8209" lane="EB610-12_1" pos="325.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8210" lane="EB610-12_2" pos="325.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8218" lane="EB610-15_0" pos="564.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8219" lane="EB610-15_1" pos="564.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8227" lane="EB610-17_0" pos="596.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8228" lane="EB610-17_1" pos="596.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8236" lane="EB610-18_0" pos="1093.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8237" lane="EB610-18_1" pos="1093.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8238" lane="EB610-18_2" pos="1093.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8243" lane="EB610-20_0" pos="301.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8244" lane="EB610-20_1" pos="301.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8245" lane="EB610-20_2" pos="301.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8246" lane="EB610-20_3" pos="301.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="4059A" lane="EB610-22_0" pos="941.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4059" lane="EB610-22_1" pos="941.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4060" lane="EB610-22_2" pos="941.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="4062" lane="EB610-25_0" pos="209.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4063" lane="EB610-25_1" pos="209.00" period="30.00" file="detector.xml"/>
+    
+    <!-- WB mainline -->
+    
+    <inductionLoop id="4189" lane="WB610-25_0" pos="315.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4190" lane="WB610-25_1" pos="315.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4191" lane="WB610-25_2" pos="315.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="4171" lane="WB610-24_0" pos="251.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4172" lane="WB610-24_1" pos="251.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4173" lane="WB610-24_2" pos="251.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4173A" lane="WB610-24_3" pos="251.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7018A" lane="WB610-13_0" pos="170.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7018" lane="WB610-13_1" pos="170.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7019" lane="WB610-13_2" pos="170.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7021" lane="WB610-10_0" pos="210.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7022" lane="WB610-10_1" pos="210.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7023" lane="WB610-10_0" pos="920.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7024" lane="WB610-10_1" pos="920.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7026" lane="WB610-9_0" pos="561.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7027" lane="WB610-9_1" pos="561.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7029" lane="WB610-8_0" pos="220.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7030" lane="WB610-8_1" pos="220.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8253" lane="WB610-23_0" pos="295.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8254" lane="WB610-23_1" pos="295.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8258A" lane="WB610-22_0" pos="512.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8258" lane="WB610-22_1" pos="512.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8259" lane="WB610-22_2" pos="512.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8267" lane="WB610-20_0" pos="270.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8268" lane="WB610-20_1" pos="270.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8276" lane="WB610-18_0" pos="246.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8277" lane="WB610-18_1" pos="246.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8284A" lane="WB610-16_0" pos="144.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8284" lane="WB610-16_1" pos="144.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8285" lane="WB610-16_2" pos="144.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7802" lane="WB610-6_0" pos="662.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7803" lane="WB610-6_1" pos="662.00" period="30.00" file="detector.xml"/>
+    
+     <inductionLoop id="7805" lane="WB610-5_0" pos="479.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7804" lane="WB610-5_1" pos="479.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7806" lane="WB610-4_0" pos="383.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="7807" lane="WB610-4_1" pos="383.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="7808" lane="WB610-2_0" pos="579.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8251A" lane="WB610-24_0" pos="838.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8251" lane="WB610-24_1" pos="838.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8252" lane="WB610-24_2" pos="838.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8252A" lane="WB610-24_3" pos="838.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8255" lane="WB610-23_0" pos="1286.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8256" lane="WB610-23_1" pos="1286.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8261" lane="WB610-21_0" pos="294.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8262" lane="WB610-21_1" pos="294.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="8270" lane="WB610-19_0" pos="409.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="8271" lane="WB610-19_1" pos="409.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="4180" lane="WB610-27_0" pos="404.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4181" lane="WB610-27_1" pos="404.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="4182" lane="WB610-27_2" pos="404.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="WB610a" lane="WB610-29_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="WB610b" lane="WB610-29_1" pos="10.00" period="30.00" file="detector.xml"/>
+
+    <inductionLoop id="EB10a" lane="EB10_0" pos="1195.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="EB10b" lane="EB10_1" pos="1195.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="EB10c" lane="EB10_2" pos="1195.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="EB10d" lane="EB10_3" pos="1195.00" period="30.00" file="detector.xml"/>
+    
+    <!-- EB exits -->
+    <inductionLoop id="detExit101" lane="EB610/NBMapleGrove_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit102" lane="EB610/EB81_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit103" lane="EB610/SBZachary_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit104" lane="EB610/SB169_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit105" lane="EB610/NB169_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit106" lane="EB610/Broadway_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit107" lane="EB610/SBZane_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit108" lane="EB610/SBNoble_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit109" lane="EB610/SB252_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit110" lane="EB610/River_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit111" lane="EB610/CoonRapids_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit112" lane="EB610/NB47_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit113" lane="EB610/NBUniversity_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit114A" lane="EB10_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit114B" lane="EB10_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit114C" lane="EB10_2" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit114D" lane="EB10_3" pos="10.00" period="30.00" file="detector.xml"/>
+    
+    
+    <!-- WB exits -->
+    <inductionLoop id="detExit202" lane="WB610/University-2_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit203" lane="WB610/SB252_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit204" lane="WB610/NBNoble_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit205" lane="WB610/NBZane_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit206" lane="WB610/NBBroadway_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit207" lane="WB610/NB169-2_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit208" lane="WB610/SB169-2_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit209" lane="WB610/NBZachary_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit210" lane="WB610/NBElmCreek_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit211" lane="WB610/WB81-2_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit212" lane="WB610/MapleGrove_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detExit213" lane="WB610-2_0" pos="500.00" period="30.00" file="detector.xml"/>
+    
+    <!-- EB ramps -->
+    <inductionLoop id="detDemand101A" lane="EB610-1_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand101B" lane="EB610-1_1" pos="10.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand102A" lane="rmp-EB610/SBMapleGrove_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand102B" lane="rmp-EB610/SBMapleGrove_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass102" lane="EB610/SBMapleGrove_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen102" lane="EB610/SBMapleGrove_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge102" lane="EB610/SBMapleGrove_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand103A" lane="rmp-EB610/EB81-2_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand103B" lane="rmp-EB610/EB81-2_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass103" lane="EB610/EB81-2_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen103" lane="EB610/EB81-2_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge103" lane="EB610/EB81-2_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand104A" lane="rmp-EB610/NBZachary_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand104B" lane="rmp-EB610/NBZachary_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass104" lane="EB610/NBZachary_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen104" lane="EB610/NBZachary_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge104" lane="EB610/NBZachary_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand105A" lane="rmp-EB610/SB169-2_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand105B" lane="rmp-EB610/SB169-2_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass105" lane="EB610/SB169-2_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen105" lane="EB610/SB169-2_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge105" lane="EB610/SB169-2_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand106A" lane="rmp-EB610/NB169-2_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand106B" lane="rmp-EB610/NB169-2_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass106" lane="EB610/NB169-2_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen106" lane="EB610/NB169-2_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge106" lane="EB610/NB169-2_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand107A" lane="rmp-EB610/NBBroadway_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand107B" lane="rmp-EB610/NBBroadway_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass107" lane="EB610/NBBroadway_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen107" lane="EB610/NBBroadway_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge107" lane="EB610/NBBroadway_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand108A" lane="rmp-EB610/NBZane_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand108B" lane="rmp-EB610/NBZane_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass108" lane="EB610/NBZane_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen108" lane="EB610/NBZane_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge108" lane="EB610/NBZane_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand109A" lane="rmp-EB610/NBNoble_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand109B" lane="rmp-EB610/NBNoble_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass109" lane="EB610/NBNoble_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen109" lane="EB610/NBNoble_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge109" lane="EB610/NBNoble_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand110A" lane="rmp-EB610/NB252_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand110B" lane="rmp-EB610/NB252_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass110" lane="EB610/NB252_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen110" lane="EB610/NB252_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge110" lane="EB610/NB252_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand111A" lane="rmp-EB610/University_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand111B" lane="rmp-EB610/University_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass111" lane="EB610/University_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen111" lane="EB610/University_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge111" lane="EB610/University_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+        
+    <!-- WB ramps -->
+    <inductionLoop id="detDemand201A" lane="WB610-29_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand201B" lane="WB610-29_1" pos="10.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand202A" lane="rmp-WB610/SB47_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand202B" lane="rmp-WB610/SB47_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass202" lane="WB610/SB47_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen202" lane="WB610/SB47_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge202" lane="WB610/SB47_0" pos="95.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand203A" lane="rmp-WB610/CoonRapids_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand203B" lane="rmp-WB610/CoonRapids_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass203" lane="WB610/CoonRapids_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen203" lane="WB610/CoonRapids_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge203" lane="WB610/CoonRapids_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand204" lane="rmp-WB610/Foley_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand204B" lane="rmp-WB610/Foley_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass204" lane="WB610/Foley_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen204" lane="WB610/Foley_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge204" lane="WB610/Foley_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand205A" lane="rmp-WB610/River_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand205B" lane="rmp-WB610/River_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass205" lane="WB610/River_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen205" lane="WB610/River_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge205" lane="WB610/River_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand206A" lane="rmp-WB610/NB252_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand206B" lane="rmp-WB610/NB252_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass206" lane="WB610/NB252_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen206" lane="WB610/NB252_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge206" lane="WB610/NB252_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand207A" lane="rmp-WB610/SBNoble_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand207B" lane="rmp-WB610/SBNoble_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass207" lane="WB610/SBNoble_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen207" lane="WB610/SBNoble_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge207" lane="WB610/SBNoble_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand208A" lane="rmp-WB610/SBZane_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand208B" lane="rmp-WB610/SBZane_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass208" lane="WB610/SBZane_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen208" lane="WB610/SBZane_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge208" lane="WB610/SBZane_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand209A" lane="rmp-WB610/Broadway_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand209B" lane="rmp-WB610/Broadway_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass209" lane="WB610/Broadway_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen209" lane="WB610/Broadway_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge209" lane="WB610/Broadway_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand210A" lane="rmp-WB610/NB169_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand210B" lane="rmp-WB610/NB169_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass210" lane="WB610/NB169_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen210" lane="WB610/NB169_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge210" lane="WB610/NB169_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+     <inductionLoop id="detDemand211A" lane="rmp-WB610/SB169_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand211B" lane="rmp-WB610/SB169_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass211" lane="WB610/SB169_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen211" lane="WB610/SB169_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge211" lane="WB610/SB169_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand212A" lane="rmp-WB610/SBZachary_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand212B" lane="rmp-WB610/SBZachary_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass212" lane="WB610/SBZachary_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen212" lane="WB610/SBZachary_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge212" lane="WB610/SBZachary_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand213A" lane="rmp-WB610/WB81_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand213B" lane="rmp-WB610/WB81_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass213" lane="WB610/WB81_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen213" lane="WB610/WB81_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge213" lane="WB610/WB81_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand214A" lane="rmp-WB610/SBMapleGrove_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand214B" lane="rmp-WB610/SBMapleGrove_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass214" lane="WB610/SBMapleGrove_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen214" lane="WB610/SBMapleGrove_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge214" lane="WB610/SBMapleGrove_0" pos="195.00" period="30.00" file="detector.xml"/>
+    
+    <inductionLoop id="detDemand215A" lane="rmp-WB610/University_0" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detDemand215B" lane="rmp-WB610/University_1" pos="10.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detPass215" lane="WB610/University_0" pos="25.00" period="90.00" file="detector.xml"/>
+    <inductionLoop id="detGreen215" lane="WB610/University_0" pos="5.00" period="30.00" file="detector.xml"/>
+    <inductionLoop id="detMerge215" lane="WB610/University_0" pos="195.00" period="30.00" file="detector.xml"/>
+
+</additional>

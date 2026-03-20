@@ -993,6 +993,20 @@
         <phase duration="3600" state="rG"/>
         <phase duration="3600" state="Gr"/>
     </tlLogic>
+    <tlLogic id="J104" type="static" programID="0" offset="0">
+        <phase duration="3600" state="GG"/>
+        <phase duration="3600" state="rr"/>
+        <phase duration="3600" state="rG"/>
+        <phase duration="3600" state="Gr"/>
+    </tlLogic>
+    <tlLogic id="J7" type="static" programID="0" offset="0">
+        <phase duration="3600" state="GG"/>
+        <phase duration="3600" state="rr"/>
+        <phase duration="3600" state="rG"/>
+        <phase duration="3600" state="Gr"/>
+    </tlLogic>
+
+
 
     <junction id="J0" type="priority" x="-57.66" y="-3.31" incLanes="WB610-2_0" intLanes=":J0_0_0" shape="-57.50,-1.71 -57.52,-4.91 -57.82,-4.91 -57.80,-1.71">
         <request index="0" response="0" foes="0" cont="0"/>

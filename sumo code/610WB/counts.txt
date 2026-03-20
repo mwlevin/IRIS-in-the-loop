@@ -1,28 +1,28 @@
 location	type	count	detector	carry
-ent-WB610	entrance	3136	4180, 4181, 4182	3136
-exit-WB610/University-2	exit	149	4102	2987
-ent-WB610/University	entrance	531	4178	3518
-ent-WB610/SB47	entrance	352	[4171, 4172, 4173] - carry	3870
-ent-WB610/CoonRapids	entrance	352	4186, 4187	4222
-ent-WB610/Foley	entrance	411	[8251+8252]-carry	4633
-ent-WB610/River	entrance	863	8248	5496
-exit-WB610/SB252	exit	1600	missing	3896
-ent-WB610/NB252	entrance	390	[8239+8240]-carry	4286
-exit-WB610/NBNoble	exit	619	8260	3667
-ent-WB610/SBNoble	entrance	909	8230	4576
-exit-WB610/NBZane	exit	669	8269	3907
-ent-WB610/SBZane	entrance	395	8274	4302
-exit-WB610/NBBroadway	exit	623	8278	3679
-ent-WB610/Broadway	entrance	81	8280	3760
-exit-WB610/NB169-2	exit	752	7007	3008
-ent-WB610/NB169	entrance	478	7020	3486
-exit-WB610/SB169-2	exit	193	7005	3293
-ent-WB610/SB169	entrance	121	7006	3414
-exit-WB610/NBZachary	exit	621	7025	2793
-ent-WB610/SBZachary	entrance	181	7028	2974
-exit-WB610/NBElmCreek	exit	268	7031	2706
-exit-WB610/WB81-2	exit	541	[8363+5346+5347+5348]  - below - carry	2165
-ent-WB610/WB81	entrance	130	7730	2295
-ent-WB610/SBMapleGrove	entrance	149	7728	2444
+ent-WB610	entrance	3038	4180, 4181, 4182	3038
+exit-WB610/University-2	exit	357	4102	2681
+ent-WB610/University	entrance	316	4178	2997
+ent-WB610/SB47	entrance	300	[4171, 4172, 4173] - carry	3297
+ent-WB610/CoonRapids	entrance	300	4186, 4187	3597
+ent-WB610/Foley	entrance	3563	[8251+8252]-carry	7160
+ent-WB610/River	entrance	734	8248	7894
+exit-WB610/SB252	exit	1600	missing	6294
+ent-WB610/NB252	entrance	3858	[8239+8240]-carry	10152
+exit-WB610/NBNoble	exit	985	8260	9167
+ent-WB610/SBNoble	entrance	719	8230	9886
+exit-WB610/NBZane	exit	762	8269	9124
+ent-WB610/SBZane	entrance	501	8274	9625
+exit-WB610/NBBroadway	exit	623	8278	9002
+ent-WB610/Broadway	entrance	81	8280	9083
+exit-WB610/NB169-2	exit	1091	7007	7992
+ent-WB610/NB169	entrance	319	7020	8311
+exit-WB610/SB169-2	exit	312	7005	7999
+ent-WB610/SB169	entrance	338	7006	8337
+exit-WB610/NBZachary	exit	438	7025	7899
+ent-WB610/SBZachary	entrance	187	7028	8086
+exit-WB610/NBElmCreek	exit	247	7031	7839
+exit-WB610/WB81-2	exit	6190	[8363+5346+5347+5348]  - below - carry	1649
+ent-WB610/WB81	entrance	469	7730	2118
+ent-WB610/SBMapleGrove	entrance	219	7728	2337
 exit-WB610-94	exit	100000	this should be a very large number	
 				

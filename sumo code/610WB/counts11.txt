@@ -1,0 +1,27 @@
+location	type	count	detector	carry
+ent-WB610	entrance	215	4180, 4181, 4182	243
+exit-WB610/University-2	exit	31	4102	213
+ent-WB610/University	entrance	33	4178	247
+ent-WB610/SB47	entrance	25	[4171, 4172, 4173] - carry	272
+ent-WB610/CoonRapids	entrance	25	4186, 4187	297
+ent-WB610/Foley	entrance	274	[8251+8252]-carry	591
+ent-WB610/River	entrance	54	8248	651
+exit-WB610/SB252	exit	1600	missing	-949
+ent-WB610/NB252	entrance	275	[8239+8240]-carry	-609
+exit-WB610/NBNoble	exit	77	8260	-694
+ent-WB610/SBNoble	entrance	60	8230	-624
+exit-WB610/NBZane	exit	59	8269	-682
+ent-WB610/SBZane	entrance	39	8274	-649
+exit-WB610/NBBroadway	exit	623	8278	-1272
+ent-WB610/Broadway	entrance	81	8280	-1191
+exit-WB610/NB169-2	exit	104	7007	-1270
+ent-WB610/NB169	entrance	36	7020	-1255
+exit-WB610/SB169-2	exit	23	7005	-1281
+ent-WB610/SB169	entrance	25	7006	-1256
+exit-WB610/NBZachary	exit	38	7025	-1292
+ent-WB610/SBZachary	entrance	17	7028	-1283
+exit-WB610/NBElmCreek	exit	21	7031	-1302
+exit-WB610/WB81-2	exit	473	[8363+5346+5347+5348]  - below - carry	-1840
+ent-WB610/WB81	entrance	30	7730	-1790
+ent-WB610/SBMapleGrove	entrance	11	7728	-1770
+exit-WB610-94	exit	100000	this should be a very large number	
