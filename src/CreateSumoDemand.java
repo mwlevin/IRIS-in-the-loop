@@ -26,7 +26,18 @@ public class CreateSumoDemand {
         
         double scale = 1;
         
-        processFile(new File("sumo code/"+network+"/counts.txt"), fileout, 0, 3600, scale);
+        processFile(new File("sumo code/"+network+"/counts1.txt"), fileout, 0, 300, scale);
+        processFile(new File("sumo code/"+network+"/counts2.txt"), fileout, 300, 600, scale);
+        processFile(new File("sumo code/"+network+"/counts3.txt"), fileout, 600, 900, scale);
+        processFile(new File("sumo code/"+network+"/counts4.txt"), fileout, 900, 1200, scale);
+        processFile(new File("sumo code/"+network+"/counts5.txt"), fileout, 1200, 1500, scale);
+        processFile(new File("sumo code/"+network+"/counts6.txt"), fileout, 1500, 1800, scale);
+        processFile(new File("sumo code/"+network+"/counts7.txt"), fileout, 1800, 2100, scale);
+        processFile(new File("sumo code/"+network+"/counts8.txt"), fileout, 2100, 2400, scale);
+        processFile(new File("sumo code/"+network+"/counts9.txt"), fileout, 2400, 2700, scale);
+        processFile(new File("sumo code/"+network+"/counts10.txt"), fileout, 2700, 3000, scale);
+        processFile(new File("sumo code/"+network+"/counts11.txt"), fileout, 3000, 3300, scale);
+        processFile(new File("sumo code/"+network+"/counts12.txt"), fileout, 3300, 3600, scale);
         //processFile(new File("sumo code/"+network+"/EB.txt"), fileout, 0, 3600, scale);
         
         
@@ -77,7 +88,9 @@ public class CreateSumoDemand {
                 double exitcount = Math.min(count, carry);
                 
                 for(String r : entrances.keySet()){
-                    int vph = (int)Math.round(exitcount * entrances.get(r)/total);
+                    double vph = (int)Math.round(exitcount * entrances.get(r)/total);
+                    
+                    vph = vph / ( (end-begin) /3600.0);
                     
                     if(vph > 0){
                         fileout.println("<flow id=\"HV_"+flow_id+"_0\" type=\"HV_M\" begin=\""+String.format("%.2f", (double)begin)+"\" departLane=\"0\" departSpeed=\"avg\" from=\""+r+"\" to=\""+name+"\" end=\""+String.format("%.2f", (double)end)+"\" vehsPerHour=\""+String.format("%.2f", (double)vph/2.0)+"\"/>");
