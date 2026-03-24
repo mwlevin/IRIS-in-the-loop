@@ -88,9 +88,11 @@ public class CreateSumoDemand {
                 double exitcount = Math.min(count, carry);
                 
                 for(String r : entrances.keySet()){
-                    double vph = (int)Math.round(exitcount * entrances.get(r)/total);
+                    double actual_count = (exitcount * entrances.get(r)/total);
+                    double vph = actual_count / ( (end-begin) /3600.0);
                     
-                    vph = vph / ( (end-begin) /3600.0);
+                    //System.out.println(r+" "+name+" "+vph);
+
                     
                     if(vph > 0){
                         fileout.println("<flow id=\"HV_"+flow_id+"_0\" type=\"HV_M\" begin=\""+String.format("%.2f", (double)begin)+"\" departLane=\"0\" departSpeed=\"avg\" from=\""+r+"\" to=\""+name+"\" end=\""+String.format("%.2f", (double)end)+"\" vehsPerHour=\""+String.format("%.2f", (double)vph/2.0)+"\"/>");
@@ -98,7 +100,8 @@ public class CreateSumoDemand {
                         flow_id ++;
                     }
                     
-                    entrances.put(r, entrances.get(r) - vph);
+                    
+                    entrances.put(r, entrances.get(r) - actual_count);
                     
                 }
                 
