@@ -430,9 +430,13 @@ def run(networkname, directory, control,critDensity,jamDensity,rampStorageLength
         avg_rate = avg_rate / count_rate
     else:
         avg_rate = 0
-        
+    
     print("total expected", total_expected, "actual", total_actual, "green", total_green)
     print("avg metering rate", avg_rate)
+    
+    with open("total expected.txt", "w") as f:
+        f.write("total expected\t"+str(total_expected)+"\tactual\t"+str(total_actual)+"\tgreen\t"+str(total_green)+"\n")
+        f.write("avg metering rate\t"+str(avg_rate)+"\n")
     
     with open("output.txt", "w") as f:
         for lid in traci.lane.getIDList():
