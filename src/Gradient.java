@@ -61,7 +61,7 @@ public class Gradient
     /**
      *Produces a gradient through green, yellow, orange, red
      */
-    public final static Color[] GRADIENT_GREEN_YELLOW_ORANGE_RED = createMultiGradient(new Color[]{Color.green, Color.yellow, Color.orange, Color.red}, 500);
+    public final static Color[] GRADIENT_GREEN_YELLOW_ORANGE_RED = createMultiGradient(new Color[]{Color.red, Color.orange, Color.yellow, Color.green}, 500);
 
     /**
      *Produces a gradient through the rainbow: violet, blue, green, yellow, orange, red

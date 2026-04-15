@@ -112,9 +112,7 @@ public class DrawOSM extends JPanel {
     
     public Color getColor(double value){
         int idx = Math.max(0, (int)Math.round( (value - min_value) / (max_value - min_value) * gradient.length));
-        
-        // idx is reversed, we want green as high and red as low
-        idx = gradient.length - idx - 1;
+
         
         return gradient[idx];
     }
@@ -251,7 +249,7 @@ public class DrawOSM extends JPanel {
         int x = x_offset;
         
         for(int i = 0; i < gradient.length; i++){
-            g.setColor(gradient[gradient.length-1-i]);
+            g.setColor(gradient[i]);
             
             int nextX = x_offset + (int)Math.round((double)(i+1)/gradient.length * width);
             
