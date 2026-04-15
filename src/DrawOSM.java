@@ -65,7 +65,7 @@ public class DrawOSM extends JPanel {
     }
     
     
-    public static final Color[] gradient = Gradient.GRADIENT_GREEN_YELLOW_ORANGE_RED;
+    public static final Color[] gradient = Gradient.createMultiGradient(new Color[]{Color.red, Color.orange, Color.yellow, Color.green}, 500);
     
     public DrawOSM(){
         int width = 1600;
