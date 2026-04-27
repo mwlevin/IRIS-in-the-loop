@@ -68,7 +68,7 @@ public class DrawOSM extends JPanel {
     public static final Color[] gradient = Gradient.createMultiGradient(new Color[]{Color.red, Color.orange, Color.yellow, Color.green}, 500);
     
     public DrawOSM(){
-        int width = 1600;
+        int width = 1200;
         int height = 400;
         setSize(width, height);
         setPreferredSize(new Dimension(width, height));
@@ -86,32 +86,50 @@ public class DrawOSM extends JPanel {
     List<Way> ways;
     
     Map<Integer, String> osm_sumo;
-    Map<String, Double> data;
+    Map<String, Map<Integer, Double>> data;
     
     public void readData(File file) throws IOException{
         data = new HashMap<>();
         Scanner filein = new Scanner(file);
         
         while(filein.hasNext()){
-            data.put(filein.next(), filein.nextDouble());
+            String name = filein.next();
+            String link = name.substring(0, name.lastIndexOf("_"));
+            int lane = Integer.parseInt(name.substring(name.lastIndexOf("_")+1));
+            
+            if(!data.containsKey(link)){
+                data.put(link, new HashMap<>());
+            }
+            data.get(link).put(lane, filein.nextDouble());
         }
         
         filein.close();
     }
     
     public Color getColor(Way way){
-        String sumo_name = osm_sumo.get(way.id);
+
+        String sumo_name = osm_sumo.get(way.id).toUpperCase();
         
         if(data.containsKey(sumo_name)){
-            return getColor(data.get(sumo_name));
+            double avg = 0;
+            Map<Integer, Double> temp = data.get(sumo_name);
+            
+            for(int lane : temp.keySet()){
+                avg += temp.get(lane);
+            }
+            
+            avg /= temp.size();
+            
+            return getColor(avg);
         }
         else{
+            System.out.println("Missing data for "+sumo_name);
             return Color.white;
         }
     }
     
     public Color getColor(double value){
-        int idx = Math.max(0, (int)Math.round( (value - min_value) / (max_value - min_value) * gradient.length));
+        int idx = Math.min(gradient.length-1, Math.max(0, (int)Math.round( (value - min_value) / (max_value - min_value) * gradient.length)));
 
         
         return gradient[idx];
@@ -198,15 +216,19 @@ public class DrawOSM extends JPanel {
         
         g.fillRect(0, 0, getWidth(), getHeight());
         
-        g.setStroke(new BasicStroke(5));
+        g.setStroke(new BasicStroke(8));
         
         int count = 0;
         
         //System.out.println("--");
         for(Way way : ways){
             
-            Color color = getColor(way);
             
+                
+
+
+            Color color = getColor(way);
+
             if(color != Color.white){
                 g.setColor(color);
 
@@ -233,9 +255,9 @@ public class DrawOSM extends JPanel {
                     }
                     */
                 }
-                
+
             }
-        
+            
         }
         
         
@@ -314,6 +336,7 @@ public class DrawOSM extends JPanel {
     }
     
     double minLat, maxLat, minLon, maxLon;
+    
     
     class Node {
         double lat;
