@@ -93,7 +93,7 @@ public class DrawOSM extends JPanel {
         Scanner filein = new Scanner(file);
         
         while(filein.hasNext()){
-            String name = filein.next();
+            String name = filein.next().toUpperCase();
             String link = name.substring(0, name.lastIndexOf("_"));
             int lane = Integer.parseInt(name.substring(name.lastIndexOf("_")+1));
             
