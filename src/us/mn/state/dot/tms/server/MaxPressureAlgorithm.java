@@ -71,6 +71,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 		backup_limit,
 	};
         
+        static private boolean SUMO = true;
+        
         
 
 	/** Algorithm debug log */
@@ -165,13 +167,11 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         
         /* this needs to be updated */
         static private final double AVG_VEH_LEN = 27.6;
-        //static private final double AVG_VEH_LEN = 21;
         
         static private final int NUM_PRESSURE_INTERVAL = 10;
         
         // jam density
-        //static private final double K = 5280.0/AVG_VEH_LEN;
-        static private final double K = 119.1 * 1.609;
+        static private final double K = SUMO? 119.1 * 1.609 : AVG_VEH_LEN;
         
         /** Ramp queue jam density (vehicles per foot) */
 	static private final float JAM_VPF = (float) K / FEET_PER_MILE;
@@ -865,7 +865,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                         //Q_u = upstream_lanes * Math.min(2400, 2200 + 10 * (v_u - 50)); // from HCM
                         //Q_d = downstream_lanes * Math.min(2400, 2200 + 10 * (v_d - 50));
                        // Q_r = 1900; // from HCM, base ramp saturation flow
-                       Q_r = 2107; // SUMO value 
+                       Q_r = SUMO? 2107 : getCapacity(45); 
                        Q_u = getCapacity(v_u);
                         Q_d = getCapacity(v_d);
                         
@@ -917,19 +917,31 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 		}
                 
                 private double getCapacity(double ffspeed){
-                    return 2150.3;
-                    //return 1907.9;
-                    //return Math.min(2400, 2200 + 10 * (ffspeed - 50));
+                    if(SUMO){
+                        return 2150.3;
+                    }
+                    else{
+                    //HCM
+                        return Math.min(2400, 2200 + 10 * (ffspeed - 50));
+                    }
                 }
                 
                 public double getW(double ffspeed){
-                    return 22.586274214148*2.23694;
-                    //return ffspeed/2;
+                    if(SUMO){
+                        return 22.586274214148*2.23694;
+                    }
+                    else{
+                        return ffspeed/2;
+                    }
                 }
                 
                 private double getFFSpeed(double speed_limit){
-                    return 26.82*2.23694; // sumo
-                    //return speed_limit + 5;
+                    if(SUMO){
+                        return 26.82*2.23694; // sumo
+                    }
+                    else{
+                        return speed_limit + 5;
+                    }
                 }
                 
                 private CTMNetwork constructCTMNetwork(){
