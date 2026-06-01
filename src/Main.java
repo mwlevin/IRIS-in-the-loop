@@ -15,8 +15,8 @@ public class Main {
     public static void main(String[] args) throws Exception{
 //
         //CreateSumoDemand.main("610WB");
-        DrawOSM.main(args);
+        //DrawOSM.main(args);
         //ReadSumoNetwork.main("610EB", "610EB");
-        //MainServer.main(args);
+        MainServer.main(args);
     }
 }

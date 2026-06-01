@@ -82,6 +82,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 			SONAR_TYPE + ";", new ResultFactory()
 		{
 			public void create(ResultSet row) throws Exception {
+                            
 				namespace.addObject(new RampMeterImpl(
 					row.getString(1),  // name
 					row.getString(2),  // geo_loc
@@ -584,6 +585,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 	/** Set the algorithm operating state */
 	public void setOperating(boolean o) {
             System.out.println("set operating "+getName()+" "+o);
+            
 		if (o) {
 			if (alg_state == null){
 				alg_state = createState();

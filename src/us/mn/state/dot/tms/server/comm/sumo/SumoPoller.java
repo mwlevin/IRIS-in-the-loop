@@ -135,7 +135,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
             // store green count??
         }
         else if(r == DeviceRequest.SEND_SETTINGS){
-            System.out.println("Found meter "+meter.getName());
+            //System.out.println("Found meter "+meter.getName());
             
             meter.setLock(null);
             meter.setOperating(true);

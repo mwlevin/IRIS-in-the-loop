@@ -35,7 +35,7 @@ public class Cell {
         
         if(getDensity() > link.getCriticalDensity()){
             //System.out.println("activating capacity drop "+link.start.getName()+" "+getDensity()+" "+link.getCriticalDensity());
-            actual_Q = link.Q * 0.79;
+            actual_Q = link.Q * 0.85;
         }
         
         

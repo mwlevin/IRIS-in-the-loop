@@ -901,7 +901,7 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
                         float output= occ / (fl.asFloat(MILES) * MAX_OCCUPANCY);
                         
                         
-                        System.out.println("retrieve check occ="+occ+" output="+output+" fl="+field_length+" "+fl.asFloat(MILES)+" "+MAX_OCCUPANCY);
+                        //System.out.println("retrieve check occ="+occ+" output="+output+" fl="+field_length+" "+fl.asFloat(MILES)+" "+MAX_OCCUPANCY);
                         return output;
 		} else
 			return MISSING_DATA;
