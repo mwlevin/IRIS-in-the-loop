@@ -1,9 +1,20 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
+import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 import static us.mn.state.dot.tms.server.MaxPressureAlgorithm.CTM_DT;
 import static us.mn.state.dot.tms.server.MaxPressureAlgorithm.STEP_SECONDS;
 import us.mn.state.dot.tms.server.R_NodeImpl;
@@ -11,8 +22,9 @@ import us.mn.state.dot.tms.server.SamplerSet;
 import static us.mn.state.dot.tms.server.maxpressure.CTMNetwork.EPSILON;
 
 /**
- *
- * @author michael
+ * This is a queue of vehicles trying to enter the freeway, modeled as a point queue.
+ * It's used for on-ramps.
+ * @author Michael Levin
  */
 public class EntranceLink extends SimLink {
     // this acts like a point queue 
@@ -54,9 +66,6 @@ public class EntranceLink extends SimLink {
         return queue;
     }
     
-    
-    
-    
     public void propagateExcessRemovedFlow(double y){
         // ignore y. Propagate remove_carry
         queue -= y;
@@ -67,7 +76,6 @@ public class EntranceLink extends SimLink {
             queue -= end.getMainlineOut().cleanupAddFlow(queue);
         }
     }
-    
     
     public void prepare(long stamp, int PERIOD_MS){
         
@@ -81,8 +89,8 @@ public class EntranceLink extends SimLink {
             cc += entered;
         }
         else{
+            // entrance detector is giving bad data (probably -1)
             entered = 0;
-            System.out.println("ent missing det data "+start.getName());
         }
         
         S_base = entered * CTM_DT / STEP_SECONDS;

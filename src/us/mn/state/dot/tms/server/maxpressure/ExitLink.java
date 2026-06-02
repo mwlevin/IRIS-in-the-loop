@@ -1,17 +1,28 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
+import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 import static us.mn.state.dot.tms.server.MaxPressureAlgorithm.CTM_DT;
 import static us.mn.state.dot.tms.server.MaxPressureAlgorithm.STEP_SECONDS;
 import us.mn.state.dot.tms.server.R_NodeImpl;
 import us.mn.state.dot.tms.server.SamplerSet;
 
 /**
- *
- * @author michael
+ * This is an off-ramp. When vehicles encounter it, they are removed from the model.
+ * @author Michael Levin
  */
 public class ExitLink extends SimLink {
     protected SamplerSet det; 
@@ -47,8 +58,8 @@ public class ExitLink extends SimLink {
             cc += exited;
         }
         else{
+            // the exit detector is giving bad data (probably -1)
             exited = 0;
-            System.out.println("exit missing det data "+end.getName());
         }
         
         R_base = exited * CTM_DT / STEP_SECONDS;
@@ -82,8 +93,6 @@ public class ExitLink extends SimLink {
         return 0;
     }
     
-    
-    
     public double getCleanupMaxAdd(){
         return queue;
     }
@@ -92,14 +101,11 @@ public class ExitLink extends SimLink {
         return 0;
     }
 
-    
     public void propagateExcessRemovedFlow(double y){
         // ignore y. This will never be called by downstream link (none exists by definition)
         // Propagate queue
         
         if(queue > 0){
-            //System.out.println("exit-cleanup "+queue);
-        
             start.propagateExcessRemovedFlow(queue);
         }
         queue = 0;

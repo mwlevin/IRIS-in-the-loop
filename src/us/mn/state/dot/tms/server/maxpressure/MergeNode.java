@@ -1,6 +1,16 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
@@ -8,8 +18,8 @@ import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 import us.mn.state.dot.tms.server.R_NodeImpl;
 
 /**
- *
- * @author michael
+ * This is the merge point for an on-ramp. It uses the standard dynamic network loading merge model.
+ * @author Michael Levin
  */
 public class MergeNode extends SimNode {
     protected CTMLink inc_mainline, out;
@@ -57,10 +67,7 @@ public class MergeNode extends SimNode {
         double S_ramp = inc_ramp.getSendingFlow(); // units of veh
         double S_up = inc_mainline.getSendingFlow(); // units of veh
         
-        
         double R_down = out.getReceivingFlow(); // units of veh
-        
-        //System.out.println("merge receiving flow check "+R_down+" "+S_ramp+" "+S_up);
 
         double y_ramp = 0; // ramp veh leaving
         double y_up = 0; // upstream veh leaving
@@ -75,28 +82,15 @@ public class MergeNode extends SimNode {
             double lambda_ramp = R_down * inc_ramp.Q / (inc_mainline.Q + inc_ramp.Q);
             y_ramp = median(R_down - S_up, S_ramp, lambda_ramp);
             
-            //y_ramp = Math.min(R_down, S_ramp);
             y_up = R_down - y_ramp;
-            
-            
-            //y_ramp = lambda_ramp;
-            //y_up = R_down * inc_mainline.Q / (inc_mainline.Q + inc_ramp.Q);
         }
         
         inc_mainline.removeFlow(y_up);
         inc_ramp.removeFlow(y_ramp);
         out.addFlow(y_up + y_ramp);
-        
-        /*
-        if(y_ramp > 0){
-            System.out.println("\t\tmerge "+getName()+" is adding "+(y_ramp)+" flow against "+S_ramp);
-        }
-        */
     }
     
     public static double median(double a, double b, double c){
         return Math.max(Math.min(a,b), Math.min(Math.max(a,b),c));
-    }
-    
-    
+    }    
 }

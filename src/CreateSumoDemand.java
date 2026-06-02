@@ -26,8 +26,8 @@ public class CreateSumoDemand {
         
         double scale = 1;
         
-        processFile(new File("sumo code/"+network+"/counts1.txt"), fileout, 0, 300, scale);
-        processFile(new File("sumo code/"+network+"/counts2.txt"), fileout, 300, 600, scale);
+        processFile(new File("sumo code/"+network+"/counts1.txt"), fileout, 0, 3600, scale);
+        /*processFile(new File("sumo code/"+network+"/counts2.txt"), fileout, 300, 600, scale);
         processFile(new File("sumo code/"+network+"/counts3.txt"), fileout, 600, 900, scale);
         processFile(new File("sumo code/"+network+"/counts4.txt"), fileout, 900, 1200, scale);
         processFile(new File("sumo code/"+network+"/counts5.txt"), fileout, 1200, 1500, scale);
@@ -37,7 +37,7 @@ public class CreateSumoDemand {
         processFile(new File("sumo code/"+network+"/counts9.txt"), fileout, 2400, 2700, scale);
         processFile(new File("sumo code/"+network+"/counts10.txt"), fileout, 2700, 3000, scale);
         processFile(new File("sumo code/"+network+"/counts11.txt"), fileout, 3000, 3300, scale);
-        processFile(new File("sumo code/"+network+"/counts12.txt"), fileout, 3300, 3600, scale);
+        processFile(new File("sumo code/"+network+"/counts12.txt"), fileout, 3300, 3600, scale);*/
         //processFile(new File("sumo code/"+network+"/EB.txt"), fileout, 0, 3600, scale);
         
         

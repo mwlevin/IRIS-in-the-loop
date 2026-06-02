@@ -1,13 +1,27 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
 import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 
 
-
+/**
+ * A single cell on the link.
+ * It tracks its own occupancy and computes sending/receiving -> transition flows.
+ * @author Michael Levin
+ */
 public class Cell {
     protected double n, y;
     private CTMLink link;
@@ -29,21 +43,13 @@ public class Cell {
     {
         double actual_Q = link.Q;
         
-        
         // capacity drop
-        
-        
         if(getDensity() > link.getCriticalDensity()){
-            //System.out.println("activating capacity drop "+link.start.getName()+" "+getDensity()+" "+link.getCriticalDensity());
-            actual_Q = link.Q * 0.85;
+            actual_Q = link.Q * 0.85; // estimated value of 15-20%
         }
         
-        
-        //System.out.println("\t\t"+n+ " "+link.w+" "+link.v+" "+link.K +" "+link.cell_len+" "+(link.cell_len * link.K)
-        //       +" "+ (link.w / link.v * (link.K * link.cell_len - n)));
         double term1 = actual_Q * MaxPressureAlgorithm.CTM_DT/3600.0;
         double term2 = link.w / link.v * (getMaxOccupancy() - n);
-        //System.out.println("R check "+term1+" "+term2);
         return Math.min(term1, term2);
     }
     

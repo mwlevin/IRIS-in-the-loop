@@ -1,12 +1,27 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
 import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 import static us.mn.state.dot.tms.server.maxpressure.CTMNetwork.EPSILON;
 
+/**
+ * A link comprised of multiple cells.
+ * Links model segments of the freeway in-between merge or diverge points.
+ * @author Michael Levin
+ */
 public class CTMLink extends SimLink {
     protected double K; // jam density
     protected double w; // congested wave speed
@@ -29,10 +44,9 @@ public class CTMLink extends SimLink {
 
         // want cell length to be approximately v * dt
         cell_len = v * MaxPressureAlgorithm.CTM_DT / 3600;
-        int ncells = Math.max(1, (int)Math.ceil(L / (v * MaxPressureAlgorithm.CTM_DT / 3600.0)));
+        // but the cell length must be at least v*dt to avoid CFL condition
+        int ncells = Math.max(1, (int)Math.floor(L / (v * MaxPressureAlgorithm.CTM_DT / 3600.0)));
         // minimum of 1 cell
-
-        System.out.println("length check "+ncells+" "+cell_len+" "+L);
 
         cells = new Cell[ncells];
 
@@ -72,11 +86,6 @@ public class CTMLink extends SimLink {
     public double cleanupAddFlow(double y){
         double total_added = 0;
         
-        /*
-        double attempt = y;
-        double before_occ = getOccupancy();
-        */
-        
         for(int i = 0; i < cells.length; i++){
             double added = Math.min(y, cells[i].getMaxOccupancy() - cells[i].n);
             cells[i].n += added;
@@ -88,13 +97,6 @@ public class CTMLink extends SimLink {
                 break;
             }
         }
-        
-        /*
-        double after_occ = getOccupancy();
-        System.out.println("cleanup added "+total_added+" of "+attempt+" "+before_occ+" "+after_occ);
-        */
-        
-        
         return total_added;
     }
     
@@ -116,18 +118,13 @@ public class CTMLink extends SimLink {
         // nothing to do here
     }
 
-    
-
     public void addFlow(double y){
         cells[0].n += y;
     }
 
-
     public void removeFlow(double y){
         cells[cells.length-1].n -= y;
     }
-
-    
     
     public double getCleanupMaxAdd(){
         double total = 0;
@@ -146,17 +143,12 @@ public class CTMLink extends SimLink {
         }
         return total;
     }
-    
-
-    
 
     // sending flow for next CTM timestep
     // units of veh
     public double getSendingFlow(){
         return cells[cells.length-1].getSendingFlow();
     }
-
-
 
     // receiving flow for next CTM timestep
     // units of veh
@@ -170,13 +162,11 @@ public class CTMLink extends SimLink {
 
     // calculate state at next CTM time step
     public void step(){
-        //System.out.println("CTM step");
         for(int i = 1; i < cells.length; i++){
             double S = cells[i-1].getSendingFlow();
             double R = cells[i].getReceivingFlow();
             double y = Math.max(0, Math.min(S, R)); // in case it becomes negative due to sensor fault
 
-            //System.out.println("\t cell check "+i+" "+S+" "+R+" "+cells[i-1].n+" "+(Q*CTM_DT/3600));
             cells[i].addFlow(y);
             cells[i-1].removeFlow(y);
         }
@@ -188,6 +178,4 @@ public class CTMLink extends SimLink {
             cells[i].update();
         }
     }
-    
-   
 }

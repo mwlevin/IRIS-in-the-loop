@@ -1,6 +1,16 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
@@ -10,9 +20,13 @@ import static us.mn.state.dot.tms.server.MaxPressureAlgorithm.CTM_DT;
 import static us.mn.state.dot.tms.server.MaxPressureAlgorithm.STEP_SECONDS;
 
 
+
 /**
- * I need to track cumulative counts. This is a wrapper around a SamplerSet to avoid changing SamplerSet code directly.
- * @author michael
+ * I need to calculate the density upstream and downstream of the merge point.
+ * The merge point is not directly tracked by a detector, but I can find detectors upstream and downstream that are far enough away.
+ * To calculate densities, I need a traffic simulation to model the movement of vehicles around the merge area.
+ * I'm using cell transmission model for this.
+ * @author Michael Levin
  */
 public class CTMNetwork {
     
@@ -30,28 +44,9 @@ public class CTMNetwork {
         this.center_merge = center_merge;
     }
     
-    public String printCells(){
-        String before = "[";
-        String after = "[";
-        for(Cell c : center_merge.inc_mainline.cells){
-            before += String.format("%.1f", c.n)+", "; 
-        }
-        
-        for(Cell c : center_merge.out.cells){
-            after += String.format("%.1f", c.n)+", "; 
-        }
-        
-        before += "]";
-        after += "]";
-        
-        return before+" | "+after;
-    }
-    
     public boolean isDownstreamCongested(){
         return center_merge.out.getDensity() > center_merge.out.getCriticalDensity();
     }
-    
-    
     
     
     public double getTotalOccupancy(){
@@ -91,7 +86,6 @@ public class CTMNetwork {
         
         int ncells = (int)Math.round(STEP_SECONDS / CTM_DT);
         
-
         
         do{
             int n = Math.min(ncells, inc.cells.length);
@@ -152,11 +146,8 @@ public class CTMNetwork {
     
     public double getDownstreamReceivingFlow(){
         // estimated value of receiving flow * number of CTM time steps
-        System.out.println("\t\tR calc Q="+center_merge.out.Q/3600.0+
-                " lanes="+center_merge.out.lanes+" delta T="+MaxPressureAlgorithm.CTM_DT+
-                " w="+center_merge.out.w+" uf="+center_merge.out.v+" N="+center_merge.out.cells[0].getMaxOccupancy());
+        
         return center_merge.out.getReceivingFlow() * MaxPressureAlgorithm.STEP_SECONDS / MaxPressureAlgorithm.CTM_DT;
-        //return center_merge.out.getReceivingFlow();
     }
     
     public int getDownstreamLanes(){
@@ -166,8 +157,6 @@ public class CTMNetwork {
     public int getUpstreamLanes(){
         return center_merge.inc_mainline.lanes;
     }
-    
-    
     
     public double getDownstreamAvgDensity(){
         return center_merge.out.getAvgDensity();
@@ -199,9 +188,6 @@ public class CTMNetwork {
                 double k = link.cells[i].getDensity();
                 
                 double integral = (end*end / 2 - start*start / 2) / look_len * k;
-                
-                if(print)
-                System.out.println("check upstream weight "+String.format("%.2f", start)+" "+String.format("%.2f", end)+" "+String.format("%.2f", k)+" "+look_len+" "+String.format("%.2f", integral));
                 
                 output += integral;
 
@@ -248,9 +234,7 @@ public class CTMNetwork {
                 double k = link.cells[i].getDensity();
                 double integral = (end - start) * k - (end*end/2 - start*start/2) / look_len * k;
                 
-                if(print)
-                    System.out.println("check downstream weight "+String.format("%.2f", start)+" "+String.format("%.2f", end)+" "+String.format("%.2f", k)+" "+look_len+" "+String.format("%.2f", integral));
-                output += integral;;
+                output += integral;
 
                 // stop after reaching look_len
                 if(look_len - (link.cell_len * (i+1) + carry_len) <= CTMNetwork.EPSILON){
@@ -291,8 +275,6 @@ public class CTMNetwork {
             }
         }
         
-
-        
         after_merge = "\t center "+center_merge.toString();
         
         curr = center_merge.getMainlineOut().end;
@@ -309,8 +291,6 @@ public class CTMNetwork {
                 break;
             }
         }
-        
-        
         
         return before_merge+after_merge;
     }
@@ -344,14 +324,6 @@ public class CTMNetwork {
             for(SimLink l : links){
                 l.update();
             }
-             
-            
-            //System.out.println("after occ "+i+" "+String.format("%.2f", getTotalOccupancy()));
-            /*
-            for(SimLink l : links){
-                System.out.println("\t"+l.getOccupancy()+" "+l+" "+l.getClass().getName());
-            }
-            */
 
         }
        
@@ -368,57 +340,6 @@ public class CTMNetwork {
                 ((EntranceLink)l).propagateExcessAddedFlow();
             }
         }
-        
-
-        /*
-        if(Math.abs(getTotalOccupancy() - getDetOccupancy(stamp, PERIOD_MS)) > 0.001 ){
-            System.out.println(before_occ);
-            System.out.println("change = +"+ent+" -"+exit);
-            
-            for(SimLink l : links){
-                if(l instanceof EntranceLink){
-                    ent += ((EntranceLink)l).entered;
-                }
-                else if(l instanceof ExitLink){
-                    exit += ((ExitLink)l).exited;
-                }
-            }
-
-            
-            for(SimLink l : links){
-                if(l instanceof EntranceLink){
-                    EntranceLink en = (EntranceLink)l;
-                    System.out.println("\t"+en.getName()+" "+en.getDetCumulativeCount()+" delta="+en.entered);
-                }
-            }
-            
-            System.out.println("\t---");
-            
-            for(SimLink l : links){
-                if(l instanceof ExitLink){
-                    ExitLink ex = (ExitLink)l;
-                    System.out.println("\t"+ex.getName()+" "+ex.getDetCumulativeCount()+" delta="+ex.exited);
-                }
-            }
-
-
-            System.out.println("after occ "+String.format("%.2f", getTotalOccupancy())+" "+getDetOccupancy(stamp, PERIOD_MS));
-            System.out.println("\n");
-            System.out.println(toString());
-            
-            
-            for(SimLink l : links){
-                System.out.println("\t"+l.getOccupancy()+" "+l+" "+l.getClass().getName());
-            }
-            
-            System.exit(1);
-            
-        }
-        */
-        
-       
-
-
    }
 
 }

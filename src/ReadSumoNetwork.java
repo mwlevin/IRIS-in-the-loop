@@ -107,7 +107,8 @@ public class ReadSumoNetwork {
         Properties props = PropertyLoader.load(PROP_FILE);
         
         
-        int algorithm = 3; // k-adaptive
+        //int algorithm = 3; // k-adaptive
+        int algorithm = 4; // max-pressure
         
         SQLConnection store = createStore(props);
         

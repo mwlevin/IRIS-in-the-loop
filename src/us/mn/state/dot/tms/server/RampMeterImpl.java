@@ -271,7 +271,6 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 
 	/** Set the metering algorithm */
 	public void doSetAlgorithm(int a) throws TMSException {
-            //System.out.println("do set algorithm "+getName()+" "+a);
 		int alg = MeterAlgorithm.fromOrdinal(a).ordinal();
 		if (alg == algorithm)
 			return;
@@ -584,15 +583,10 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 
 	/** Set the algorithm operating state */
 	public void setOperating(boolean o) {
-            System.out.println("set operating "+getName()+" "+o);
-            
 		if (o) {
 			if (alg_state == null){
-				alg_state = createState();
-                                
-                        }
-                        
-                        System.out.println(alg_state);
+				alg_state = createState();        
+            }
 		} else {
 			alg_state = null;
 			setRatePlanned(null);
@@ -606,9 +600,6 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 
 	/** Create the meter algorithm state */
 	private MeterAlgorithmState createState() {
-            
-                //System.out.println("meter "+algorithm+" "+(MeterAlgorithm.fromOrdinal(algorithm)==K_ADAPTIVE));
-                
 		switch (MeterAlgorithm.fromOrdinal(algorithm)) {
 		case SIMPLE:
 			return new SimpleAlgorithm();
@@ -650,14 +641,10 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 	/** Validate the metering algorithm */
 	public void validateAlgorithm() {
 		MeterAlgorithmState s = alg_state;
-                
-                //System.out.println("validate algorithm "+getName()+" "+s);
-                
 		if (s != null)
 			s.validate(this);
                 else{
 			logError("validateAlgorithm: No state");
-                        System.out.println("validate error");
                 }
                 
                 
@@ -700,8 +687,6 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 			ratePlanned = Math.min(rp, r);
 		else
 			ratePlanned = r;
-                
-                //System.out.println("set rate planned "+getName()+" "+r+" "+ratePlanned+" "+alg_state.getClass().getName());
 	}
 
 	/** Update the planned rate */

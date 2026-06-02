@@ -1,14 +1,26 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
 import us.mn.state.dot.tms.server.R_NodeImpl;
 
 /**
- *
- * @author michael
+ * This is an off-ramp, which affects freeway density.
+ * It does not use a dynamic network loading diverge calculation. 
+ * The number of exiting vehicles is determined by the off-ramp detector.
+ * @author Michael Levin
  */
 public class DivergeNode extends SimNode {
     private CTMLink inc;
@@ -60,12 +72,6 @@ public class DivergeNode extends SimNode {
         double y = Math.min(S, R);
         inc.removeFlow(y + y_exit);
         out_mainline.addFlow(y);
-        
-        /*
-        if(y_exit > 0){
-            System.out.println("\t\tdiverge "+out_ramp.getName()+" remove "+y_exit+" against "+y_exit);
-        }
-        */
     }
     
 }

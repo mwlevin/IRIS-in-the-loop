@@ -1,17 +1,28 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Max-pressure ramp metering implemented in IRIS -- Intelligent Roadway Information System
+ * Copyright (C) 2025-2026 Michael Levin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 package us.mn.state.dot.tms.server.maxpressure;
 
 import java.io.PrintStream;
 import java.util.TreeMap;
+import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 import us.mn.state.dot.tms.server.SamplerSet;
 import us.mn.state.dot.tms.server.VehicleSampler;
 
 /**
- * I need to track cumulative counts. This is a wrapper around a SamplerSet to avoid changing SamplerSet code directly.
- * @author michael
+ * I need to track cumulative counts. This is a wrapper around a VehicleSampler to avoid changing that.
+ * @author Michael Levin
  */
 public class SimpleCCSamplerSet implements VehicleSampler {
     
@@ -40,13 +51,12 @@ public class SimpleCCSamplerSet implements VehicleSampler {
         last_update = stamp;
     }
     
-    public void log(long stamp, int per_ms){
-        log(stamp, per_ms, System.out);
-    }
-    public void log(long stamp, int per_ms, PrintStream out){
-        out.println(stamp+" "+count);
-    }
     
+    public void log(long stamp, int per_ms){
+        if(MaxPressureAlgorithm.ALG_LOG.isOpen()){
+            MaxPressureAlgorithm.ALG_LOG.log(stamp+" "+count);
+        }
+    }
     
     // this may be asked for historical counts, and those counts need to be stored and retrieved
     // this may be non-integer due to interpolation
