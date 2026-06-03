@@ -44,13 +44,12 @@ public class MeteringJob extends Job {
 	private final FlushXmlJob flush_job;
         
         
-        public static final int SUMO_DELAY = 30; // this is to give SUMO time to catch up. This is referenced in MaxPressureAlgorithm
         
         private long last_time;
 
 	/** Create a new metering job */
 	public MeteringJob(Scheduler f) {
-		super(Calendar.SECOND, 30 + SUMO_DELAY, Calendar.SECOND, OFFSET_SECS);
+		super(Calendar.SECOND, 30 + MaxPressureAlgorithm.SUMO_DELAY, Calendar.SECOND, OFFSET_SECS);
 		flush = f;
 		station_manager = new StationManager();
 		flush_job = new FlushXmlJob(station_manager);

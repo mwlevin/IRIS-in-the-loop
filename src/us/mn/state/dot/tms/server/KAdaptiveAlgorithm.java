@@ -60,7 +60,7 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 
 	/** Number of milliseconds for one time step */
 	static private final int PERIOD_MS =
-		(int) new Interval(STEP_SECONDS + MeteringJob.SUMO_DELAY).ms();
+		(int) new Interval(STEP_SECONDS + MaxPressureAlgorithm.SUMO_DELAY).ms();
 
 	/** Calculate steps per hour */
 	static private final double STEP_HOUR =

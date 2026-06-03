@@ -78,7 +78,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     /** Number of seconds for one time step */
     static public final int STEP_SECONDS = 30;
 
-    static private final int SIM_DELAY = SUMO? MeteringJob.SUMO_DELAY : 0;
+    static public final int SUMO_DELAY = 30;
+    static private final int SIM_DELAY = SUMO? SUMO_DELAY : 0; // used in my test version that connects to SUMO
     /** Number of milliseconds for one time step */
     static private final int PERIOD_MS =
             (int) new Interval(STEP_SECONDS + SIM_DELAY).ms();
