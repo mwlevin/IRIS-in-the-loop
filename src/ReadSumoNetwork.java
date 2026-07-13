@@ -514,7 +514,7 @@ public class ReadSumoNetwork {
                 pin++;
                 store.update("INSERT INTO iris.beacon VALUES ('"+beaconname+"', '"+locname+"', '"+controllername+"', "+(pin++)+", '', '', 0, 'true', '"+preset+"', 0);");
                 preset++;
-                store.update("INSERT INTO iris.ramp_meter VALUES ('meter-"+name+"', '"+locname+"', '"+controllername+"', "+(pin++)+", '', 2, 100, 240, "+algorithm+", 1800, 1800, '"+beaconname+"', '"+preset+"', 'false', '{}');");
+                store.update("INSERT INTO iris.ramp_meter VALUES ('meter-"+name+"', '"+locname+"', '"+controllername+"', "+(pin++)+", '', 2, 1000, 240, "+algorithm+", 1800, 1800, '"+beaconname+"', '"+preset+"', 'false', '{}');");
                 preset++;
                 
                 String on_ramp = "";
