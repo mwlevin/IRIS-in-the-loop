@@ -1273,7 +1273,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         /** Calculate the metering rate */
         private void calculateMeteringRate() {
             network.simulateLastTimestep(stamp, PERIOD_MS);
-
+            
             long stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
 
             // need num lanes to help calculate capacities
@@ -1294,7 +1294,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             double downstream_weight = c_d * network.getDownstreamWeight(false);
             double ramp_weight = c_r * getRampWeight(stamp);
             double upstream_weight = c_u * network.getUpstreamWeight(false);
-
+            
             double weight_ud = upstream_weight - downstream_weight;
             double weight_rd = ramp_weight - downstream_weight;
             
@@ -1302,7 +1302,11 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             int min_rate = Math.min(max_rate, Math.max(calculateMinimumRate(), getMinimumRate())); // if min rate is less than max rate for some reason, use max rate
          
             int new_rate = calcBestRate(S_ud, S_rd, R_d, weight_ud, weight_rd, min_rate, max_rate);
-
+            
+            // added logging so if anything breaks, we have some idea of what was going on.
+            log(stamp+" "+meter.getName()+" weights: "+upstream_weight+" "+ramp_weight+" "+downstream_weight);
+            log("\t rate="+new_rate+" "+weight_ud+" "+weight_rd);
+            
             if (smoothing) {
                 new_rate = smoothRate(new_rate, release_rate, min_rate, max_rate);
             }

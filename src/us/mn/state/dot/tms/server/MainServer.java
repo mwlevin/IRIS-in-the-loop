@@ -150,8 +150,8 @@ public class MainServer {
 		if (inEclipseStr == null)
 			inEclipseStr = DevelCfg.get("runInEclipse");
 		if ((inEclipseStr == null) || !inEclipseStr.equalsIgnoreCase("true")) {
-			System.setOut(createPrintStream(STD_OUT));
-			System.setErr(createPrintStream(STD_ERR));
+			//System.setOut(createPrintStream(STD_OUT));
+			//System.setErr(createPrintStream(STD_ERR));
 			String msg = DevelCfg.get("log.start.msg",
 				"IRIS @@VERSION@@ restarted") + " @ "
 				+ TimeSteward.getDateInstance();

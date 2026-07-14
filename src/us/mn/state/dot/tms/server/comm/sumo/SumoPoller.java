@@ -90,7 +90,7 @@ public class SumoPoller implements MeterPoller, DevicePoller, SamplePoller {
                             }
                             
                             
-                            System.out.println("Received: "+message);
+                            //System.out.println("Received: "+message);
                             
                             String[] split = message.split(",");
                             
