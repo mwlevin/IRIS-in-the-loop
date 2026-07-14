@@ -79,7 +79,7 @@ public class Cell {
 
     public void update()
     {
-        n += y;
+        n = Math.max(0, n + y);
         y = 0;
 
         cc += y;
