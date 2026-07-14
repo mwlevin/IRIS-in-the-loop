@@ -71,7 +71,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     };
 
     // are we running in a SUMO test environment?
-    static private boolean SUMO = false;
+    static private boolean SUMO = true;
 
     /** Algorithm debug log */
     static public final DebugLog ALG_LOG = new DebugLog("max-pressure");
@@ -126,16 +126,22 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     /** Ratio for target storage to max storage */
     static private final float STORAGE_TARGET_RATIO = 0.75f;
 
+    /** Jam density (vehicles / mile) */
+    static private final int K_JAM = 180;
+
+    /** Ramp queue jam density (vehicles / mile) */
+    static private final int K_JAM_RAMP = 140;
+
     /* this needs to be updated */
-    static private final double AVG_VEH_LEN = 27.6;
+    static private final double AVG_VEH_LEN = FEET_PER_MILE / K_JAM;
 
     static private final int NUM_PRESSURE_INTERVAL = 10;
-
+    
     // jam density
-    static private final double K = SUMO? 119.1 * 1.609 : AVG_VEH_LEN;
+    static private final double K = SUMO? 119.1 * 1.609 : (float) K_JAM;
 
     /** Ramp queue jam density (vehicles per foot) */
-    static private final float JAM_VPF = (float) K / FEET_PER_MILE;
+    static private final float JAM_VPF = (float) K_JAM_RAMP / FEET_PER_MILE;
 
     /** Calculate the number of steps for an interval */
     static private int steps(int seconds) {
@@ -532,6 +538,23 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         /** Queue demand history (vehicles / hour) */
         private final BoundedSampleHistory demand_hist =
             new BoundedSampleHistory(steps(300));
+        
+        /** Seconds to average segment density for start metering check */
+	static private final int START_SECS = 120;
+
+	/** Seconds to average segment density for stop metering check */
+	static private final int STOP_SECS = 600;
+
+	/** Seconds to average segment density for restart metering check */
+	static private final int RESTART_SECS = 300;
+        
+        /** Maximum number of time steps needed for sample history */
+	static private final int MAX_STEPS = steps(Math.max(Math.max(START_SECS,
+            STOP_SECS), RESTART_SECS));
+        
+        /** Ramp passage history (vehicles / hour) */
+        private final BoundedSampleHistory passage_hist =
+            new BoundedSampleHistory(MAX_STEPS);
 
         /** Cumulative green count (vehicles) */
         private int green_accum = 0;
@@ -813,6 +836,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 // these are copied by k-adaptive and used to determine the minimum metering rate
                 checkQueueBackedUp();
                 checkQueueEmpty();
+                updatePassageState();
                 updateDemandState();
 
                 min_rate = filterRate((int)MIN_RATE);
@@ -825,6 +849,47 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 log(ex.toString());
             }
         }
+        
+        /** Update ramp passage output state */
+        private void updatePassageState() {
+            int passage_vol = calculatePassageCount();
+            passage_hist.push(flowRate(passage_vol));
+
+            if (passage_vol >= 0)
+                passage_accum += passage_vol;
+            else
+                passage_good = false;
+            int green_vol = green.getVehCount(stamp, PERIOD_MS);
+            if (green_vol > 0)
+                green_accum += green_vol;
+        }
+        
+        /** Get historical passage flow.
+        * @param step Time step in past (0 for current).
+        * @param secs Number of seconds to average.
+        * @return Passage flow at 'step' time steps ago. */
+       private Double getPassage(int step, int secs) {
+            return passage_hist.average(step, steps(secs));
+       }
+        
+        /** Calculate passage count (vehicles).
+        * @return Passage vehicle count */
+        private int calculatePassageCount() {
+            int vol = passage.getVehCount(stamp, PERIOD_MS);
+            if (vol >= 0)
+                return vol;
+            vol = merge.getVehCount(stamp, PERIOD_MS);
+            if (vol >= 0) {
+                int b = bypass.getVehCount(stamp, PERIOD_MS);
+                if (b > 0) {
+                    vol -= b;
+                    if (vol < 0)
+                        return 0;
+                }
+                return vol;
+            }
+            return MISSING_DATA;
+       }
 
         /** Check the queue backed-up state */
         private void checkQueueBackedUp() {
@@ -1068,7 +1133,6 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             demand_accum += dem_veh;
             demand_adj = calculateDemandAdjustment();
             float adjusted_dem = Math.max(dem_veh + demand_adj, 0);
-            
             demand_hist.push(flowRate(adjusted_dem));
 
             // Recalculate demand with adjustment
@@ -1159,7 +1223,6 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             float demand_proj = demand_accum + proj_arrive;
             int req = Math.round(demand_proj - targetStorage());
             int pass_min = req - passage_accum;
-
             return flowRate(pass_min, steps(targetWaitTime()));
         }
 
@@ -1226,7 +1289,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             // weight by number of upstream lanes so that the weights are more comparable
             double c_r = 1 / 2.0; // divide by 2 because 2 ramp lanes
             double c_d = 1.0 / network.getDownstreamLanes();
-
+            
             // these are the position weights
             double downstream_weight = c_d * network.getDownstreamWeight(false);
             double ramp_weight = c_r * getRampWeight(stamp);
@@ -1234,10 +1297,10 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
             double weight_ud = upstream_weight - downstream_weight;
             double weight_rd = ramp_weight - downstream_weight;
-
+            
             int max_rate = getMaximumRate();
             int min_rate = Math.min(max_rate, Math.max(calculateMinimumRate(), getMinimumRate())); // if min rate is less than max rate for some reason, use max rate
-
+         
             int new_rate = calcBestRate(S_ud, S_rd, R_d, weight_ud, weight_rd, min_rate, max_rate);
 
             if (smoothing) {

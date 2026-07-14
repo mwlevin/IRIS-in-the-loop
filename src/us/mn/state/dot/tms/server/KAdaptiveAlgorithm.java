@@ -523,13 +523,13 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 			double veh_seg = 0;   /* Sum of vehicles in segment */
 			double k_cursor = cursor.getDensity();
                         
-                        System.out.println("calc seg density "+cursor+" "+cursor.getDensity());
+                        //System.out.println("calc seg density "+cursor+" "+cursor.getDensity());
                         
 			for (StationNode sn = downstreamStation(cursor);
 			     sn != null && cursor != dn;
 			     sn = downstreamStation(sn))
 			{
-                                System.out.println("\tseg k"+sn+" "+sn.getDensity());
+                                //System.out.println("\tseg k"+sn+" "+sn.getDensity());
 				double k_down = sn.getDensity();
 				double k_middle = (k_cursor + k_down) / 2;
 				double dist = cursor.distanceMiles(sn);
@@ -1043,7 +1043,6 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 		/** Calculate minimum rate (vehicles / hour) */
 		private int calculateMinimumRate() {
                         
-                    //System.out.println("calc min rate "+passage_good+" "+tracking_demand);
 			if (passage_good) {
 				limit_control = MinimumRateLimit.target_min;
 				return calculateMinimumRate(targetMinRate());
@@ -1073,7 +1072,7 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 				limit_control = MinimumRateLimit.backup_limit;
 			}
                         
-                        //System.out.println("calc min rate(r) "+qsl+" "+qwl+" "+bml+" "+r);
+                        System.out.println("min rate "+qsl+" "+qwl+" "+bml);
                         
                         
 			return r;
@@ -1208,7 +1207,7 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 			segment_k_hist.push(k);
 			phase = checkMeteringPhase();
                         
-                        System.out.println("calc meter rate "+meter.getName()+" "+isMetering()+" segment density "+k+" "+phase+" "+calculateRate(k));
+                        //System.out.println("calc meter rate "+meter.getName()+" "+isMetering()+" segment density "+k+" "+phase+" "+calculateRate(k));
                         
                         
 			if (isMetering())
@@ -1359,7 +1358,7 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 		 * @param secs Number of seconds to average.
 		 * @return Passage flow at 'step' time steps ago. */
 		private Double getPassage(int step, int secs) {
-			return passage_hist.average(step, steps(secs));
+                    return passage_hist.average(step, steps(secs));
 		}
 
 		/** Get current segment density.
@@ -1396,7 +1395,7 @@ public class KAdaptiveAlgorithm implements MeterAlgorithmState {
 				return getMaximumRate();
 			double rate = limitRate(getRate());
                         
-                        System.out.println("calculate rate "+getRate()+" "+rate+" b-"+lerpBelow(rate, k)+" a-"+lerpAbove(rate, k));
+                        //System.out.println("calculate rate "+getRate()+" "+rate+" b-"+lerpBelow(rate, k)+" a-"+lerpAbove(rate, k));
 			return (k <= K_DES)
 			      ?	lerpBelow(rate, k)
 			      : lerpAbove(rate, k);
