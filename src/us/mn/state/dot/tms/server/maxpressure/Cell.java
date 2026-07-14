@@ -25,8 +25,6 @@ import us.mn.state.dot.tms.server.MaxPressureAlgorithm;
 public class Cell {
     private double n, y;
     private CTMLink link;
-    
-    protected double cc;
 
     public Cell(CTMLink link){
         this.link = link;
@@ -76,13 +74,10 @@ public class Cell {
         this.y -= y;
     }
 
-
     public void update()
     {
         n = Math.max(0, n + y);
         y = 0;
-
-        cc += y;
     }
 
     public double getDensity(){
