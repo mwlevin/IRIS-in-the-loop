@@ -29,7 +29,7 @@ import java.io.IOException;
 public final class DebugLog {
 
 	/** Path to store log files */
-	static private File PATH = new File(".");
+	static private File PATH = new File("/Users/michael/Documents/NetbeansProjects/IRIS2");
 
 	/** Initial message when creating log file */
 	static private String MESSAGE = "Created DebugLog";
@@ -88,7 +88,7 @@ public final class DebugLog {
 
 	/** Get the logging file */
 	public File getFile() {
-		return new File(PATH, name);
+		return new File(PATH, name+".txt");
 	}
 
 	/** Debug log buffered writer */
@@ -117,6 +117,7 @@ public final class DebugLog {
 
 	/** Log a message in the debug log file */
 	public synchronized void log(String m) {
+            System.out.println(m);
 		try {
 			File file = getFile();
 			if (canWrite(file))

@@ -14,6 +14,8 @@
  */
 package us.mn.state.dot.tms.server;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import us.mn.state.dot.sched.DebugLog;
+import us.mn.state.dot.sched.ExceptionHandler;
 import us.mn.state.dot.sched.TimeSteward;
 import us.mn.state.dot.tms.EventType;
 import us.mn.state.dot.tms.GeoLoc;
@@ -190,11 +193,26 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         Corridor c = meter.getCorridor();
 
         if (c != null) {
-            MaxPressureAlgorithm alg = lookupAlgorithm(c);
-            if (alg.createMeterState(meter))
-                return alg;
+            try{
+                MaxPressureAlgorithm alg = lookupAlgorithm(c);
+                if (alg.createMeterState(meter))
+                    return alg;
+            }
+            catch(Exception ex){
+                handleException(ex);
+            }
         }
         return null;
+    }
+    
+    static public void handleException(Exception ex){
+        if(ALG_LOG.isOpen()){
+            StringWriter stringWriter = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(stringWriter);
+
+            ex.printStackTrace(printWriter);
+            ALG_LOG.log(stringWriter.toString());
+        }
     }
 
     /** Lookup an algorithm for a corridor */
@@ -274,10 +292,15 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     public void validate(RampMeterImpl meter) {
         MeterState ms = getMeterState(meter);
         if (ms != null) {
-            ms.validate();
+            try{
+                ms.validate();
 
-            log(ms.toString());
-            ms.logMeterEvent();
+                log(ms.toString());
+                ms.logMeterEvent();
+            }
+            catch(Exception ex){
+                handleException(ex);
+            }
         } else {
             log("No state for " + meter.getName());
         }
@@ -310,6 +333,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         if (en != null) {
             MeterState ms = new MeterState(meter, en);
             meter_states.put(meter.getName(), ms);
+            
             return true;
         } else
             return false;
