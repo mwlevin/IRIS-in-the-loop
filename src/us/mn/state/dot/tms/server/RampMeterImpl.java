@@ -570,12 +570,28 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 		return (dp instanceof MeterPoller) ? (MeterPoller) dp : null;
 	}
 
+        long start_time;
 	/** Send a device request operation */
 	@Override
 	protected void sendDeviceRequest(DeviceRequest dr) {
+            
+            
 		MeterPoller mp = getMeterPoller();
 		if (mp != null)
 			mp.sendRequest(this, dr);
+                
+                
+                if( (System.currentTimeMillis() - start_time) / 1000 >= 240){
+                    System.out.println("turning on "+getName());
+                    start_time = System.currentTimeMillis();
+                    setOperating(true);
+                }
+                else if( (System.currentTimeMillis() - start_time) / 1000 >= 120){
+                    System.out.println("turning off "+getName());
+                    setOperating(false);
+                }
+                
+                
 	}
 
 	/** Metering algorithm state */
@@ -585,6 +601,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 	public void setOperating(boolean o) {
 		if (o) {
 			if (alg_state == null){
+                            
 				alg_state = createState();        
             }
 		} else {
@@ -641,9 +658,12 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 	/** Validate the metering algorithm */
 	public void validateAlgorithm() {
 		MeterAlgorithmState s = alg_state;
-		if (s != null)
+		if (s != null){
+                    System.out.println("validate");
 			s.validate(this);
+                }
                 else{
+                    System.out.println("validateAlgorithm: No state");
 			logError("validateAlgorithm: No state");
                 }
                 

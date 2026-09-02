@@ -14,8 +14,6 @@
  */
 package us.mn.state.dot.tms.server;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +21,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import us.mn.state.dot.sched.DebugLog;
-import us.mn.state.dot.sched.ExceptionHandler;
 import us.mn.state.dot.sched.TimeSteward;
 import us.mn.state.dot.tms.EventType;
 import us.mn.state.dot.tms.GeoLoc;
@@ -74,7 +71,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     };
 
     // are we running in a SUMO test environment?
-    static private boolean SUMO = true;
+    static private boolean SUMO = false;
 
     /** Algorithm debug log */
     static public final DebugLog ALG_LOG = new DebugLog("max-pressure");
@@ -152,6 +149,19 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         return Math.round(secs / STEP_SECONDS);
     }
 
+    /** Seconds to average segment density for start metering check */
+    static private final int START_SECS = 120;
+
+    /** Seconds to average segment density for stop metering check */
+    static private final int STOP_SECS = 600;
+
+    /** Seconds to average segment density for restart metering check */
+    static private final int RESTART_SECS = 300;
+
+    /** Maximum number of time steps needed for sample history */
+    static private final int MAX_STEPS = steps(Math.max(Math.max(START_SECS,
+        STOP_SECS), RESTART_SECS));
+
     /** Convert single step vehicle count to flow rate.
     * @param v Vehicle count to convert.
     * @return Flow rate (vehicles / hour), or null for missing data. */
@@ -193,30 +203,15 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         Corridor c = meter.getCorridor();
 
         if (c != null) {
-            try{
-                MaxPressureAlgorithm alg = lookupAlgorithm(c);
-                if (alg.createMeterState(meter))
-                    return alg;
-            }
-            catch(Exception ex){
-                handleException(ex);
-            }
+            MaxPressureAlgorithm alg = lookupAlgorithm(c);
+            if (alg.createMeterState(meter))
+                return alg;
         }
         return null;
     }
-    
-    static public void handleException(Exception ex){
-        if(ALG_LOG.isOpen()){
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-
-            ex.printStackTrace(printWriter);
-            ALG_LOG.log(stringWriter.toString());
-        }
-    }
 
     /** Lookup an algorithm for a corridor */
-    static private MaxPressureAlgorithm lookupAlgorithm(Corridor c) {
+    static private MaxPressureAlgorithm lookupAlgorithm(Corridor c) { 
         MaxPressureAlgorithm alg = ALL_ALGS.get(c.getName());
         if (null == alg) {
             alg = new MaxPressureAlgorithm(c);
@@ -227,17 +222,21 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     }
 
     /** Metering corridor */
-    private final Corridor corridor;
+    private Corridor corridor;
 
     /** Hash map of ramp meter states */
     private final HashMap<String, MeterState> meter_states =
         new HashMap<String, MeterState>();
 
     /** All entrance / station nodes on corridor */
-    private final ArrayList<Node> nodes;
+    private ArrayList<Node> nodes;
 
     /** Create a new MaxPressureAlgorithm */
     private MaxPressureAlgorithm(Corridor c) {
+        setCorridor(c);
+    }
+    
+    private void setCorridor(Corridor c){
         corridor = c;
         nodes = createNodes();
         debug();
@@ -291,18 +290,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     @Override
     public void validate(RampMeterImpl meter) {
         MeterState ms = getMeterState(meter);
+        
         if (ms != null) {
-            try{
-                ms.validate();
+            ms.validate();
 
-                log(ms.toString());
-                ms.logMeterEvent();
-            }
-            catch(Exception ex){
-                handleException(ex);
-            }
+            log(ms.toString());
+            ms.logMeterEvent();
         } else {
-            log("No state for " + meter.getName());
+            log("No  state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
         }
     }
 
@@ -317,23 +312,40 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
     /** Get the meter state for a given ramp meter */
     private MeterState getMeterState(RampMeterImpl meter) {
-        if (meter.getCorridor() == corridor)
-            return meter_states.get(meter.getName());
+        if (meter.getCorridor() == corridor){
+            MeterState output = null;
+            output = meter_states.get(meter.getName());
+
+            return output;
+        }
         else {
             // Meter must have been changed to a different
             // corridor; throw away old meter state
+            log("removing meter state for "+meter.getName()+" corridor="+corridor+" meter.getCorridor()="+meter.getCorridor());
             meter_states.remove(meter.getName());
-            return null;
+            
+            // attempt to create new meter state
+            log("Creating new state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
+            createMeterState(meter);
+            
+            MeterState output = meter_states.get(meter.getName());
+            
+            return output;
         }
     }
 
     /** Create the meter state for a given ramp meter */
     private boolean createMeterState(RampMeterImpl meter) {
+        Corridor meter_corridor = meter.getCorridor();
+        if(corridor != meter_corridor){
+            setCorridor(meter_corridor); // if corridor instance has changed, reinitialize
+        }
+        
         EntranceNode en = findEntranceNode(meter);
         if (en != null) {
             MeterState ms = new MeterState(meter, en);
             meter_states.put(meter.getName(), ms);
-            
+
             return true;
         } else
             return false;
@@ -558,24 +570,11 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
         /** Cumulative passage count (vehicles) */
         private int passage_accum = 0;
-        
+
         /** Queue demand history (vehicles / hour) */
         private final BoundedSampleHistory demand_hist =
             new BoundedSampleHistory(steps(300));
-        
-        /** Seconds to average segment density for start metering check */
-	static private final int START_SECS = 120;
 
-	/** Seconds to average segment density for stop metering check */
-	static private final int STOP_SECS = 600;
-
-	/** Seconds to average segment density for restart metering check */
-	static private final int RESTART_SECS = 300;
-        
-        /** Maximum number of time steps needed for sample history */
-	static private final int MAX_STEPS = steps(Math.max(Math.max(START_SECS,
-            STOP_SECS), RESTART_SECS));
-        
         /** Ramp passage history (vehicles / hour) */
         private final BoundedSampleHistory passage_hist =
             new BoundedSampleHistory(MAX_STEPS);
