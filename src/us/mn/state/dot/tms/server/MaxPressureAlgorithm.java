@@ -330,8 +330,13 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             
             MeterState output = null;
             
-            if (meter.getCorridor() == corridor){
+            if (meter.getCorridor() == corridor){ // this should always be true because we changed it in createMeterState. Check anyways for safety.
                 output = meter_states.get(meter.getName());
+            }
+            else{
+                log("removing meter state for "+meter.getName()+" corridor="+corridor+" meter.getCorridor()="+meter.getCorridor());
+            meter_states.remove(meter.getName()+", 2nd try");
+                meter_states.remove(meter.getName());
             }
             
             return output;
