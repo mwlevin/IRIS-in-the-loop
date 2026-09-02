@@ -312,10 +312,10 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
     /** Get the meter state for a given ramp meter */
     private MeterState getMeterState(RampMeterImpl meter) {
+        MeterState output = null;
+        
         if (meter.getCorridor() == corridor){
-            MeterState output = null;
             output = meter_states.get(meter.getName());
-
             return output;
         }
         else {
@@ -324,23 +324,26 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             log("removing meter state for "+meter.getName()+" corridor="+corridor+" meter.getCorridor()="+meter.getCorridor());
             meter_states.remove(meter.getName());
             
-            // attempt to create new meter state
-            log("Creating new state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
-            createMeterState(meter);
-            
-            MeterState output = null;
-            
-            if (meter.getCorridor() == corridor){ // this should always be true because we changed it in createMeterState. Check anyways for safety.
-                output = meter_states.get(meter.getName());
+            if(corridor.getName().equals(meter.getCorridor().getName())){
+                // attempt to create new meter state
+                log("Creating new state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
+                createMeterState(meter);
+
+                if (meter.getCorridor() == corridor){ // this should always be true because we changed it in createMeterState. Check anyways for safety.
+                    output = meter_states.get(meter.getName());
+                    return output;
+                }
+                else{
+                    log("removing meter state for "+meter.getName()+" corridor="+corridor+" meter.getCorridor()="+meter.getCorridor());
+                meter_states.remove(meter.getName()+", 2nd try");
+                    meter_states.remove(meter.getName());
+                }
             }
-            else{
-                log("removing meter state for "+meter.getName()+" corridor="+corridor+" meter.getCorridor()="+meter.getCorridor());
-            meter_states.remove(meter.getName()+", 2nd try");
-                meter_states.remove(meter.getName());
-            }
             
-            return output;
+            return null;
+            
         }
+        
     }
 
     /** Create the meter state for a given ramp meter */
