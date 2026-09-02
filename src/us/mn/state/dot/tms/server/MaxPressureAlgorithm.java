@@ -328,7 +328,11 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             log("Creating new state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
             createMeterState(meter);
             
-            MeterState output = meter_states.get(meter.getName());
+            MeterState output = null;
+            
+            if (meter.getCorridor() == corridor){
+                output = meter_states.get(meter.getName());
+            }
             
             return output;
         }
