@@ -230,9 +230,6 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
     /** All entrance / station nodes on corridor */
     private final ArrayList<Node> nodes;
-    
-    // when the corridor gets re-created at 8pm, this will trigger to true. This signifies that the algorithm state should be removed.
-    private boolean meter_done = false;
 
     /** Create a new MaxPressureAlgorithm */
     private MaxPressureAlgorithm(Corridor c) {
@@ -274,7 +271,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     }
     
     private boolean isDone(){
-        return meter_done;
+        // this should trigger even if the meter is operating at 8pm. 
+        // If so, then validate() calls getMeterState() which removes the MeterState from meter_states due to the Corridor instance changing
+        // That causes this loop to become valid.
+        for (MeterState ms : meter_states.values()) {
+            if (ms.meter.isOperating())
+                return false;
+        }
+        return true;
     }
     
     /** Update the station nodes for the current interval */
@@ -323,7 +327,6 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             ms.logMeterEvent();
         } else {
             log("No  state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
-            meter_done = true;
         }
     }
 

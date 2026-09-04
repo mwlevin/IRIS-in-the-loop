@@ -581,14 +581,6 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 			mp.sendRequest(this, dr);
                 
                 
-                if( (System.currentTimeMillis() - start_time) / 1000 >= 240){
-                    System.out.println("turning on "+getName());
-                    start_time = System.currentTimeMillis();
-                    setOperating(true);
-                }
-
-                
-                
 	}
 
 	/** Metering algorithm state */
