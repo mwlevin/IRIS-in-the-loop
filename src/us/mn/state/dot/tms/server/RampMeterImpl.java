@@ -586,10 +586,7 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
                     start_time = System.currentTimeMillis();
                     setOperating(true);
                 }
-                else if( (System.currentTimeMillis() - start_time) / 1000 >= 120){
-                    System.out.println("turning off "+getName());
-                    setOperating(false);
-                }
+
                 
                 
 	}
@@ -605,6 +602,9 @@ public class RampMeterImpl extends DeviceImpl implements RampMeter {
 				alg_state = createState();        
             }
 		} else {
+                        if(true)
+                        throw new RuntimeException("test");
+ 
 			alg_state = null;
 			setRatePlanned(null);
 		}

@@ -222,21 +222,20 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
     }
 
     /** Metering corridor */
-    private Corridor corridor;
+    private final Corridor corridor;
 
     /** Hash map of ramp meter states */
     private final HashMap<String, MeterState> meter_states =
         new HashMap<String, MeterState>();
 
     /** All entrance / station nodes on corridor */
-    private ArrayList<Node> nodes;
+    private final ArrayList<Node> nodes;
+    
+    // when the corridor gets re-created at 8pm, this will trigger to true. This signifies that the algorithm state should be removed.
+    private boolean meter_done = false;
 
     /** Create a new MaxPressureAlgorithm */
     private MaxPressureAlgorithm(Corridor c) {
-        setCorridor(c);
-    }
-    
-    private void setCorridor(Corridor c){
         corridor = c;
         nodes = createNodes();
         debug();
@@ -257,6 +256,32 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             if (n != null)
                 nodes.add(n);
             return false;
+        }
+    }
+    
+    static public void processAllStates() {
+        long stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
+        Iterator<MaxPressureAlgorithm> it =
+            ALL_ALGS.values().iterator();
+        while (it.hasNext()) {
+            MaxPressureAlgorithm alg = it.next();
+            alg.updateStations(stamp);
+            if (alg.isDone()) {
+                alg.log("isDone: removing");
+                it.remove();
+            }
+        }
+    }
+    
+    private boolean isDone(){
+        return meter_done;
+    }
+    
+    /** Update the station nodes for the current interval */
+    private void updateStations(long stamp) {
+        // this runs the simulation that keeps track of vehicle densities
+        for(String name : meter_states.keySet()){
+            meter_states.get(name).updateStations(stamp);
         }
     }
 
@@ -298,6 +323,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             ms.logMeterEvent();
         } else {
             log("No  state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
+            meter_done = true;
         }
     }
 
@@ -312,9 +338,8 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
 
     /** Get the meter state for a given ramp meter */
     private MeterState getMeterState(RampMeterImpl meter) {
-        MeterState output = null;
-        
         if (meter.getCorridor() == corridor){
+            MeterState output = null;
             output = meter_states.get(meter.getName());
             return output;
         }
@@ -323,41 +348,16 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             // corridor; throw away old meter state
             log("removing meter state for "+meter.getName()+" corridor="+corridor+" meter.getCorridor()="+meter.getCorridor());
             meter_states.remove(meter.getName());
-            
-            if(corridor.getName().equals(meter.getCorridor().getName())){
-                // attempt to create new meter state
-                log("Creating new state for " + meter.getName()+" stored meter="+meter_states.get(meter.getName())+" corridor="+meter.getCorridor()+"|"+corridor);
-                createMeterState(meter);
-
-                if (meter.getCorridor() == corridor){ // this should always be true because we changed it in createMeterState. Check anyways for safety.
-                    output = meter_states.get(meter.getName());
-                    return output;
-                }
-                else{
-                    log("removing meter state for "+meter.getName()+" corridor="+corridor+" meter.getCorridor()="+meter.getCorridor());
-                meter_states.remove(meter.getName()+", 2nd try");
-                    meter_states.remove(meter.getName());
-                }
-            }
-            
             return null;
-            
         }
-        
     }
 
     /** Create the meter state for a given ramp meter */
     private boolean createMeterState(RampMeterImpl meter) {
-        Corridor meter_corridor = meter.getCorridor();
-        if(corridor != meter_corridor){
-            setCorridor(meter_corridor); // if corridor instance has changed, reinitialize
-        }
-        
         EntranceNode en = findEntranceNode(meter);
         if (en != null) {
             MeterState ms = new MeterState(meter, en);
             meter_states.put(meter.getName(), ms);
-
             return true;
         } else
             return false;
@@ -869,6 +869,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
             stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
             try {
                 // these are copied by k-adaptive and used to determine the minimum metering rate
+                // NOTE: these must happen in proper order (according to KAdaptive)
                 checkQueueBackedUp();
                 checkQueueEmpty();
                 updatePassageState();
@@ -884,6 +885,7 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
                 log(ex.toString());
             }
         }
+        
         
         /** Update ramp passage output state */
         private void updatePassageState() {
@@ -1304,10 +1306,14 @@ public class MaxPressureAlgorithm implements MeterAlgorithmState {
         private int calculateMaximumRate() {
             return RampMeterHelper.getMaxRelease();
         }
+        
+        private void updateStations(long stamp){
+            network.simulateLastTimestep(stamp, PERIOD_MS);
+        }
 
         /** Calculate the metering rate */
         private void calculateMeteringRate() {
-            network.simulateLastTimestep(stamp, PERIOD_MS);
+            
             
             long stamp = DetectorImpl.calculateEndTime(PERIOD_MS);
 
