@@ -1,6 +1,6 @@
 /*
  * IRIS -- Intelligent Roadway Information System
- * Copyright (C) 2000-2025  Minnesota Department of Transportation
+ * Copyright (C) 2000-2026  Minnesota Department of Transportation
  * Copyright (C) 2011  Berkeley Transportation Systems Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,8 @@ import java.util.Map;
 import us.mn.state.dot.sched.TimeSteward;
 import us.mn.state.dot.sonar.SonarException;
 import us.mn.state.dot.tms.ChangeVetoException;
+import us.mn.state.dot.tms.CommConfig;
+import us.mn.state.dot.tms.CommLink;
 import us.mn.state.dot.tms.Controller;
 import us.mn.state.dot.tms.ControllerIO;
 import us.mn.state.dot.tms.Detector;
@@ -655,9 +657,15 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 
 	/** Check if the detector is currently offline / 'failed' */
 	private boolean isFailed(boolean ignore_auto_fail) {
-            //System.out.println("\t\t\tfailed "+force_fail+" "+super.isOffline()+" "+auto_fail);
-		return force_fail || super.isOffline() ||
-		      (auto_fail && !ignore_auto_fail);
+		return force_fail ||
+		       (auto_fail && !ignore_auto_fail) ||
+		       (super.isOffline() && !isPollinator());
+	}
+
+	/** Check if the comm link is handled by pollinator */
+	private boolean isPollinator() {
+		ControllerImpl c = controller;
+		return (c != null);
 	}
 
 	/** Get the active status */
@@ -674,7 +682,6 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 
 	/** Check if the detector is currently sampling data */
 	private boolean isSampling(boolean ignore_auto_fail) {
-                //System.out.println("\t\t\tsampling "+isActive()+" "+isFailed(ignore_auto_fail));
 		return (LaneCode.fromCode(lane_code) == LaneCode.GREEN) ||
 		       (isActive() && !isFailed(ignore_auto_fail));
 	}
@@ -792,7 +799,8 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 	}
 
 	/** Get the occupancy for an interval */
-	protected float getOccupancy(long stamp, int per_ms) {
+	@Override
+	public float getOccupancy(long stamp, int per_ms) {
 		return getOccupancy(stamp, per_ms, false);
 	}
 
@@ -809,10 +817,6 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 		int scn = isSampling(ignore_auto_fail)
 		       ? scn_cache.getValue(stamp - per_ms, stamp)
 		       : MISSING_DATA;
-                
-                //System.out.println(getName()+" cached "+scn+" "+" "+isSampling(ignore_auto_fail)+" "+scn_cache.getValue(stamp - per_ms, stamp));
-                
-                
 		return (scn >= 0)
 		      ? MAX_OCCUPANCY * scn * SCAN_MS / per_ms
 		      : MISSING_DATA;
@@ -863,13 +867,10 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 	protected float getDensityRaw(long stamp, int per_ms,
 		boolean ignore_auto_fail)
 	{
-            /*
 		float k = getDensityFromFlowSpeed(stamp, per_ms, ignore_auto_fail);
 		return (k >= 0)
 		      ? k
 		      : getDensityFromOccupancy(stamp, per_ms, ignore_auto_fail);
-            */
-            return getDensityFromOccupancy(stamp, per_ms, ignore_auto_fail);
 	}
 
 	/** Get the density from flow and speed (vehicles per mile) */
@@ -890,19 +891,9 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 		boolean ignore_auto_fail)
 	{
 		float occ = getOccupancy(stamp, per_ms, ignore_auto_fail);
-                
-                
-                        
-                
 		if (occ >= 0 && field_length > 0) {
 			Distance fl = new Distance(field_length, FEET);
-                        
-                        
-                        float output= occ / (fl.asFloat(MILES) * MAX_OCCUPANCY);
-                        
-                        
-                        //System.out.println("retrieve check occ="+occ+" output="+output+" fl="+field_length+" "+fl.asFloat(MILES)+" "+MAX_OCCUPANCY);
-                        return output;
+			return occ / (fl.asFloat(MILES) * MAX_OCCUPANCY);
 		} else
 			return MISSING_DATA;
 	}
@@ -997,15 +988,6 @@ public class DetectorImpl extends DeviceImpl implements Detector,VehicleSampler{
 	/** Store vehicle count for one binning interval.
 	 * @param v PeriodicSample containing vehicle count data. */
 	public void storeVehCount(PeriodicSample v, boolean logging) {
-                /*
-                if(v == null){
-                    System.out.println("\t\tdet stor veh count "+getName()+" "+v);
-                }
-                else{
-                    System.out.println("\t\tdet stor veh count "+getName()+" "+v.value);
-                }
-            */
-                
 		is_logging_events = logging;
 		if (v != null) {
 			if (LaneCode.fromCode(lane_code) != LaneCode.GREEN &&

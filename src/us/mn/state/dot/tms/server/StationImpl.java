@@ -1,6 +1,6 @@
 /*
  * IRIS -- Intelligent Roadway Information System
- * Copyright (C) 2004-2024  Minnesota Department of Transportation
+ * Copyright (C) 2004-2026  Minnesota Department of Transportation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,6 @@ public class StationImpl implements Station, VehicleSampler {
 
 	/** Check if a detector is a valid station detector */
 	static private boolean isValidStation(DetectorImpl det) {
-                //System.out.println("\t\t"+det.isSampling()+"\t"+det.isStationOrCD()+"\t"+det.getAbandoned());
 		return det.isSampling()
 		    && det.isStationOrCD()
 		    && !det.getAbandoned();
@@ -128,6 +127,12 @@ public class StationImpl implements Station, VehicleSampler {
 
 	/** Current average station occupancy */
 	private float occupancy = MISSING_DATA;
+
+	/** Get the average station occupancy */
+	@Override
+	public float getOccupancy(long stamp, int per_ms) {
+		return occupancy;
+	}
 
 	/** Get a vehicle count */
 	@Override
@@ -228,9 +233,6 @@ public class StationImpl implements Station, VehicleSampler {
 
 	/** Calculate the current station data */
 	public void calculateData(long stamp, int per_ms) {
-            
-            //System.out.println("calculate data "+getName());
-            
 		speeds.setDensity(density);
 		speeds_ig.setDensity(density_ig);
 		float t_occ = 0;
@@ -245,9 +247,6 @@ public class StationImpl implements Station, VehicleSampler {
 		float t_speed_ig = 0; /* ignore auto-fail */
 		int n_speed_ig = 0; /* ignore auto-fail */
 		for (DetectorImpl det: r_node.getDetectors()) {
-                    
-                        //System.out.println("\t"+det+" "+isValidStation(det)+" "+det.getOccupancy(stamp, per_ms));
-                        
 			if (!isValidStation(det))
 				continue;
 			float f = det.getOccupancy(stamp, per_ms);

@@ -1,6 +1,6 @@
 /*
  * IRIS -- Intelligent Roadway Information System
- * Copyright (C) 2000-2025  Minnesota Department of Transportation
+ * Copyright (C) 2000-2026  Minnesota Department of Transportation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public class SamplerSet implements VehicleSampler {
 	}
 
 	/** Set of samplers */
-	private final HashSet<VehicleSampler> samplers =
+	protected final HashSet<VehicleSampler> samplers =
 		new HashSet<VehicleSampler>();
 
 	/** Create an empty sampler set */
@@ -115,7 +115,6 @@ public class SamplerSet implements VehicleSampler {
 
 	/** Get a vehicle count */
 	@Override
-        /*
 	public int getVehCount(long stamp, int per_ms) {
 		int count = 0;
 		int n_count = 0;
@@ -128,21 +127,6 @@ public class SamplerSet implements VehicleSampler {
 				return MISSING_DATA;
 		}
 		return (n_count > 0) ? count : MISSING_DATA;
-	}
-        */
-        
-        // I need counts even if 1 detector isn't working. Approximate if one detector is bad.
-        public int getVehCount(long stamp, int per_ms) {
-		int count = 0;
-		int n_count = 0;
-		for (VehicleSampler vs: samplers) {
-			int c = vs.getVehCount(stamp, per_ms);
-			if (c >= 0) {
-				count += c;
-				n_count++;
-			} 
-		}
-		return (n_count > 0) ? (int)Math.round(count * (samplers.size() / n_count)) : MISSING_DATA;
 	}
 
 	/** Get a total flow rate */
@@ -174,6 +158,21 @@ public class SamplerSet implements VehicleSampler {
 			}
 		}
 		return (n_density > 0) ? (t_density / n_density) : MISSING_DATA;
+	}
+
+	/** Get the current occupancy (percent) */
+	@Override
+	public float getOccupancy(long stamp, int per_ms) {
+		float t_occ = 0;
+		int n_occ = 0;
+		for (VehicleSampler vs: samplers) {
+			float o = vs.getOccupancy(stamp, per_ms);
+			if (o >= 0) {
+				t_occ += o;
+				n_occ++;
+			}
+		}
+		return (n_occ > 0) ? (t_occ / n_occ) : MISSING_DATA;
 	}
 
 	/** Get the current average speed */
